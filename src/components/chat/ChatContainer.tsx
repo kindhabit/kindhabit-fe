@@ -8,7 +8,6 @@ import {
 } from '@/types/health.types';
 import { LoadingState } from '@/types/common.types';
 import { colors } from '@/theme';
-import ChatInput from './ChatInput';
 import ChatMessage from './ChatMessage';
 import RecommendationMessage from './RecommendationMessage';
 import RecommendationSlider from './RecommendationSlider';
@@ -23,25 +22,13 @@ const ChatWrapper = styled(Paper)<ChatWrapperProps>`
   height: 100%;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  position: relative;
-  flex: 1;
 `;
 
 const MessageArea = styled(Box)`
-  flex: 1 1 auto;
-  overflow: auto;
+  flex: 1;
+  overflow-y: auto;
   padding: 16px;
   background: ${colors.background};
-`;
-
-const InputArea = styled(Box)`
-  flex: 0 0 auto;
-  padding: 16px;
-  border-top: 1px solid #eee;
-  background: ${({ theme }) => theme.palette.background.paper};
-  position: relative;
-  z-index: 2;
 `;
 
 const DialogContainer = styled(Box)({
@@ -387,10 +374,6 @@ const ChatContainer: React.FC = () => {
         <MessageList messages={messages} loading={loading} onMoreInfo={() => {}} />
         <div ref={messageEndRef} />
       </MessageArea>
-      <InputArea>
-        <ChatInput onSend={handleSendMessage} />
-      </InputArea>
-      
       <DialogContainer>
         {selectedDetail && (
           <DetailDialog
@@ -400,7 +383,6 @@ const ChatContainer: React.FC = () => {
           />
         )}
       </DialogContainer>
-      
       {showScrollIndicator && (
         <ScrollIndicator className="visible" onClick={scrollToBottom}>
           Scroll to bottom
