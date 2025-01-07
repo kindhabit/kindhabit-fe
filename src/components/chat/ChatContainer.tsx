@@ -1,14 +1,10 @@
 import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { Box, Paper, useTheme, useMediaQuery, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { 
-  ChatMessage as ChatMessageType, 
-  HealthRecommendation, 
-  DetailInfo 
-} from '@/types/health.types';
-import { LoadingState } from '@/types/common.types';
+import { HealthRecommendation, DetailInfo } from '@/types/health.types';
+import { ChatMessage, LoadingState } from '@/types/chat';
 import { colors } from '@/theme';
-import ChatMessage from './ChatMessage';
+import ChatMessageComponent from './ChatMessage';
 import RecommendationMessage from './RecommendationMessage';
 import RecommendationSlider from './RecommendationSlider';
 import DetailDialog from './DetailDialog';
@@ -119,7 +115,7 @@ const SplashText = styled(Typography)`
 `;
 
 interface MessageListProps {
-  messages: ChatMessageType[];
+  messages: ChatMessage[];
   loading: LoadingState;
   onMoreInfo: () => void;
   onProceed: () => void;
@@ -127,7 +123,7 @@ interface MessageListProps {
 }
 
 const MessageList = memo<MessageListProps>(({ messages, loading, onMoreInfo, onProceed, onSkip }) => {
-  const renderMessage = useCallback((message: ChatMessageType, index: number) => {
+  const renderMessage = useCallback((message: ChatMessage, index: number) => {
     if (message.type === 'user' && message.subType === 'response') {
       return (
         <UserResponseBubble
@@ -159,7 +155,7 @@ const MessageList = memo<MessageListProps>(({ messages, loading, onMoreInfo, onP
       messages.findIndex(m => m.type === 'assistant') === index;
     
     return (
-      <ChatMessage 
+      <ChatMessageComponent 
         key={`message-${message.id}`}
         message={message} 
         loading={loading.isLoading}
@@ -224,7 +220,7 @@ const generateUniqueId = (prefix: string) => {
 const ChatContainer: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState<LoadingState>({ isLoading: false });
   const messageEndRef = useRef<HTMLDivElement>(null);
   const [selectedDetail, setSelectedDetail] = useState<DetailInfo | null>(null);
@@ -239,9 +235,9 @@ const ChatContainer: React.FC = () => {
   const [showUserResponse, setShowUserResponse] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
 
-  const initialMessage = {
+  const initialMessage: ChatMessage = {
     id: generateUniqueId('assistant'),
-    type: 'assistant' as const,
+    type: 'assistant',
     content: '단순한 방식으로 다섯가지 성분을 찾았어요.\n그런데 혹시 혈압약을 드시나요? 🤔',
     timestamp: new Date()
   };
@@ -500,10 +496,10 @@ const ChatContainer: React.FC = () => {
         setMessages([initialMessage]);
         
         setTimeout(() => {
-          const responseMessage = {
+          const responseMessage: ChatMessage = {
             id: generateUniqueId('response'),
-            type: 'user' as const,
-            subType: 'response' as const,
+            type: 'user',
+            subType: 'response',
             content: '',
             timestamp: new Date()
           };
@@ -552,18 +548,18 @@ const ChatContainer: React.FC = () => {
     const filteredMessages = messages.filter(msg => !(msg.type === 'user' && msg.subType === 'response'));
     
     // 새로운 설명 메시지 추가
-    const explanationMessage = {
+    const explanationMessage: ChatMessage = {
       id: generateUniqueId('assistant'),
-      type: 'assistant',
-      content: '추천한 성분중에 일부 혈압약을 드시는 경우\n더 궁합이 좋은 건기식이 있을 수 있어서요. 🎓\n\n몇 가지 질문으로 최적의 조합을 찾아 드릴 수 있어요.',
+      type: 'assistant' as const,
+      content: '추천한 성분중에 일부 혈압약을 드시는 경우\n더 궁합이 좋은 건기식이 있을 수 있어서요...',
       timestamp: new Date()
     };
 
     // 응답 버블 다시 추가
-    const responseMessage = {
+    const responseMessage: ChatMessage = {
       id: generateUniqueId('response'),
-      type: 'user' as const,
-      subType: 'response' as const,
+      type: 'user',
+      subType: 'response',
       content: '',
       timestamp: new Date()
     };

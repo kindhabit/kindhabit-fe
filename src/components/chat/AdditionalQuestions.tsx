@@ -1,7 +1,8 @@
 import React, { forwardRef } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { colors } from '@mui/material';
+import { colors } from '@/theme';
+import { ChatMessage } from '@/types/chat';
 
 const MessageBubble = styled(Box)`
   display: flex;
@@ -199,7 +200,7 @@ interface AdditionalQuestionsProps {
   onLinkClick: () => void;
   explanationShown?: boolean;
   messageCount?: number;
-  messages: ChatMessageType[];
+  messages: ChatMessage[];
   showUserResponse?: boolean;
 }
 
@@ -207,8 +208,8 @@ const AdditionalQuestions = forwardRef<HTMLDivElement, AdditionalQuestionsProps>
   return (
     <MessageContainer 
       show={props.show} 
-      hasExplanation={props.explanationShown}
-      showUserResponse={props.showUserResponse}
+      hasExplanation={props.explanationShown ?? false}
+      showUserResponse={props.showUserResponse ?? false}
     >
       <AvatarContainer>
         <Avatar>김제리</Avatar>

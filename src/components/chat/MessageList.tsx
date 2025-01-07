@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ChatMessage } from '@/types/chat';
-import ChatMessage from './ChatMessage';
+import { ChatMessage, LoadingState } from '@/types/chat';
+import ChatMessageComponent from './ChatMessage';
 import UserResponseMessage from './UserResponseMessage';
 import UserResponseBubble from './UserResponseBubble';
-import ResponseOption from './ResponseOption';
 import RecommendationMessage from './RecommendationMessage';
-import { LoadingState } from '@/types/common.types';
 
 const MessageListWrapper = styled(Box)`
   display: flex;
@@ -49,7 +47,7 @@ const MessageList: React.FC<MessageListProps> = ({
 
   useEffect(() => {
     const latestMessage = messages[messages.length - 1];
-    if (latestMessage && latestMessage.type !== 'user-response') {
+    if (latestMessage && !(latestMessage.type === 'user' && latestMessage.subType === 'response')) {
       setNewMessageIds(prev => [...prev, latestMessage.id]);
       setTimeout(() => {
         setNewMessageIds(prev => prev.filter(id => id !== latestMessage.id));
@@ -65,7 +63,7 @@ const MessageList: React.FC<MessageListProps> = ({
       .filter(msg => !(msg.type === 'user' && msg.subType === 'response'))
       .map(message => (
         <MessageWrapper key={message.id} isNew={newMessageIds.includes(message.id)}>
-          <ChatMessage 
+          <ChatMessageComponent 
             message={message} 
             loading={loading.isLoading}
           />
@@ -79,10 +77,11 @@ const MessageList: React.FC<MessageListProps> = ({
       <>
         {normalMessages}
         {responseMessage && (
-          <UserResponseBubble key={responseMessage.id}>
-            <ResponseOption onClick={onProceed}>네</ResponseOption>
-            <ResponseOption onClick={onSkip}>아니요</ResponseOption>
-          </UserResponseBubble>
+          <UserResponseBubble 
+            key={responseMessage.id}
+            onYes={onProceed}
+            onNo={onSkip}
+          />
         )}
       </>
     );
