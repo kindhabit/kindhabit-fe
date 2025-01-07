@@ -70,7 +70,12 @@ const ScrollIndicator = styled('div')`
   }
 `;
 
-const SplashOverlay = styled('div')`
+interface SplashOverlayProps {
+  show: boolean;
+  children: React.ReactNode;
+}
+
+const SplashOverlay = styled('div')<SplashOverlayProps>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -576,7 +581,7 @@ const ChatContainer: React.FC = () => {
 
   return (
     <ChatContainerWrapper ref={chatWrapperRef}>
-      <ContainerHeader title="우리 제리봇이 1차원 검색으로 추천한 성분이에요" />
+      <ContainerHeader title="제리봇이 단순 추천한 성분이에요" />
       <MessageArea>
         <RecommendationSlider 
           onCardClick={handleCardClick}

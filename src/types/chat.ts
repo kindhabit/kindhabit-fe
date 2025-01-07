@@ -1,10 +1,12 @@
-export type MessageType = 'assistant' | 'user';
-export type UserMessageSubType = 'message' | 'response';
-
-export interface ChatMessageType {
+export interface ChatMessage {
   id: string;
-  type: MessageType;
-  subType?: UserMessageSubType;  // user 타입일 때만 사용
+  type: 'user' | 'assistant';
+  subType?: 'message' | 'response';
   content: string;
   timestamp: Date;
+}
+
+export interface LoadingState {
+  isLoading: boolean;
+  message?: string;
 } 

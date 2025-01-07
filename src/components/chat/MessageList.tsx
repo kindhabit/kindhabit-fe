@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ChatMessageType } from '@/types/chat';
+import { ChatMessage } from '@/types/chat';
 import ChatMessage from './ChatMessage';
 import UserResponseMessage from './UserResponseMessage';
 import UserResponseBubble from './UserResponseBubble';
 import ResponseOption from './ResponseOption';
 import RecommendationMessage from './RecommendationMessage';
+import { LoadingState } from '@/types/common.types';
 
 const MessageListWrapper = styled(Box)`
   display: flex;
@@ -14,7 +15,11 @@ const MessageListWrapper = styled(Box)`
   gap: 4px;
 `;
 
-const MessageWrapper = styled(Box)`
+interface MessageWrapperProps {
+  isNew?: boolean;
+}
+
+const MessageWrapper = styled(Box)<MessageWrapperProps>`
   &:first-of-type {
     margin-top: 0;
   }
@@ -24,7 +29,7 @@ const MessageWrapper = styled(Box)`
 `;
 
 interface MessageListProps {
-  messages: ChatMessageType[];
+  messages: ChatMessage[];
   loading: LoadingState;
   onMoreInfo: () => void;
   onProceed: () => void;
