@@ -4,11 +4,20 @@ export const colors = {
   background: '#f5e6d3',
   cardBg: '#fff9f2',
   dialogBg: '#fdfaf7',
-  primary: '#1976d2',
+  primary: '#6B4423',
   textPrimary: '#000000',
   textSecondary: '#666666',
   brown: '#6B4423',
   logoText: '#4A3B2C',
+  dashboard: {
+    background: '#fff9f2'
+  },
+  chat: {
+    background: '#fdfaf7',
+    messageArea: {
+      background: '#fff9f2'
+    }
+  }
 };
 
 const baseTheme = createTheme({

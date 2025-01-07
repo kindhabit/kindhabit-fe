@@ -3,11 +3,13 @@ import { styled } from '@mui/material/styles';
 import { Box, Typography, Paper } from '@mui/material';
 import { colors } from '@/theme';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import SectionTitle from '@/components/common/SectionTitle';
+import ContainerHeader from '@/components/common/ContainerHeader';
 
 const DashboardWrapper = styled(Box)({
   padding: '20px',
   height: '100%',
-  background: colors.background,
+  background: colors.dashboard.background,
   overflow: 'auto'
 });
 
@@ -15,7 +17,9 @@ const StatCard = styled(Paper)({
   padding: '20px',
   marginBottom: '16px',
   borderRadius: '16px',
-  background: colors.cardBg
+  background: '#ffffff',
+  boxShadow: '0 2px 8px rgba(107, 68, 35, 0.06)',
+  border: '1px solid rgba(107, 68, 35, 0.08)'
 });
 
 const HealthMetricsCard = styled(Paper)({
@@ -40,7 +44,7 @@ const MetricItem = styled(Box)({
   padding: '12px 0',
   borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
   
-  '&:last-child': {
+  '&:last-of-type': {
     borderBottom: 'none',
     paddingBottom: 0
   },
@@ -51,17 +55,19 @@ const MetricItem = styled(Box)({
 });
 
 const MetricLabel = styled(Typography)({
-  color: colors.textSecondary,
+  fontFamily: 'Pretendard',
   fontSize: '14px',
+  color: colors.textSecondary,
   display: 'flex',
   alignItems: 'center',
   gap: '8px'
 });
 
 const MetricValue = styled(Typography)({
+  fontFamily: 'Pretendard',
   fontSize: '15px',
   fontWeight: 600,
-  color: colors.textPrimary
+  color: colors.brown
 });
 
 const MetricGraph = styled(Box)({
@@ -108,13 +114,14 @@ const monthlyData: MonthlyMetric[] = [
   { month: '6월', 체중: 68, 혈압: 120, 콜레스테롤: 180, 간수치: 28 },
 ];
 
-const MetricChart = styled(Box)({
-  width: '100%',
-  height: '100px',
-  marginTop: '8px',
-  overflow: 'hidden',
-  transition: 'max-height 0.3s ease-in-out',
-});
+const MetricChart = styled(Box)`
+  width: 100%;
+  height: 100px;
+  min-width: 200px;
+  min-height: 100px;
+  margin-top: 8px;
+  overflow: hidden;
+`;
 
 const MetricsContent = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'isOpen'
@@ -143,31 +150,8 @@ const Dashboard = () => {
 
   return (
     <DashboardWrapper>
-      <Typography variant="h5" sx={{ mb: 3, color: colors.brown }}>
-        건강 대시보드
-      </Typography>
-
-      <StatCard elevation={0}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          오늘의 영양소 섭취 현황
-        </Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Box flex={1}>
-            <Typography color="textSecondary">비타민</Typography>
-            <Typography variant="h4">76%</Typography>
-          </Box>
-          <Box flex={1}>
-            <Typography color="textSecondary">미네랄</Typography>
-            <Typography variant="h4">82%</Typography>
-          </Box>
-          <Box flex={1}>
-            <Typography color="textSecondary">단백질</Typography>
-            <Typography variant="h4">65%</Typography>
-          </Box>
-        </Box>
-      </StatCard>
-
-      <HealthMetricsCard elevation={0}>
+      <ContainerHeader title="건강 대시보드" />
+      <HealthMetricsCard>
         <CardHeader onClick={() => setIsMetricsOpen(!isMetricsOpen)}>
           <Typography variant="h6">
             건강 지표
@@ -328,44 +312,6 @@ const Dashboard = () => {
           </MetricItem>
         </MetricsContent>
       </HealthMetricsCard>
-
-      <StatCard elevation={0}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          건강 목표 달성률
-        </Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Box>
-            <Typography color="textSecondary">운동 시간</Typography>
-            <Box sx={{ 
-              height: '8px', 
-              background: '#eee', 
-              borderRadius: '4px',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                width: '70%', 
-                height: '100%', 
-                background: colors.primary 
-              }} />
-            </Box>
-          </Box>
-          <Box>
-            <Typography color="textSecondary">수면 시간</Typography>
-            <Box sx={{ 
-              height: '8px', 
-              background: '#eee', 
-              borderRadius: '4px',
-              overflow: 'hidden'
-            }}>
-              <Box sx={{ 
-                width: '85%', 
-                height: '100%', 
-                background: colors.primary 
-              }} />
-            </Box>
-          </Box>
-        </Box>
-      </StatCard>
     </DashboardWrapper>
   );
 };

@@ -1,65 +1,46 @@
-import React, { useState, useCallback } from 'react';
-import { Dialog, Box, Typography } from '@mui/material';
-import Slide from '@mui/material/Slide';
+import React from 'react';
+import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { DetailInfo } from '@/types/health.types';
-import { colors } from '@/theme';
-import { TransitionProps } from '@mui/material/transitions';
 
-interface StyledDialogProps extends React.ComponentProps<typeof Dialog> {
-  isMobile?: boolean;
-}
-
-const DialogWrapper = styled(Dialog)<StyledDialogProps>`
-  && {
-    position: absolute !important;
-    inset: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-    height: 100% !important;
-    transform: none !important;
-    
-    .MuiDialog-container {
-      position: absolute !important;
-      inset: 0 !important;
-      height: 100% !important;
-      align-items: flex-end !important;
-      margin: 0 !important;
-      max-width: 100% !important;
-      transform: none !important;
-    }
-
-    .MuiPaper-root {
-      width: 100% !important;
-      margin: 0 !important;
-      max-width: 100% !important;
-      background: ${colors.dialogBg};
-      border-radius: 24px 24px 0 0;
-      max-height: 65vh;
-      overflow-y: auto;
-      transform: none !important;
-      transition: transform 225ms cubic-bezier(0, 0, 0.2, 1) 0ms !important;
-      touch-action: pan-y;
-      transform: translateZ(0);
-      will-change: transform;
-    }
-
-    .MuiBackdrop-root {
-      position: absolute !important;
-      inset: 0 !important;
-    }
-  }
+const BottomSheet = styled('div')<{ isOpen: boolean }>`
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(${props => props.isOpen ? '0' : '100%'});
+  width: 80%;
+  max-height: 80vh;
+  overflow: hidden;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
 `;
 
-interface DialogContentProps {
-  onTouchStart?: (e: React.TouchEvent<HTMLDivElement>) => void;
-  onTouchMove?: (e: React.TouchEvent<HTMLDivElement>) => void;
-  onTouchEnd?: (e: React.TouchEvent<HTMLDivElement>) => void;
-}
+const Backdrop = styled('div')<{ isOpen: boolean }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: ${props => props.isOpen ? 1 : 0};
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: ${props => props.isOpen ? 'auto' : 'none'};
+  z-index: 999;
+`;
 
-const DialogContent = styled(Box)<DialogContentProps>`
-  padding: 20px;
+const DialogContainer = styled('div')`
+  position: absolute;
+  inset: 0;
+  width: 100%;
   height: 100%;
+  pointer-events: none;
+  
+  & > * {
+    pointer-events: auto;
+  }
 `;
 
 const DialogTitle = styled(Typography)`
@@ -67,10 +48,10 @@ const DialogTitle = styled(Typography)`
   font-size: 20px;
   font-weight: 800;
   color: #000;
-  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 12px;
 `;
 
 const SectionTitle = styled(Typography)`
@@ -85,11 +66,11 @@ const SectionTitle = styled(Typography)`
 `;
 
 const SnippetContainer = styled(Box)`
+  padding: 12px;
+  margin-bottom: 16px;
   background: rgba(0, 0, 0, 0.02);
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 16px;
 `;
 
 const ContentText = styled(Typography)`
@@ -99,22 +80,18 @@ const ContentText = styled(Typography)`
   line-height: 1.5;
 `;
 
-const ListItem = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'isActive'
-})<{ isActive?: boolean }>`
+const ListItem = styled('li')`
   display: flex;
   align-items: flex-start;
   gap: 8px;
   margin-bottom: 8px;
   
-  &:last-child {
+  &:last-of-type {
     margin-bottom: 0;
   }
 `;
 
-const ReferenceItem = styled('a', {
-  shouldForwardProp: (prop) => prop !== 'isActive'
-})<{ isActive?: boolean }>`
+const ReferenceItem = styled('a')`
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -122,7 +99,7 @@ const ReferenceItem = styled('a', {
   text-decoration: none;
   color: inherit;
   
-  &:last-child {
+  &:last-of-type {
     margin-bottom: 0;
   }
   
@@ -131,24 +108,24 @@ const ReferenceItem = styled('a', {
   }
 `;
 
-type CustomTransitionProps = Omit<TransitionProps, 'children'> & {
-  children: React.ReactElement;
-};
-
-const Transition = React.forwardRef<HTMLDivElement, CustomTransitionProps>(
-  function Transition(props, ref) {
-    return (
-      <Slide
-        direction="up"
-        ref={ref}
-        {...props}
-        in={props.in ?? false}
-      />
-    );
+const DialogContent = styled(Box)`
+  padding: 24px;
+  height: 100%;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
   }
-);
-
-Transition.displayName = 'Transition';
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+`;
 
 interface DetailDialogProps {
   open: boolean;
@@ -161,110 +138,71 @@ const DetailDialog: React.FC<DetailDialogProps> = ({
   onClose,
   detail
 }) => {
-  const [startY, setStartY] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    setStartY(e.touches[0].clientY);
-    setIsDragging(true);
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging) return;
-    
-    if (startY && e.touches[0].clientY - startY > 100) {
-      setIsDragging(false);
-      onClose();
-    }
-  }, [startY, onClose, isDragging]);
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-    setStartY(null);
-  }, []);
-
   return (
-    <DialogWrapper
-      open={open}
-      onClose={onClose}
-      TransitionComponent={Transition}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      TransitionProps={{
-        timeout: {
-          enter: 300,
-          exit: 200
-        },
-        mountOnEnter: true,
-        unmountOnExit: true
-      }}
-      sx={{
-        '& .MuiBackdrop-root': {
-          backgroundColor: 'rgba(0, 0, 0, 0.2)'
-        }
-      }}
-    >
-      <DialogContent>
-        <DialogTitle>
-          {detail.title}
-        </DialogTitle>
+    <>
+      <Backdrop isOpen={open} onClick={onClose} />
+      <BottomSheet isOpen={open}>
+        <DialogContent>
+          <DialogTitle>
+            {detail.title}
+          </DialogTitle>
 
-        <Box sx={{ mb: 2 }}>
-          <SectionTitle>
-            <span>💊</span>주요 효능
-          </SectionTitle>
-          <SnippetContainer>
-            {detail.benefits.map((benefit, idx) => (
-              <ListItem key={idx}>
-                <ContentText>{benefit}</ContentText>
-              </ListItem>
-            ))}
-          </SnippetContainer>
-        </Box>
+          <Box sx={{ mb: 2 }}>
+            <SectionTitle>
+              <span>💊</span>주요 효능
+            </SectionTitle>
+            <SnippetContainer>
+              {detail.benefits.map((benefit, idx) => (
+                <ListItem key={idx}>
+                  <ContentText>{benefit}</ContentText>
+                </ListItem>
+              ))}
+            </SnippetContainer>
+          </Box>
 
-        <Box sx={{ mb: 2 }}>
-          <SectionTitle>
-            <span>⚡</span>섭취 방법
-          </SectionTitle>
-          <SnippetContainer>
-            <ContentText>{detail.usage}</ContentText>
-          </SnippetContainer>
-        </Box>
+          <Box sx={{ mb: 2 }}>
+            <SectionTitle>
+              <span>⚡</span>섭취 방법
+            </SectionTitle>
+            <SnippetContainer>
+              <ContentText>{detail.usage}</ContentText>
+            </SnippetContainer>
+          </Box>
 
-        <Box sx={{ mb: 2 }}>
-          <SectionTitle>
-            <span>⚠️</span>주의사항
-          </SectionTitle>
-          <SnippetContainer>
-            {detail.warnings.map((warning, idx) => (
-              <ListItem key={idx}>
-                <ContentText>{warning}</ContentText>
-              </ListItem>
-            ))}
-          </SnippetContainer>
-        </Box>
+          <Box sx={{ mb: 2 }}>
+            <SectionTitle>
+              <span>⚠️</span>주의사항
+            </SectionTitle>
+            <SnippetContainer>
+              {detail.warnings.map((warning, idx) => (
+                <ListItem key={idx}>
+                  <ContentText>{warning}</ContentText>
+                </ListItem>
+              ))}
+            </SnippetContainer>
+          </Box>
 
-        <Box>
-          <SectionTitle>
-            <span>📚</span>참고 자료
-          </SectionTitle>
-          <SnippetContainer>
-            {detail.references.map((ref, idx) => (
-              <ReferenceItem 
-                key={idx}
-                href={ref.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${ref.title} 참고 자료 링크`}
-              >
-                <ContentText>{ref.title}</ContentText>
-              </ReferenceItem>
-            ))}
-          </SnippetContainer>
-        </Box>
-      </DialogContent>
-    </DialogWrapper>
+          <Box>
+            <SectionTitle>
+              <span>📚</span>참고 자료
+            </SectionTitle>
+            <SnippetContainer>
+              {detail.references.map((ref, idx) => (
+                <ReferenceItem 
+                  key={idx}
+                  href={ref.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${ref.title} 참고 자료 링크`}
+                >
+                  <ContentText>{ref.title}</ContentText>
+                </ReferenceItem>
+              ))}
+            </SnippetContainer>
+          </Box>
+        </DialogContent>
+      </BottomSheet>
+    </>
   );
 };
 

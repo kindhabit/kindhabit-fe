@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
-import { Box, Paper, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Paper, useTheme, useMediaQuery, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { 
   ChatMessage as ChatMessageType, 
@@ -12,39 +12,42 @@ import ChatMessage from './ChatMessage';
 import RecommendationMessage from './RecommendationMessage';
 import RecommendationSlider from './RecommendationSlider';
 import DetailDialog from './DetailDialog';
+import AdditionalQuestions from './AdditionalQuestions';
+import SectionTitle from '@/components/common/SectionTitle';
+import ContainerHeader from '@/components/common/ContainerHeader';
+import UserResponseBubble from './UserResponseBubble';
 
-interface ChatWrapperProps {
-  isMobile?: boolean;
-}
-
-const ChatWrapper = styled(Paper)<ChatWrapperProps>`
-  width: 100%;
-  height: 100%;
+const ChatWrapper = styled('div')<{}>(`
   display: flex;
   flex-direction: column;
-`;
+  height: 100%;
+  position: relative;
+  background-color: ${colors.dashboard.background};
+  overflow: hidden;
+`);
 
-const MessageArea = styled(Box)`
+const MessageArea = styled('div')<{}>(`
   flex: 1;
   overflow-y: auto;
   padding: 16px;
-  background: ${colors.background};
+  background-color: ${colors.dashboard.background};
+  position: relative;
+`);
+
+const DialogContainer = styled('div')`
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  
+  & > * {
+    pointer-events: auto;
+  }
 `;
 
-const DialogContainer = styled(Box)({
-  position: 'absolute',
-  inset: 0,
-  zIndex: 1,
-  width: '100%',
-  height: '100%',
-  pointerEvents: 'none',
-  contain: 'layout paint',
-  '& > *': {
-    pointerEvents: 'auto'
-  }
-});
-
-const ScrollIndicator = styled(Box)`
+const ScrollIndicator = styled('div')`
   position: absolute;
   bottom: 20px;
   right: 20px;
@@ -67,14 +70,69 @@ const ScrollIndicator = styled(Box)`
   }
 `;
 
+const SplashOverlay = styled('div')`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: ${props => props.show ? 0.8 : 0};
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+  animation: ${props => props.show ? 'fadeInOut 2s ease-in-out' : 'none'};
+
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    30% { opacity: 0.8; }
+    50% { opacity: 0.5; }
+    70% { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+`;
+
+const SplashImage = styled('img')`
+  width: 120px;
+  height: auto;
+  opacity: 0.7;
+  filter: brightness(1.1);
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+`;
+
+const SplashText = styled(Typography)`
+  color: ${colors.brown};
+  font-size: 13px;
+  opacity: 0.8;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 12px;
+  border-radius: 4px;
+`;
+
 interface MessageListProps {
   messages: ChatMessageType[];
   loading: LoadingState;
   onMoreInfo: () => void;
+  onProceed: () => void;
+  onSkip: () => void;
 }
 
-const MessageList = memo<MessageListProps>(({ messages, loading, onMoreInfo }) => {
-  const renderMessage = useCallback((message: ChatMessageType) => {
+const MessageList = memo<MessageListProps>(({ messages, loading, onMoreInfo, onProceed, onSkip }) => {
+  const renderMessage = useCallback((message: ChatMessageType, index: number) => {
+    if (message.type === 'user' && message.subType === 'response') {
+      return (
+        <UserResponseBubble
+          key={message.id}
+          onYes={onProceed}
+          onNo={onSkip}
+        />
+      );
+    }
+
     if (message.type === 'assistant' && message.content.startsWith('{')) {
       try {
         const recommendation = JSON.parse(message.content);
@@ -91,16 +149,26 @@ const MessageList = memo<MessageListProps>(({ messages, loading, onMoreInfo }) =
       }
     }
     
+    // 첫 번째 assistant 메시지에만 링크 표시
+    const isFirstAssistantMessage = message.type === 'assistant' && 
+      messages.findIndex(m => m.type === 'assistant') === index;
+    
     return (
       <ChatMessage 
-        key={message.id} 
+        key={`message-${message.id}`}
         message={message} 
         loading={loading.isLoading}
+        showLink={isFirstAssistantMessage}
+        onLinkClick={onMoreInfo}
       />
     );
-  }, [loading.isLoading, onMoreInfo]);
+  }, [loading.isLoading, onMoreInfo, messages, onProceed, onSkip]);
 
-  return <>{messages.map(renderMessage)}</>;
+  return (
+    <MessageListWrapper>
+      {messages.map((message, index) => renderMessage(message, index))}
+    </MessageListWrapper>
+  );
 }, (prevProps, nextProps) => {
   return (
     prevProps.loading.isLoading === nextProps.loading.isLoading &&
@@ -108,7 +176,45 @@ const MessageList = memo<MessageListProps>(({ messages, loading, onMoreInfo }) =
   );
 });
 
+const MessageListWrapper = styled(Box)<{}>(`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+`);
+
 MessageList.displayName = 'MessageList';
+
+const ChatContainerWrapper = styled(Box)({
+  padding: '20px',
+  height: '100%',
+  background: colors.dashboard.background,
+  overflow: 'auto',
+  display: 'flex',
+  flexDirection: 'column'
+});
+
+const MetricItem = styled(Box)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '12px 0',
+  borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+  
+  '&:last-of-type': {
+    borderBottom: 'none',
+    paddingBottom: 0
+  },
+  
+  '&:first-of-type': {
+    paddingTop: 0
+  }
+});
+
+const generateUniqueId = (prefix: string) => {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+};
 
 const ChatContainer: React.FC = () => {
   const theme = useTheme();
@@ -118,6 +224,22 @@ const ChatContainer: React.FC = () => {
   const messageEndRef = useRef<HTMLDivElement>(null);
   const [selectedDetail, setSelectedDetail] = useState<DetailInfo | null>(null);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const chatWrapperRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [explanationShown, setExplanationShown] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
+  const messageListRef = useRef<HTMLDivElement>(null);
+  const userResponseRef = useRef<HTMLDivElement>(null);
+  const [showUserResponse, setShowUserResponse] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+
+  const initialMessage = {
+    id: generateUniqueId('assistant'),
+    type: 'assistant' as const,
+    content: '단순한 방식으로 다섯가지 성분을 찾았어요.\n그런데 혹시 혈압약을 드시나요? 🤔',
+    timestamp: new Date()
+  };
 
   const scrollToBottom = () => {
     messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,14 +263,15 @@ const ChatContainer: React.FC = () => {
   }, []);
 
   const handleSendMessage = async (content: string) => {
-    // 사용자 메시지 추가
-    const newMessage: ChatMessageType = {
-      id: Date.now().toString(),
-      type: 'user',
-      content,
+    const userMessage = {
+      id: generateUniqueId('user'),
+      type: 'user' as const,
+      subType: 'message' as const,
+      content: content,
       timestamp: new Date()
     };
-    setMessages(prev => [...prev, newMessage]);
+
+    setMessages(prev => [...prev, userMessage]);
     
     // 로딩 시작
     setLoading({ isLoading: true, message: '건강 데이터를 분석중입니다...' });
@@ -175,7 +298,7 @@ const ChatContainer: React.FC = () => {
       setMessages(prev => [
         ...prev,
         {
-          id: Date.now().toString(),
+          id: generateUniqueId('assistant'),
           type: 'assistant',
           content: JSON.stringify(recommendation),
           timestamp: new Date()
@@ -356,39 +479,138 @@ const ChatContainer: React.FC = () => {
   };
 
   useEffect(() => {
-    // 초기 로딩 상태 설정
-    setLoading({ isLoading: true, message: '건강 데이터를 분석중입니다...' });
-    
-    // 더 긴 초기 로딩 시간
-    const timer = setTimeout(() => {
-      setLoading({ isLoading: false });
-    }, 6000); // 6초로 설정
-    
-    return () => clearTimeout(timer);
+    setMounted(true);
+    setShowSplash(false);
   }, []);
 
+  const handleSliderComplete = () => {
+    setShowSplash(true);
+    setMessages([]);
+
+    // 정확히 3초 후에 스플래시를 숨기고 메시지 표시
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+      
+      setTimeout(() => {
+        setMessages([initialMessage]);
+        
+        setTimeout(() => {
+          const responseMessage = {
+            id: generateUniqueId('response'),
+            type: 'user' as const,
+            subType: 'response' as const,
+            content: '',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, responseMessage]);
+        }, 1500);
+      }, 500);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  };
+
+  useEffect(() => {
+    if (chatWrapperRef.current) {
+      console.log('Computed style:', window.getComputedStyle(chatWrapperRef.current).backgroundColor);
+    }
+  }, []);
+
+  console.log('ChatWrapper mounted');
+
+  const handleProceedQuestions = () => {
+    // '네' 버튼 클릭 시
+    const newMessage = {
+      id: generateUniqueId('assistant'),
+      type: 'assistant' as const,
+      content: '혈압약을 드시는군요. 그렇다면 혈압약과 상호작용이 없는 성분으로 추천해드릴게요.',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleSkipQuestions = () => {
+    // '아니요' 버튼 클릭 시
+    const newMessage = {
+      id: generateUniqueId('assistant'),
+      type: 'assistant' as const,
+      content: '알겠습니다. 그럼 추천해드린 모든 성분을 섭취하셔도 좋아요.',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, newMessage]);
+  };
+
+  const handleLinkClick = () => {
+    // 기존 응답 메시지를 제거
+    const filteredMessages = messages.filter(msg => !(msg.type === 'user' && msg.subType === 'response'));
+    
+    // 새로운 설명 메시지 추가
+    const explanationMessage = {
+      id: generateUniqueId('assistant'),
+      type: 'assistant',
+      content: '추천한 성분중에 일부 혈압약을 드시는 경우\n더 궁합이 좋은 건기식이 있을 수 있어서요. 🎓\n\n몇 가지 질문으로 최적의 조합을 찾아 드릴 수 있어요.',
+      timestamp: new Date()
+    };
+
+    // 응답 버블 다시 추가
+    const responseMessage = {
+      id: generateUniqueId('response'),
+      type: 'user' as const,
+      subType: 'response' as const,
+      content: '',
+      timestamp: new Date()
+    };
+
+    setMessages([...filteredMessages, explanationMessage, responseMessage]);
+  };
+
+  const calculateNextPosition = () => {
+    if (!messageListRef.current || !userResponseRef.current) return;
+    
+    const messageListBottom = messageListRef.current.getBoundingClientRect().bottom;
+    const userResponseHeight = userResponseRef.current.offsetHeight;
+    return messageListBottom + userResponseHeight + 8; // 8px의 여백
+  };
+
   return (
-    <ChatWrapper elevation={0} isMobile={isMobile}>
+    <ChatContainerWrapper ref={chatWrapperRef}>
+      <ContainerHeader title="우리 제리봇이 1차원 검색으로 추천한 성분이에요" />
       <MessageArea>
-        <RecommendationSlider onCardClick={handleCardClick} />
-        <MessageList messages={messages} loading={loading} onMoreInfo={() => {}} />
+        <RecommendationSlider 
+          onCardClick={handleCardClick}
+          show={true}
+          onLoadComplete={handleSliderComplete}
+        />
+        {showSplash && (
+          <SplashOverlay show={showSplash}>
+            <SplashImage 
+              src="/assets/splash.png"
+              alt="Jerry Bot"
+            />
+            <SplashText>
+              상호 간섭 계산중...
+            </SplashText>
+          </SplashOverlay>
+        )}
+        <MessageList 
+          messages={messages} 
+          loading={loading} 
+          onMoreInfo={handleLinkClick}
+          onProceed={handleProceedQuestions}
+          onSkip={handleSkipQuestions}
+        />
         <div ref={messageEndRef} />
       </MessageArea>
-      <DialogContainer>
-        {selectedDetail && (
-          <DetailDialog
-            open={!!selectedDetail}
-            onClose={() => setSelectedDetail(null)}
-            detail={selectedDetail}
-          />
-        )}
-      </DialogContainer>
-      {showScrollIndicator && (
-        <ScrollIndicator className="visible" onClick={scrollToBottom}>
-          Scroll to bottom
-        </ScrollIndicator>
+      {selectedDetail && (
+        <DetailDialog
+          open={!!selectedDetail}
+          onClose={() => setSelectedDetail(null)}
+          detail={selectedDetail}
+        />
       )}
-    </ChatWrapper>
+    </ChatContainerWrapper>
   );
 };
 

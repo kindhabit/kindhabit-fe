@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Box, useTheme, useMediaQuery } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Header from './Header';
 import Dashboard from '../dashboard/Dashboard';
+import { colors } from '@/theme';
 
 const LayoutWrapper = styled(Box)`
   width: 100%;
@@ -13,31 +14,54 @@ const LayoutWrapper = styled(Box)`
   background: #ffffff;
 `;
 
-const MainContent = styled('div')<{ isSidebarOpen: boolean }>`
-  display: grid;
-  grid-template-columns: 1fr;
+const MainContent = styled('div')<{ leftWidth: number }>`
+  display: flex;
   height: calc(100vh - 64px);
   
   @media (min-width: ${({ theme }) => theme.breakpoints.values.md}px) {
-    grid-template-columns: ${({ isSidebarOpen }) => 
-      isSidebarOpen ? 'minmax(350px, 400px) 1fr' : '0 1fr'};
+    & > div:first-of-type {
+      width: ${props => props.leftWidth}%;
+    }
+    
+    & > div:last-of-type {
+      width: ${props => 100 - props.leftWidth}%;
+    }
   }
 `;
 
-const DashboardSection = styled(Box)<{ isVisible: boolean }>`
-  display: none;
-  
-  @media (min-width: ${({ theme }) => theme.breakpoints.values.md}px) {
-    display: ${({ isVisible }) => isVisible ? 'flex' : 'none'};
-    flex-direction: column;
-    border-right: 1px solid #eee;
-  }
+const DashboardSection = styled('div')<{ isVisible: boolean }>`
+  display: ${({ isVisible }) => isVisible ? 'block' : 'none'};
+  background-color: ${colors.dashboard.background};
+  height: 100%;
+  position: relative;
+  z-index: 0;
 `;
 
-const ChatSection = styled(Box)<{ isFullWidth: boolean }>`
+const ChatSection = styled('div')`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+`;
+
+const SplitterBar = styled('div')`
+  width: 8px;
+  background-color: #f0f0f0;
+  cursor: col-resize;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: ${props => props.theme.palette.primary.main}20;
+  }
+  
+  &:active {
+    background-color: ${props => props.theme.palette.primary.main}40;
+  }
+`;
+
+const MenuItem = styled(Box)`
+  &:first-of-type {
+    margin-top: 0;
+  }
 `;
 
 interface LayoutProps {
@@ -47,18 +71,46 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
-  const [isSidebarOpen, setIsSidebarOpen] = useState(isDesktop);
+  const [leftWidth, setLeftWidth] = useState(70);
+  
+  const handleResize = useCallback((e: MouseEvent) => {
+    const container = document.querySelector('.main-content');
+    if (!container) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+    
+    if (newWidth >= 30 && newWidth <= 85) {
+      setLeftWidth(newWidth);
+    }
+  }, []);
 
   return (
     <LayoutWrapper>
       <Header />
-      <MainContent isSidebarOpen={isSidebarOpen}>
-        <DashboardSection isVisible={isDesktop}>
-          <Dashboard />
-        </DashboardSection>
-        <ChatSection isFullWidth={!isDesktop}>
+      <MainContent className="main-content" leftWidth={leftWidth}>
+        <ChatSection>
           {children}
         </ChatSection>
+        {isDesktop && (
+          <>
+            <SplitterBar
+              onMouseDown={(e) => {
+                const handleMouseMove = (e: MouseEvent) => handleResize(e);
+                const handleMouseUp = () => {
+                  document.removeEventListener('mousemove', handleMouseMove);
+                  document.removeEventListener('mouseup', handleMouseUp);
+                };
+                
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', handleMouseUp);
+              }}
+            />
+            <DashboardSection isVisible={true}>
+              <Dashboard />
+            </DashboardSection>
+          </>
+        )}
       </MainContent>
     </LayoutWrapper>
   );

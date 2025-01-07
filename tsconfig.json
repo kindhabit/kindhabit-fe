@@ -19,7 +19,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node", "react", "react-dom"],
+    "types": ["node", "react", "react-dom", "@types/styled-components"],
     "noImplicitAny": true,
     "strictNullChecks": true
   },

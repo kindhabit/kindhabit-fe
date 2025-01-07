@@ -5,6 +5,7 @@ import { Theme as MuiTheme, useTheme } from '@mui/material/styles';
 import { Recommendation } from '@/types/health.types';
 import { colors } from '@/theme';
 import { debounce } from 'lodash';
+import SectionTitle from '@/components/common/SectionTitle';
 
 // Theme 타입 정의
 const defaultTheme = {
@@ -20,80 +21,18 @@ const defaultTheme = {
 };
 
 const IngredientTitle = styled(Typography)`
-  font-family: ${defaultTheme.typography.fontFamily};
-  font-size: 20px;
+  font-family: 'Pretendard';
+  font-size: 18px;
   font-weight: 600;
-  color: ${defaultTheme.palette.text.primary};
+  color: ${colors.brown};
   margin-bottom: 12px;
 `;
 
 const ReasonText = styled(Typography)`
-  font-family: ${defaultTheme.typography.fontFamily};
+  font-family: 'Pretendard';
   font-size: 14px;
-  color: ${defaultTheme.palette.text.secondary};
+  color: ${colors.textSecondary};
   line-height: 1.6;
-`;
-
-const HeaderText = styled(Typography)`
-  font-family: ${defaultTheme.typography.fontFamily};
-  font-size: 18px;
-  font-weight: 600;
-  color: ${defaultTheme.palette.text.primary};
-  margin-bottom: 20px;
-  padding: 0 4px;
-`;
-
-const Dot = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'active'
-})<{ active: boolean }>(({ active }) => ({
-  width: 6,
-  height: 6,
-  borderRadius: '50%',
-  backgroundColor: active ? defaultTheme.palette.text.primary : 'rgba(0, 0, 0, 0.2)',
-  transition: 'all 0.2s ease-in-out'
-}));
-
-const SliderWrapper = styled(Box)`
-  padding: 20px 16px;
-  background: ${colors.background};
-`;
-
-const SlideCard = styled(Paper)`
-  padding: 24px;
-  border-radius: 24px;
-  background: ${colors.cardBg};
-  margin-right: 12px;
-  min-width: 260px;
-  min-height: 220px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.03);
-  transition: all 0.3s ease;
-  scroll-snap-align: start;
-  
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    border-color: ${colors.primary}20;
-  }
-`;
-
-const IconContainer = styled(Box)`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.03);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  transition: all 0.3s ease;
-
-  ${SlideCard}:hover & {
-    transform: scale(1.1) rotate(5deg);
-    background: ${colors.primary}10;
-  }
 `;
 
 const ReasonContainer = styled(Box)`
@@ -109,20 +48,40 @@ const Divider = styled(Box)`
   margin: 16px 0;
 `;
 
-const SliderContainer = styled(Box)`
+const SliderContainer = styled('div')<{ $show: boolean }>`
   display: flex;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding: 4px 0;
-  margin: 0 -16px;
-  padding: 0 16px;
   touch-action: pan-x pinch-zoom;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
+  margin: 0 -16px;
+  padding: 0 16px;
+  opacity: ${props => props.$show ? 1 : 0};
+  transition: opacity 0.5s ease;
   
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const CardList = styled('div')`
+  display: flex;
+  gap: 16px;
+  width: max-content;  // 카드들이 한 줄로 나열되도록
+`;
+
+const Card = styled(Paper)`
+  width: 200px;
+  padding: 16px;
+  border-radius: 16px;
+  cursor: pointer;
+  background: white;
+  transition: transform 0.2s;
+  
+  &:hover {
+    transform: translateY(-2px);
   }
 `;
 
@@ -154,13 +113,102 @@ const DotContainer = styled(Box)`
   justify-content: center;
   gap: 8px;
   margin-top: 16px;
+  padding: 8px;  // 호버 영역 확장
+`;
+
+const Dot = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'active'
+})<{ active: boolean }>(({ active }) => ({
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  backgroundColor: active ? colors.primary : 'rgba(107, 68, 35, 0.2)',
+  transform: active ? 'scale(1.2)' : 'scale(1)',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  cursor: 'pointer',
+  
+  '&:hover': {
+    transform: 'scale(1.3)',
+    backgroundColor: colors.primary,
+  }
+}));
+
+const SliderWrapper = styled('div')<{ $show: boolean }>`
+  padding: 20px 16px;
+  background: ${colors.dashboard.background};
+  opacity: ${props => props.$show ? 1 : 0};
+  transition: opacity 0.5s ease;
+`;
+
+const SlideCard = styled(Paper)<{ delay: number }>`
+  padding: 24px;
+  border-radius: 24px;
+  background: #ffffff;
+  margin-right: 12px;
+  min-width: 260px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 16px rgba(107, 68, 35, 0.08);
+  border: 1px solid rgba(107, 68, 35, 0.12);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  scroll-snap-align: start;
+  opacity: 0;
+  animation: slideIn 0.5s ease forwards;
+  animation-delay: ${props => props.delay}ms;
+  transform-origin: center bottom;
+  
+  &:first-of-type {
+    margin-left: 0;
+  }
+  
+  &:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 32px rgba(107, 68, 35, 0.16);
+    border-color: ${colors.primary}40;
+    background: linear-gradient(to bottom, #ffffff, ${colors.primary}05);
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+`;
+
+const IconContainer = styled(Box)`
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+
+  ${SlideCard}:hover & {
+    transform: scale(1.1) rotate(5deg);
+    background: ${colors.primary}10;
+  }
 `;
 
 interface RecommendationSliderProps {
   onCardClick: (ingredient: string) => void;
+  show: boolean;
+  onLoadComplete?: () => void;
 }
 
-const RecommendationSlider: React.FC<RecommendationSliderProps> = ({ onCardClick }) => {
+const RecommendationSlider: React.FC<RecommendationSliderProps> = ({ 
+  onCardClick, 
+  show = true,
+  onLoadComplete
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -198,32 +246,55 @@ const RecommendationSlider: React.FC<RecommendationSliderProps> = ({ onCardClick
     }
   ];
 
-  const handleScroll = useCallback(
-    debounce((scrollLeft: number) => {
-      const cardWidth = 260 + 12;
-      const maxScroll = sliderRef.current?.scrollWidth ?? 0 - (sliderRef.current?.clientWidth ?? 0);
-      
-      if (Math.abs(scrollLeft - maxScroll) < 10) {
+  const handleScroll = useCallback(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const cardWidth = 260 + 12; // 카드 너비 + 마진
+    const scrollLeft = slider.scrollLeft;
+    const maxScroll = slider.scrollWidth - slider.clientWidth;
+    
+    // 끝에 도달했을 때 처리
+    if (Math.abs(scrollLeft - maxScroll) < 10) {
+      requestAnimationFrame(() => {
         setActiveIndex(recommendations.length - 1);
-      } else {
-        const newIndex = Math.round(scrollLeft / cardWidth);
-        setActiveIndex(Math.min(newIndex, recommendations.length - 1));
-      }
-    }, 100),
-    [recommendations.length]
-  );
+      });
+      return;
+    }
+
+    const newIndex = Math.round(scrollLeft / cardWidth);
+    requestAnimationFrame(() => {
+      setActiveIndex(Math.min(newIndex, recommendations.length - 1));
+    });
+  }, [recommendations.length]);
 
   useEffect(() => {
     const slider = sliderRef.current;
     if (!slider) return;
 
-    const scrollHandler = () => handleScroll(slider.scrollLeft);
-    slider.addEventListener('scroll', scrollHandler);
+    slider.addEventListener('scroll', handleScroll, { passive: true });
+    
+    const resizeObserver = new ResizeObserver(() => {
+      handleScroll();
+    });
+    resizeObserver.observe(slider);
+
     return () => {
-      handleScroll.cancel();
-      slider.removeEventListener('scroll', scrollHandler);
+      slider.removeEventListener('scroll', handleScroll);
+      resizeObserver.disconnect();
     };
   }, [handleScroll]);
+
+  const scrollToCard = (index: number) => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const cardWidth = 260 + 12;
+    slider.scrollTo({
+      left: index * cardWidth,
+      behavior: 'smooth'
+    });
+  };
 
   const handleCardClick = (ingredient: string) => {
     console.log('Card clicked:', ingredient);
@@ -231,15 +302,23 @@ const RecommendationSlider: React.FC<RecommendationSliderProps> = ({ onCardClick
     onCardClick(ingredient);
   };
 
+  useEffect(() => {
+    // 마지막 카드의 애니메이션이 끝나면 onLoadComplete 호출
+    const lastCardDelay = recommendations.length * 150 + 500; // 마지막 카드 애니메이션 완료 시간
+    const timer = setTimeout(() => {
+      onLoadComplete?.();
+    }, lastCardDelay);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <SliderWrapper>
-      <HeaderText>
-        제리가 분석한 맞춤 영양소예요
-      </HeaderText>
-      <SliderContainer ref={sliderRef}>
+    <SliderWrapper $show={show}>
+      <SliderContainer $show={show} ref={sliderRef}>
         {recommendations.map((rec, index) => (
           <SlideCard 
             key={index} 
+            delay={index * 150}
             elevation={0}
             onClick={() => handleCardClick(rec.ingredient)}
             sx={{ 
@@ -279,17 +358,8 @@ const RecommendationSlider: React.FC<RecommendationSliderProps> = ({ onCardClick
           <Dot 
             key={index} 
             active={index === activeIndex}
-            onClick={() => {
-              const slider = sliderRef.current;
-              if (slider) {
-                const cardWidth = 260 + 12;
-                slider.scrollTo({
-                  left: index * cardWidth,
-                  behavior: 'smooth'
-                });
-              }
-            }}
-            sx={{ cursor: 'pointer' }}
+            onClick={() => scrollToCard(index)}
+            onMouseEnter={() => scrollToCard(index)}  // 호버 시 스크롤
           />
         ))}
       </DotContainer>

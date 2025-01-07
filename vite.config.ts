@@ -22,6 +22,17 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'process.env': env
-    }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', '@mui/material'],
+          }
+        }
+      },
+      chunkSizeWarningLimit: 800
+    },
+    publicDir: 'public',
   };
 }); 
