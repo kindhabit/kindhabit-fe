@@ -31,7 +31,7 @@ jobs:
         run: |
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/id_rsa
-          ssh -v root@${{ secrets.HOST }} "
+          ssh -vvv root@${{ secrets.HOST }} "
             cd /workspace/KINDHABITFE
             git reset --hard
             git pull origin main
