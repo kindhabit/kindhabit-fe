@@ -17,21 +17,21 @@ jobs:
           node-version: '18'
 
       - name: Install SSH key
-        uses: shimataro/ssh-key-action@v2
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          key: ${{ secrets.SSH_KEY }}
-          known_hosts: ${{ secrets.HOST }}
-          if_key_exists: replace
-          config: |
-            Host *
-              StrictHostKeyChecking no
-              UserKnownHostsFile=/dev/null
-          
-      - name: Deploy with rsync
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Add known hosts
         run: |
-          eval $(ssh-agent -s)
-          ssh-add ~/.ssh/id_rsa
-          ssh -vvv root@${{ secrets.HOST }} "
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+          
+      - name: Deploy with sshpass
+        env:
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          sudo apt-get install -y sshpass
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
             cd /workspace/KINDHABITFE
             git reset --hard
             git pull origin main
