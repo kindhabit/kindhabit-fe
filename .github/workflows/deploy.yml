@@ -25,6 +25,7 @@ jobs:
           timeout: '60s'
           command_timeout: '20m'
           port: '22'
+          debug: true
           script: |
             whoami
             pwd
