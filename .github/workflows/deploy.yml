@@ -16,12 +16,16 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Test connection
+        run: |
+          nc -zv ${{ secrets.HOST }} 22
+          
       - name: Deploy with sshpass
         env:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
           sudo apt-get install -y sshpass
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
+          sshpass -p "$SSH_PASSWORD" ssh -vvv -o StrictHostKeyChecking=no -o ConnectTimeout=60 root@${{ secrets.HOST }} "
             cd /workspace/KINDHABITFE
             git reset --hard
             git pull origin main
