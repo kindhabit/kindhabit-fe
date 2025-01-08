@@ -16,16 +16,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-
-      - name: Add known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
-          
       - name: Deploy with sshpass
         env:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
