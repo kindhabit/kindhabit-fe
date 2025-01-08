@@ -24,7 +24,10 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           timeout: '60s'
           command_timeout: '20m'
+          port: '22'
           script: |
+            whoami
+            pwd
             cd /workspace/KINDHABITFE
             git reset --hard
             git pull origin main
