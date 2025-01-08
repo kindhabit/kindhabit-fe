@@ -22,10 +22,16 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           known_hosts: ${{ secrets.HOST }}
           if_key_exists: replace
+          config: |
+            Host *
+              StrictHostKeyChecking no
+              UserKnownHostsFile=/dev/null
           
       - name: Deploy with rsync
         run: |
-          ssh -o StrictHostKeyChecking=no -vvv root@${{ secrets.HOST }} "
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/id_rsa
+          ssh -v root@${{ secrets.HOST }} "
             cd /workspace/KINDHABITFE
             git reset --hard
             git pull origin main
