@@ -20,20 +20,6 @@ const ResponseBubble = styled(Box)`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   align-self: flex-end;
   max-width: 80%;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: bubbleAppear 0.5s ease-out forwards;
-
-  @keyframes bubbleAppear {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
 `;
 
 const ResponseButton = styled(Button)`
@@ -69,14 +55,16 @@ interface UserResponseBubbleProps {
 
 const UserResponseBubble: React.FC<UserResponseBubbleProps> = ({ onYes, onNo }) => {
   return (
-    <ResponseBubble>
-      <ResponseButton className="yes" onClick={onYes}>
-        예
-      </ResponseButton>
-      <ResponseButton className="no" onClick={onNo}>
-        아니오
-      </ResponseButton>
-    </ResponseBubble>
+    <ResponseWrapper>
+      <ResponseBubble>
+        <ResponseButton className="yes" onClick={onYes}>
+          예
+        </ResponseButton>
+        <ResponseButton className="no" onClick={onNo}>
+          아니오
+        </ResponseButton>
+      </ResponseBubble>
+    </ResponseWrapper>
   );
 };
 
