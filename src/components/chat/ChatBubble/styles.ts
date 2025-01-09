@@ -1,114 +1,105 @@
 import { styled } from '@mui/material/styles';
-import { Box, Button } from '@mui/material';
+import { Box } from '@mui/material';
 import { colors } from '@/theme';
+import { ChatLinkPosition } from '@/types/chat';
+import { CHAT_CONSTANTS, DEBUG_COLORS } from '@/constants/layout';
+import { debugBorder } from '@/styles/debug';
 
-interface BubbleProps {
-  type: 'jerry' | 'user';
+interface BubbleWrapperProps {
+  margin?: string;
 }
 
-export const BubbleWrapper = styled(Box)<BubbleProps>`
+interface MessageBubbleProps {
+  type: 'jerry' | 'user';
+  isHistory?: boolean;
+}
+
+export const BubbleWrapper = styled('div')<BubbleWrapperProps>`
   display: flex;
   flex-direction: column;
+  margin: ${({ margin }) => margin || '0'};
+  position: relative;
   width: 100%;
-  position: relative;
-  align-items: ${props => props.type === 'user' ? 'flex-end' : 'flex-start'};
+  padding: 0 16px;
+  border: 2px dashed purple;
 `;
 
-export const MessageSection = styled(Box)<BubbleProps>`
+export const MessageSection = styled('div')`
+  border: 2px solid cyan;
+`;
+
+export const ProfileSection = styled('div')`
   display: flex;
-  flex-direction: column;
-  align-items: ${props => props.type === 'user' ? 'flex-end' : 'flex-start'};
-  max-width: 70%;
-  padding: ${props => props.type === 'user' ? '0 20px 0 0' : '0 0 0 20px'};
-  position: relative;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  margin-left: 0;
+  border: 2px dotted orange;
 `;
 
-export const Avatar = styled(Box)`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: fit-content;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 14px;
-  background: ${colors.brown}15;
-  color: ${colors.brown};
+export const ProfileName = styled('span')`
   font-size: 14px;
   font-weight: 500;
-  border: 1px solid ${colors.brown}20;
+  color: ${colors.textPrimary};
 `;
 
-export const MessageBubble = styled(Box)<BubbleProps>`
-  position: relative;
-  background: ${props => props.type === 'user' ? colors.brown : '#FFFFFF'};
-  color: ${props => props.type === 'user' ? '#FFFFFF' : colors.textSecondary};
+export const ProfileImage = styled('div')`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const MessageBubble = styled('div')<MessageBubbleProps>`
+  max-width: 80%;
   padding: 12px 16px;
-  border-radius: ${props => props.type === 'user' ? '20px 4px 20px 20px' : '4px 20px 20px 20px'};
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  font-size: 14px;
+  border-radius: 16px;
+  background-color: ${({ type }) => type === 'jerry' ? colors.chat.jerryBubble : colors.chat.userBubble};
+  color: ${colors.textPrimary};
+  font-size: 15px;
   line-height: 1.5;
-  width: fit-content;
-  max-width: 100%;
   white-space: pre-wrap;
+  margin-left: ${({ type }) => type === 'jerry' ? '0' : 'auto'};
+  opacity: ${({ isHistory }) => isHistory ? 0.6 : 1};
 `;
 
-interface LinkPosition {
-  align: 'left' | 'right';
-  bottom: number;
-}
-
-export const LinkText = styled('button')<{ position: LinkPosition }>`
-  background: none;
-  border: none;
-  font-size: 13px;
-  color: ${colors.brown};
-  padding: 4px 0;
-  cursor: pointer;
-  opacity: 0.8;
-  text-decoration: underline;
-  position: absolute;
-  bottom: ${props => -props.position.bottom}px;
-  right: 0;
-  white-space: nowrap;
-  
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-export const ButtonContainer = styled(Box)`
+export const ButtonContainer = styled('div')`
   display: flex;
   gap: 8px;
   margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #e0e0e0;
 `;
 
-export const BubbleButton = styled(Button)`
-  min-width: 60px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  text-transform: none;
-  font-weight: 500;
+export const BubbleButton = styled('button')<{ variant?: 'primary' | 'secondary' }>`
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
   font-size: 14px;
-  
-  &.primary {
-    background-color: ${colors.brown};
-    color: white;
-    border: none;
-    
-    &:hover {
-      background-color: ${colors.brown}dd;
-    }
+  cursor: pointer;
+  transition: all 0.2s;
+
+  background: ${({ variant }) => 
+    variant === 'primary' ? colors.primary : colors.secondary};
+  color: ${({ variant }) => 
+    variant === 'primary' ? '#fff' : colors.textPrimary};
+
+  &:hover {
+    background: ${({ variant }) => 
+      variant === 'primary' ? colors.primaryDark : colors.secondaryDark};
   }
-  
-  &.secondary {
-    background-color: white;
-    color: ${colors.textSecondary};
-    border: 1px solid #e0e0e0;
-    
-    &:hover {
-      background-color: #f5f5f5;
-    }
+`;
+
+export const LinkText = styled('div')<{ position: ChatLinkPosition }>`
+  position: absolute;
+  ${({ position }) => position.align}: 0;
+  bottom: ${({ position }) => position.bottom}px;
+  font-size: 13px;
+  color: ${colors.textSecondary};
+  cursor: pointer;
+  margin-top: 8px;
+
+  &:hover {
+    text-decoration: underline;
   }
 `; 

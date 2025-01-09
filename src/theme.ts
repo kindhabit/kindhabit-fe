@@ -5,6 +5,9 @@ export const colors = {
   cardBg: '#fff9f2',
   dialogBg: '#fdfaf7',
   primary: '#6B4423',
+  primaryDark: '#4A3B2C',
+  secondary: '#f5f5f5',
+  secondaryDark: '#e0e0e0',
   textPrimary: '#000000',
   textSecondary: '#666666',
   brown: '#6B4423',
@@ -14,6 +17,10 @@ export const colors = {
   },
   chat: {
     background: '#fdfaf7',
+    userBubble: '#6B4423',
+    jerryBubble: '#ffffff',
+    userText: '#ffffff',
+    jerryText: '#000000',
     messageArea: {
       background: '#fff9f2'
     }

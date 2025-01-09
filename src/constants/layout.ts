@@ -1,0 +1,27 @@
+export const DEBUG_MODE = true;  // 개발 완에는 true
+// 배포 전에 false로 변경하면 모든 디버깅 표시가 사라짐
+
+export const DEBUG_COLORS = {
+  CHAT_WRAPPER: '#FF3333',
+  CONTENT_AREA: '#3333FF',
+  SLIDER_SECTION: '#33FF33',
+  MESSAGE_AREA: '#FF9900',
+  BUBBLE_WRAPPER: '#9933FF',
+  MESSAGE_SECTION: '#00CCCC',
+  DIALOG_CONTAINER: '#FF1493',
+  SCROLL_INDICATOR: '#FFCC00',
+  SPLASH_OVERLAY: '#00FFFF',
+  BUBBLE_CONTAINER: '#FF4444'
+} as const;
+
+export const CHAT_CONSTANTS = {
+  CONTAINER_PADDING: 20,
+  BUBBLE: {
+    JERRY_LEFT_MARGIN: 20,
+    USER_RIGHT_MARGIN: 20,
+    VERTICAL_SPACING: {
+      SAME_SPEAKER: 8,
+      DIFFERENT_SPEAKER: 24
+    }
+  }
+} as const; 

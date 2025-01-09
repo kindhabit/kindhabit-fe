@@ -1,7 +1,7 @@
 import React from 'react';
 import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
 import { ThemeProvider as EmotionThemeProvider } from '@emotion/react';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
 import theme from './theme';
 import Router from './Router';
@@ -24,9 +24,9 @@ function App() {
       <RecoilRoot>
         <MuiThemeProvider theme={theme}>
           <EmotionThemeProvider theme={theme}>
-            <BrowserRouter>
+            <HashRouter>
               <Router />
-            </BrowserRouter>
+            </HashRouter>
           </EmotionThemeProvider>
         </MuiThemeProvider>
       </RecoilRoot>
