@@ -38,6 +38,7 @@ export interface ChatBubbleMessage {
   isHistory?: boolean;
   depth: number;
   parentMessageId?: string;
+  timestamp: number;
 }
 
 export interface ChatLinkPosition {

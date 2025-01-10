@@ -1,5 +1,39 @@
-export const DEBUG_MODE = true;  // 개발 완에는 true
-// 배포 전에 false로 변경하면 모든 디버깅 표시가 사라짐
+export const DEBUG_MODE = true;  // 또는 환경변수에서 가져올 수 있음
+
+export const DEBUG_STYLES = {
+  BubbleWrapper: {
+    color: 'red',
+    label: 'BubbleWrapper'
+  },
+  BubbleContainer: {
+    color: 'orange',
+    label: 'BubbleContainer'
+  },
+  ProfileSection: {
+    color: 'blue',
+    label: 'ProfileSection'
+  },
+  MessageBubble: {
+    color: 'green',
+    label: 'MessageBubble'
+  },
+  LinkText: {
+    color: 'purple',
+    label: 'LinkText'
+  },
+  ChatWrapper: {
+    color: 'brown',
+    label: 'ChatWrapper'
+  },
+  ContentArea: {
+    color: 'pink',
+    label: 'ContentArea'
+  },
+  MessageArea: {
+    color: 'black',
+    label: 'MessageArea'
+  }
+};
 
 export const DEBUG_COLORS = {
   CHAT_WRAPPER: '#FF3333',
