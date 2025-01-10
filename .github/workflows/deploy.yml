@@ -33,22 +33,14 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
           sudo apt-get install -y sshpass
-          
-          # 서버에서 현재 상태 확인 및 정리
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
             cd /workspace/KINDHABITFE
-            # 기존 dist 디렉토리 백업
             if [ -d dist ]; then
               mv dist dist_backup_$(date +%Y%m%d_%H%M%S)
             fi
-            # 새로운 dist 디렉토리 생성
             mkdir -p dist
           "
-          
-          # 새로운 빌드 파일 전송
           sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* root@${{ secrets.HOST }}:/workspace/KINDHABITFE/dist/
-          
-          # nginx 설정 테스트 및 재시작
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
             cd /workspace/KINDHABITFE
             nginx -t && {
@@ -56,11 +48,9 @@ jobs:
               sudo rm -rf /var/cache/nginx
               sudo systemctl start nginx
               echo 'Deployment completed successfully'
-              # 성공적으로 배포되면 이전 백업 삭제
               rm -rf dist_backup_*
             } || {
               echo 'Deployment failed, rolling back...'
-              # 가장 최근 백업으로 롤백
               latest_backup=$(ls -td dist_backup_* | head -1)
               if [ ! -z \"\$latest_backup\" ]; then
                 rm -rf dist
