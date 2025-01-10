@@ -1,5 +1,6 @@
 import { atom } from 'recoil';
-import { ChatMessage, HealthData } from '@/types/health.types';
+import { ChatMessage } from '@/types/chat';
+import { HealthData } from '@/types/health.types';
 
 export const chatMessagesState = atom<ChatMessage[]>({
   key: 'chatMessagesState',

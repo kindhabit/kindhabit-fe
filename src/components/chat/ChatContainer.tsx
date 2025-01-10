@@ -156,7 +156,8 @@ const ChatContainer: React.FC = () => {
               message: "간단하게 추천한 성분이에요",
               showProfile: true,
               consecutive: false,
-              depth: 0
+              depth: 0,
+              timestamp: Date.now()
             }
           },
           {
@@ -171,7 +172,8 @@ const ChatContainer: React.FC = () => {
               message: "각 검사 항목에 따라 추천한 성분입니다. 혹시 혈압약을 드시나요?",
               showProfile: true,
               consecutive: true,
-              depth: 0
+              depth: 0,
+              timestamp: Date.now()
             },
             link: {
               text: "이 질문을 하는 이유는요...",
@@ -202,7 +204,8 @@ const ChatContainer: React.FC = () => {
                   onClick: () => handleNo(),
                   variant: 'secondary'
                 }
-              ]
+              ],
+              timestamp: Date.now()
             }
           }
         ];
@@ -255,7 +258,8 @@ const ChatContainer: React.FC = () => {
         consecutive: false,
         isHistory: false,
         depth: 0,
-        parentMessageId: selectedMessageId
+        parentMessageId: selectedMessageId,
+        timestamp: Date.now()
       }
     };
     
@@ -306,7 +310,8 @@ const ChatContainer: React.FC = () => {
         consecutive: false,
         isHistory: false,
         depth: 0,
-        parentMessageId: selectedMessageId
+        parentMessageId: selectedMessageId,
+        timestamp: Date.now()
       }
     };
     
@@ -329,7 +334,8 @@ const ChatContainer: React.FC = () => {
           message: "간단하게 추천한 성분이에요",
           showProfile: true,
           consecutive: false,
-          depth: 0
+          depth: 0,
+          timestamp: Date.now()
         }
       },
       {
@@ -344,7 +350,8 @@ const ChatContainer: React.FC = () => {
           message: "각 검사 항목에 따라 추천한 성분입니다. 혹시 혈압약을 드시나요?",
           showProfile: true,
           consecutive: true,
-          depth: 0
+          depth: 0,
+          timestamp: Date.now()
         },
         link: {
           text: "이 질문을 하는 이유는요...",
@@ -375,7 +382,8 @@ const ChatContainer: React.FC = () => {
               onClick: () => handleNo(),
               variant: 'secondary'
             }
-          ]
+          ],
+          timestamp: Date.now()
         }
       }
     ];
