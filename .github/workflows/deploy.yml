@@ -20,7 +20,7 @@ jobs:
         run: npm install --force
         
       - name: Build
-        run: npm run build
+        run: npm run build:dev
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
         

@@ -24,6 +24,8 @@ export default defineConfig(({ mode }) => {
       'process.env': env
     },
     build: {
+      sourcemap: true,
+      minify: false,
       rollupOptions: {
         output: {
           manualChunks: {
@@ -36,12 +38,9 @@ export default defineConfig(({ mode }) => {
     publicDir: 'public',
     server: {
       hmr: {
-        overlay: true,
-        // 필요한 경우 host와 port 설정 추가
-        // host: 'localhost',
-        // port: 3000
+        overlay: true
       }
     },
-    base: '/',
+    base: '/'
   };
 }); 
