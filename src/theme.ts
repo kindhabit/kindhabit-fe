@@ -6,8 +6,10 @@ export const colors = {
   dialogBg: '#fdfaf7',
   primary: '#6B4423',
   primaryDark: '#4A3B2C',
+  primaryHover: '#8B5E34',
   secondary: '#f5f5f5',
   secondaryDark: '#e0e0e0',
+  secondaryHover: '#e8e8e8',
   textPrimary: '#000000',
   textSecondary: '#666666',
   brown: '#6B4423',
@@ -24,6 +26,22 @@ export const colors = {
     messageArea: {
       background: '#fff9f2'
     }
+  },
+  debug: {
+    bubbleWrapper: '#FF6B6B',
+    bubbleContainer: '#4ECDC4',
+    profileSection: '#45B7D1',
+    messageBubble: '#96CEB4',
+    buttonContainer: '#FFD93D',
+    linkText: '#FF9F1C',
+    sliderSection: '#A8E6CF',
+    sliderContainer: '#6C5CE7',
+    sliderCard: '#FF8B94',
+    cardContent: '#845EC2',
+    iconWrapper: '#00C9A7',
+    tagsContainer: '#C56CF0',
+    tag: '#FF7675',
+    dotsContainer: '#74B9FF'
   }
 };
 

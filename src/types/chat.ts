@@ -1,25 +1,22 @@
 import { SliderItem } from './slider';
 
-export interface BaseMessage {
-  type: 'message' | 'slider';
+export type ChatType = 'user' | 'jerry' | 'slider';
+
+export interface ChatLinkPosition {
+  top?: number;
+  bottom?: number;
+  align?: 'left' | 'right';
 }
 
-export interface ChatTextMessage extends BaseMessage {
-  type: 'message';
-  message: ChatBubbleMessage;
-  link?: ChatLinkMessage;
+export interface ChatProfilePosition {
+  align?: 'left' | 'right';
+  top?: number;
 }
 
-export interface ChatSliderMessage extends BaseMessage {
-  type: 'slider';
-  sliderData: SliderItem[];
-}
-
-export type ChatMessage = ChatTextMessage | ChatSliderMessage;
-
-export interface LoadingState {
-  isLoading: boolean;
-  message?: string;
+export interface ChatLink {
+  text: string;
+  onClick?: () => void;
+  position?: ChatLinkPosition;
 }
 
 export interface ChatButton {
@@ -28,26 +25,33 @@ export interface ChatButton {
   variant?: 'primary' | 'secondary';
 }
 
-export interface ChatBubbleMessage {
+export interface BaseMessage {
   id: string;
-  type: 'jerry' | 'user';
-  message: string;
-  showProfile: boolean;
-  consecutive: boolean;
-  buttons?: ChatButton[];
-  isHistory?: boolean;
-  depth: number;
-  parentMessageId?: string;
+  type: ChatType;
   timestamp: number;
+  showProfile?: boolean;
+  profilePosition?: ChatProfilePosition;
 }
 
-export interface ChatLinkPosition {
-  align: 'left' | 'right';
-  bottom: number;
+export interface TextMessage extends BaseMessage {
+  type: 'user' | 'jerry';
+  message: string;
+  buttons?: ChatButton[];
+  link?: ChatLink;
+  profileText?: string;
+  isLink?: boolean;
 }
 
-export interface ChatLinkMessage {
-  text: string;
-  onClick?: () => void;
-  position: ChatLinkPosition;
+export interface SliderMessage extends BaseMessage {
+  type: 'slider';
+  sliderData: SliderItem[];
+}
+
+export type ChatMessage = TextMessage | SliderMessage;
+
+export interface ChatBubbleProps {
+  message: ChatMessage;
+  onHeightChange?: (height: number) => void;
+  margin?: string;
+  'data-debug'?: boolean;
 } 

@@ -1,37 +1,92 @@
 export const DEBUG_MODE = true;  // 또는 환경변수에서 가져올 수 있음
 
 export const DEBUG_STYLES = {
-  BubbleWrapper: {
-    color: 'red',
-    label: 'BubbleWrapper'
+  // Layout Components
+  LayoutWrapper: {
+    color: '#E91E63',  // Pink
+    label: 'LayoutWrapper'
   },
-  BubbleContainer: {
-    color: 'orange',
-    label: 'BubbleContainer'
+  HeaderArea: {
+    color: '#9C27B0',  // Purple
+    label: 'HeaderArea'
   },
-  ProfileSection: {
-    color: 'blue',
-    label: 'ProfileSection'
+  MainContent: {
+    color: '#673AB7',  // Deep Purple
+    label: 'MainContent'
   },
-  MessageBubble: {
-    color: 'green',
-    label: 'MessageBubble'
-  },
-  LinkText: {
-    color: 'purple',
-    label: 'LinkText'
-  },
+  
+  // Chat Components
   ChatWrapper: {
-    color: 'brown',
+    color: '#3F51B5',  // Indigo
     label: 'ChatWrapper'
   },
   ContentArea: {
-    color: 'pink',
+    color: '#2196F3',  // Blue
     label: 'ContentArea'
   },
   MessageArea: {
-    color: 'black',
+    color: '#03A9F4',  // Light Blue
     label: 'MessageArea'
+  },
+  
+  // Bubble Components
+  BubbleWrapper: {
+    color: '#00BCD4',  // Cyan
+    label: 'BubbleWrapper'
+  },
+  BubbleContainer: {
+    color: '#009688',  // Teal
+    label: 'BubbleContainer'
+  },
+  ProfileSection: {
+    color: '#4CAF50',  // Green
+    label: 'ProfileSection'
+  },
+  MessageBubble: {
+    color: '#8BC34A',  // Light Green
+    label: 'MessageBubble'
+  },
+  ButtonContainer: {
+    color: '#CDDC39',  // Lime
+    label: 'ButtonContainer'
+  },
+  LinkText: {
+    color: '#FFEB3B',  // Yellow
+    label: 'LinkText'
+  },
+  
+  // Slider Components
+  SliderSection: {
+    color: '#FFC107',  // Amber
+    label: 'SliderSection'
+  },
+  SliderContainer: {
+    color: '#FF9800',  // Orange
+    label: 'SliderContainer'
+  },
+  SliderCard: {
+    color: '#FF5722',  // Deep Orange
+    label: 'SliderCard'
+  },
+  CardContent: {
+    color: '#795548',  // Brown
+    label: 'CardContent'
+  },
+  IconWrapper: {
+    color: '#607D8B',  // Blue Grey
+    label: 'IconWrapper'
+  },
+  TagsContainer: {
+    color: '#9E9E9E',  // Grey
+    label: 'TagsContainer'
+  },
+  Tag: {
+    color: '#F44336',  // Red
+    label: 'Tag'
+  },
+  DotsContainer: {
+    color: '#E91E63',  // Pink
+    label: 'DotsContainer'
   }
 };
 

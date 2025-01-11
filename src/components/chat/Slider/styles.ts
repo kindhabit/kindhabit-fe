@@ -1,130 +1,148 @@
-import { styled } from '@mui/material/styles';
+import styled from 'styled-components';
 import { colors } from '@/theme';
+import { debugLabel, debugBorder } from '@/styles/debug';
 
-export const SliderSection = styled('div')`
-  padding: 16px;
-  margin: 8px 0;
-  background-color: ${colors.dashboard.background};
-  width: 100%;
-  border: 2px solid yellow;
-`;
+interface DebugProps {
+  'data-debug'?: boolean;
+}
 
-export const SliderContainer = styled('div')`
+export const SliderContainer = styled.div<DebugProps>`
   display: flex;
-  gap: 12px;
-  padding: 8px 0;
+  gap: 8px;
   overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow-y: hidden;
+  padding: 8px 0;
+  width: 100%;
+  position: relative;
   
   &::-webkit-scrollbar {
     display: none;
   }
-  
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  border: 2px dashed pink;
-  
-  & > * {
-    scroll-snap-align: start;
-  }
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#FF8844')}
+    ${debugLabel({
+      name: 'MessageArea > SliderContainer',
+      hierarchy: '6',
+      color: '#FF8844'
+    })}
+  `}
 `;
 
-export const SliderCard = styled('div')<{ selected?: boolean }>`
-  flex: 0 0 auto;
-  width: 200px;
-  background: ${colors.chat.jerryBubble};
-  border-radius: 16px;
+export const Card = styled.div<DebugProps & { $selected?: boolean }>`
+  min-width: 160px;
+  max-width: 200px;
   padding: 16px;
+  border-radius: 20px;
+  background-color: ${colors.chat.jerryBubble};
+  border: 1.5px solid ${props => props.$selected ? colors.primary : '#E8E1D9'};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
   cursor: pointer;
   transition: all 0.2s ease;
-  scroll-snap-align: start;
-  border: 2px solid lightgreen;
-  
-  ${({ selected }) => selected && `
-    border: 2px solid ${colors.primary};
-    transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.1);
-  `}
+  position: relative;
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(107, 68, 35, 0.1);
+    transform: translateY(-2px);
+    border-color: ${colors.primary};
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
   }
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#88FF44')}
+    ${debugLabel({
+      name: 'SliderContainer > Card',
+      hierarchy: '7',
+      color: '#88FF44'
+    })}
+  `}
 `;
 
-export const CardImage = styled('img')`
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 12px;
-`;
-
-export const CardContent = styled('div')`
-  padding: 0 4px;
-  border: 2px dotted brown;
-`;
-
-export const CardTitle = styled('h3')`
-  margin: 0 0 4px 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: ${colors.textPrimary};
-`;
-
-export const CardDescription = styled('p')`
-  margin: 0;
-  font-size: 14px;
-  color: ${colors.textSecondary};
-  line-height: 1.4;
-`;
-
-export const IconWrapper = styled('div')<{ color: string }>`
+export const IconWrapper = styled.div<DebugProps>`
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background-color: ${props => props.color}15;  // 15% 투명도
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 24px;
   margin-bottom: 12px;
-  
-  svg {
-    width: 24px;
-    height: 24px;
-    color: ${props => props.color};
-  }
+  position: relative;
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#4488FF')}
+    ${debugLabel({
+      name: 'Card > IconWrapper',
+      hierarchy: '8',
+      color: '#4488FF'
+    })}
+  `}
 `;
 
-export const TagsContainer = styled('div')`
+export const HeaderTitle = styled.div<DebugProps>`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${colors.textPrimary};
+  margin-bottom: 4px;
+  position: relative;
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#44FF88')}
+    ${debugLabel({
+      name: 'Card > HeaderTitle',
+      hierarchy: '8',
+      color: '#44FF88'
+    })}
+  `}
+`;
+
+export const CardDescription = styled.div<DebugProps>`
+  font-size: 12px;
+  color: ${colors.textSecondary};
+  margin-bottom: 12px;
+  border-bottom: 1px solid #F0F0F0;
+  padding-bottom: 12px;
+  position: relative;
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#8844FF')}
+    ${debugLabel({
+      name: 'Card > CardDescription',
+      hierarchy: '8',
+      color: '#8844FF'
+    })}
+  `}
+`;
+
+export const TagContainer = styled.div<DebugProps>`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 4px;
+  position: relative;
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#FF4488')}
+    ${debugLabel({
+      name: 'Card > TagContainer',
+      hierarchy: '8',
+      color: '#FF4488'
+    })}
+  `}
 `;
 
-export const Tag = styled('span')`
-  padding: 6px 12px;
-  background-color: ${colors.chat.background};
-  border-radius: 16px;
-  font-size: 13px;
-  color: ${colors.textSecondary};
-  white-space: nowrap;
-`;
+export const Tag = styled.span<DebugProps>`
+  padding: 4px 8px;
+  border-radius: 12px;
+  background-color: #E3F2FD;
+  color: #1976D2;
+  font-size: 12px;
+  font-weight: 500;
+  position: relative;
 
-export const DotsContainer = styled('div')`
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 16px;
-  border: 2px solid violet;
-`;
-
-export const Dot = styled('div')<{ active: boolean }>`
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: ${({ active }) => active ? colors.primary : colors.textSecondary}40;
-  transition: all 0.2s ease;
+  ${props => props['data-debug'] && `
+    ${debugBorder('#FF8844')}
+    ${debugLabel({
+      name: 'TagContainer > Tag',
+      hierarchy: '9',
+      color: '#FF8844'
+    })}
+  `}
 `; 

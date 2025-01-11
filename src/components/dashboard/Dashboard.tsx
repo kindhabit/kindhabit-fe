@@ -5,29 +5,70 @@ import { colors } from '@/theme';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import SectionTitle from '@/components/common/SectionTitle';
 import ContainerHeader from '@/components/common/ContainerHeader';
+import { useRecoilValue } from 'recoil';
+import { debugModeState } from '@/store/debug';
+import { debugLabel, debugBorder } from '@/styles/debug';
 
-const DashboardWrapper = styled(Box)({
-  padding: '20px',
-  height: '100%',
-  background: colors.dashboard.background,
-  overflow: 'auto'
-});
+interface DebugProps {
+  'data-debug'?: boolean;
+}
 
-const StatCard = styled(Paper)({
-  padding: '20px',
-  marginBottom: '16px',
-  borderRadius: '16px',
-  background: '#ffffff',
-  boxShadow: '0 2px 8px rgba(107, 68, 35, 0.06)',
-  border: '1px solid rgba(107, 68, 35, 0.08)'
-});
+const DashboardWrapper = styled(Box)<DebugProps>`
+  padding: 20px;
+  height: 100%;
+  width: 100%;
+  background: ${colors.dashboard.background};
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  
+  ${props => props['data-debug'] && `
+    ${debugBorder('#FF44FF')}
+    ${debugLabel({
+      name: 'DashboardSection > DashboardWrapper',
+      hierarchy: '4',
+      color: '#FF44FF'
+    })}
+  `}
+`;
 
-const HealthMetricsCard = styled(Paper)({
-  padding: '20px',
-  marginBottom: '16px',
-  borderRadius: '16px',
-  background: colors.cardBg
-});
+const StatCard = styled(Paper)<DebugProps>`
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(107, 68, 35, 0.06);
+  border: 1px solid rgba(107, 68, 35, 0.08);
+  position: relative;
+  
+  ${props => props['data-debug'] && `
+    ${debugBorder('#44FFFF')}
+    ${debugLabel({
+      name: 'DashboardWrapper > StatCard',
+      hierarchy: '5',
+      color: '#44FFFF'
+    })}
+  `}
+`;
+
+const HealthMetricsCard = styled(Paper)<DebugProps>`
+  padding: 20px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background: ${colors.cardBg};
+  position: relative;
+  
+  ${props => props['data-debug'] && `
+    ${debugBorder('#FFFF44')}
+    ${debugLabel({
+      name: 'DashboardWrapper > HealthMetricsCard',
+      hierarchy: '5',
+      color: '#FFFF44'
+    })}
+  `}
+`;
 
 const CardHeader = styled(Box)`
   display: flex;
@@ -140,6 +181,7 @@ const Dashboard = () => {
     간수치: false
   });
   const [isMetricsOpen, setIsMetricsOpen] = useState(true);
+  const debugMode = useRecoilValue(debugModeState);
 
   const toggleChart = (metric: string) => {
     setOpenCharts(prev => ({
@@ -149,9 +191,9 @@ const Dashboard = () => {
   };
 
   return (
-    <DashboardWrapper>
+    <DashboardWrapper data-debug={debugMode}>
       <ContainerHeader title="건강 대시보드" />
-      <HealthMetricsCard>
+      <HealthMetricsCard data-debug={debugMode}>
         <CardHeader onClick={() => setIsMetricsOpen(!isMetricsOpen)}>
           <Typography variant="h6">
             건강 지표

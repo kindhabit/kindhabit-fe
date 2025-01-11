@@ -36,6 +36,8 @@ const colors = {
     800: '#424242',
     900: '#212121',
   },
+  link: '#4A90E2',
+  linkHover: '#357ABD',
 } as const;
 
 export default colors; 

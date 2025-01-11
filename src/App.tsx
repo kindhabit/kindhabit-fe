@@ -1,36 +1,43 @@
 import React from 'react';
-import { ThemeProvider as MuiThemeProvider } from '@mui/material/styles';
-import { ThemeProvider as EmotionThemeProvider } from '@emotion/react';
-import { HashRouter } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, useRecoilState } from 'recoil';
+import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
-import Router from './Router';
-import { Profiler } from 'react';
+import Layout from './components/common/Layout';
+import ChatContainer from './components/chat/ChatContainer';
+import { debugModeState } from './store/debug';
 
-function App() {
-  const handleProfiler = (
-    id: string,
-    phase: string,
-    actualDuration: number,
-    baseDuration: number
-  ) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[${id}] ${phase}: ${Math.round(actualDuration)}ms`);
-    }
+function AppContent() {
+  const [debugMode, setDebugMode] = useRecoilState(debugModeState);
+
+  const handleDoubleClick = (e: MouseEvent) => {
+    setDebugMode(prev => {
+      const newState = !prev;
+      console.log(`Debug mode ${newState ? 'ON' : 'OFF'}`);
+      return newState;
+    });
   };
 
+  React.useEffect(() => {
+    window.addEventListener('dblclick', handleDoubleClick);
+    return () => window.removeEventListener('dblclick', handleDoubleClick);
+  }, []);
+
   return (
-    <Profiler id="App" onRender={handleProfiler}>
-      <RecoilRoot>
-        <MuiThemeProvider theme={theme}>
-          <EmotionThemeProvider theme={theme}>
-            <HashRouter>
-              <Router />
-            </HashRouter>
-          </EmotionThemeProvider>
-        </MuiThemeProvider>
-      </RecoilRoot>
-    </Profiler>
+    <ThemeProvider theme={theme}>
+      <div data-debug={debugMode}>
+        <Layout>
+          <ChatContainer />
+        </Layout>
+      </div>
+    </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
+    <RecoilRoot>
+      <AppContent />
+    </RecoilRoot>
   );
 }
 

@@ -41,6 +41,9 @@ const ChatSection = styled('div')`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
 `;
 
 const SplitterBar = styled('div')`
