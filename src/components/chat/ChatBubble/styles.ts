@@ -2,11 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import { ChatType, ChatLinkPosition, ChatProfilePosition } from '@/types/chat';
 import { colors } from '@/theme';
+import { COMPONENT_HIERARCHY } from '@/types/debug';
 
 interface BubbleWrapperProps {
   $type: ChatType;
   $margin?: string;
   'data-debug'?: boolean;
+  $prevType?: ChatType;
+  $hasLink?: boolean;
 }
 
 interface BubbleContainerProps {
@@ -67,71 +70,62 @@ const getDebugLabelPosition = (componentType: string, index: number = 0) => {
   }
 };
 
-const getComponentHierarchy = (componentType: string) => {
-  switch (componentType) {
-    case 'BubbleWrapper':
-      return '[1] ChatBubble > BubbleWrapper';
-    case 'ProfileSection':
-      return '[2] BubbleWrapper > ProfileSection';
-    case 'BubbleContainer':
-      return '[2] BubbleWrapper > BubbleContainer';
-    case 'MessageBubble':
-      return '[3] BubbleContainer > MessageBubble';
-    case 'ButtonContainer':
-      return '[4] MessageBubble > ButtonContainer';
-    case 'LinkText':
-      return '[3] BubbleContainer > LinkText';
-    default:
-      return componentType;
-  }
+const getComponentHierarchy = (componentType: string): string => {
+  const component = COMPONENT_HIERARCHY[componentType] || 
+    { level: 1, name: componentType };
+  return `[${component.level}] ${component.name}`;
 };
 
-const debugLabel = (color: string, label: string) => `
-  position: relative;
+export const debugLabel = (color: string, label: string) => {
+  const level = parseInt(label.match(/\[(\d+)\]/)?.[1] || '1');
+  return `
+    position: relative;
 
-  &::before {
-    content: '${getComponentHierarchy(label)}';
-    position: absolute;
-    ${getDebugLabelPosition(label)}
-    background-color: ${color};
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 0.2s;
-    cursor: move;
-    pointer-events: all;
-    user-select: none;
-    touch-action: none;
-  }
+    &::before {
+      content: '${getComponentHierarchy(label)}';
+      position: absolute;
+      ${getDebugLabelPosition(label)}
+      background-color: ${color};
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: ${9000 + (level * 10)};
+      opacity: 0;
+      transition: opacity 0.2s;
+      cursor: move;
+      pointer-events: all;
+      user-select: none;
+      touch-action: none;
+      display: none;
+    }
 
-  &:hover::before {
-    opacity: 0.9;
-    z-index: 1000;
-  }
+    &:hover::before {
+      opacity: 0.9;
+      display: block;
+    }
 
-  &::after {
-    content: 'width: ' attr(data-width) 'px';
-    position: absolute;
-    top: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: transparent;
-    color: ${color};
-    padding: 0 4px;
-    font-size: 10px;
-    white-space: nowrap;
-  }
-`;
+    &::after {
+      content: 'width: ' attr(data-width) 'px';
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: transparent;
+      color: ${color};
+      padding: 0 4px;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+  `;
+};
 
 const fadeInAnimation = `
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(15px);
     }
     to {
       opacity: 1;
@@ -144,7 +138,7 @@ const slideInAnimation = `
   @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateX(-20px);
+      transform: translateX(-10px);
     }
     to {
       opacity: 1;
@@ -160,10 +154,34 @@ export const BubbleWrapper = styled.div<BubbleWrapperProps>`
   align-items: ${props => props.$type === 'user' ? 'flex-end' : 'flex-start'};
   position: relative;
   box-sizing: border-box;
-  margin: ${({ $margin }) => $margin || '12px 0'};
-  padding: 0 8px;
-  animation: fadeIn 0.3s ease-out;
+  margin: ${({ $margin, $prevType, $hasLink }) => {
+    if ($prevType === 'slider') {
+      return '15px 0 10px';
+    }
+    if ($hasLink) {
+      return '17px 0 10px';
+    }
+    return $margin || '10px 0';
+  }};
+  padding: 0 4px;
+  opacity: 0;
+  animation: bubbleAppear 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   
+  @keyframes bubbleAppear {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(-2px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   ${props => props['data-debug'] && `
     border: 1px dashed ${colors.debug.bubbleWrapper};
     ${debugLabel(colors.debug.bubbleWrapper, 'BubbleWrapper')}
@@ -213,14 +231,14 @@ export const BubbleContainer = styled.div<{ $type: ChatType; 'data-debug'?: bool
   gap: 4px;
   max-width: 70%;
   min-width: 120px;
-  margin-top: 12px;
+  margin-top: 4px;
   
   .profile-name {
     position: absolute;
     top: -20px;
     left: 0;
-    font-size: 12px;
-    color: ${colors.textSecondary};
+    font-size: 12.5px;
+    color: #8B7355;
     font-weight: 500;
   }
   
@@ -232,20 +250,22 @@ export const BubbleContainer = styled.div<{ $type: ChatType; 'data-debug'?: bool
 
 export const MessageBubble = styled.div<MessageBubbleProps>`
   position: relative;
-  padding: 12px 16px;
+  padding: 6px 10px;
   border-radius: ${props =>
     props.$type === 'jerry' ? '18px 18px 18px 4px' : '18px 4px 18px 18px'};
   background-color: ${props =>
     props.$type === 'jerry' ? colors.chat.jerryBubble : '#F5EBE0'};
+  border: ${props =>
+    props.$type === 'jerry' ? '1px solid #E8E1D9' : 'none'};
   color: ${colors.textPrimary};
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   word-break: break-word;
   white-space: pre-wrap;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  animation: slideIn 0.3s ease-out;
+  gap: 8px;
+  animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   
   ${props => props.$isLink && `
     color: ${colors.primary};

@@ -28,6 +28,7 @@ export const colors = {
     }
   },
   debug: {
+    chatWrapper: '#FF4444',
     bubbleWrapper: '#FF6B6B',
     bubbleContainer: '#4ECDC4',
     profileSection: '#45B7D1',
@@ -41,7 +42,10 @@ export const colors = {
     iconWrapper: '#00C9A7',
     tagsContainer: '#C56CF0',
     tag: '#FF7675',
-    dotsContainer: '#74B9FF'
+    dotsContainer: '#74B9FF',
+    contentSection: '#44FF44',
+    messageSection: '#4444FF',
+    inputSection: '#FF8844'
   }
 };
 
