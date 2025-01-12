@@ -144,6 +144,7 @@ export const BubbleWrapper = styled.div<BubbleWrapperProps>`
   align-items: ${props => props.$type === 'user' ? 'flex-end' : 'flex-start'};
   position: relative;
   box-sizing: border-box;
+  height: auto;
   margin: ${({ $margin, $prevType, $hasLink }) => {
     if ($prevType === 'slider') {
       return '15px 0 10px';
@@ -215,7 +216,11 @@ export const SenderName = styled.span`
   left: 0;
 `;
 
-export const BubbleContainer = styled.div<{ $type: ChatType; 'data-debug'?: boolean }>`
+export const BubbleContainer = styled.div<{ 
+  $type: ChatType; 
+  'data-debug'?: boolean;
+  $hasButtons?: boolean;
+}>`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -223,6 +228,10 @@ export const BubbleContainer = styled.div<{ $type: ChatType; 'data-debug'?: bool
   max-width: 70%;
   min-width: 120px;
   margin-top: 4px;
+  margin-bottom: ${props => props.$hasButtons ? '20px' : '4px'};
+  padding-bottom: 0;
+  height: auto;
+  box-sizing: border-box;
   
   .profile-name {
     position: absolute;
@@ -243,21 +252,20 @@ export const MessageBubble = styled.div<MessageBubbleProps>`
   position: relative;
   padding: ${props => props.$type === 'jerry' ? '8px 12px' : '10px'};
   border-radius: ${props =>
-    props.$type === 'jerry' ? '18px 18px 18px 4px' : '18px 4px 18px 18px'};
+    props.$type === 'jerry' ? '16px 16px 2px 16px' : '16px 16px 16px 2px'};
   background-color: ${props =>
     props.$type === 'jerry' ? colors.chat.jerryBubble : '#7B5F3F'};
   border: ${props =>
     props.$type === 'jerry' ? '1px solid #E8E1D9' : 'none'};
   color: ${props => props.$type === 'jerry' ? colors.textPrimary : '#FFFFFF'};
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   word-break: break-word;
   white-space: pre-wrap;
   display: flex;
   flex-direction: column;
   ${props => props.$hasButtons && `
-    min-height: 80px;
-    padding-bottom: 35px;
+    padding-bottom: ${props.$type === 'user' ? 'auto' : '10px'};
   `}
   gap: 8px;
   animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -283,15 +291,15 @@ export const ButtonContainer = styled.div<{ 'data-debug'?: boolean; $position?: 
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: ${props => props.$position === 'inside' ? '0' : '4px'};
-  padding-top: ${props => props.$position === 'inside' ? '8px' : '0'};
+  gap: 8px;
   border-top: ${props => props.$position === 'inside' ? '1px solid rgba(255, 255, 255, 0.2)' : 'none'};
-  position: ${props => props.$position === 'inside' ? 'absolute' : 'relative'};
-  bottom: ${props => props.$position === 'inside' ? '8px' : 'auto'};
-  left: ${props => props.$position === 'inside' ? '0' : 'auto'};
-  right: ${props => props.$position === 'inside' ? '0' : 'auto'};
-  padding-right: 10px;
+  position: relative;
+  padding: 8px 10px;
+  background-color: #7B5F3F;
+  z-index: 1;
+  height: auto;
+  width: 100%;
+  box-sizing: border-box;
 
   ${props => props['data-debug'] && `
     border: 1px dashed ${colors.debug.buttonContainer};
@@ -304,16 +312,16 @@ export const BubbleButton = styled.button<{
   $variant: 'primary' | 'secondary';
   'data-debug'?: boolean;
 }>`
-  padding: 6px 14px;
-  border-radius: 12px;
+  padding: 6px 16px;
+  border-radius: 20px;
   border: 1px solid ${props => 
     props.$variant === 'primary' 
-      ? 'rgba(255, 255, 255, 0.3)' 
-      : 'rgba(255, 255, 255, 0.15)'
+      ? 'rgba(255, 255, 255, 0.15)'
+      : 'rgba(255, 255, 255, 0.08)'
   };
   background-color: ${props => 
     props.$variant === 'primary' 
-      ? 'rgba(255, 255, 255, 0.2)' 
+      ? 'rgba(255, 255, 255, 0.08)'
       : 'transparent'
   };
   color: #FFFFFF;
@@ -321,18 +329,18 @@ export const BubbleButton = styled.button<{
   transition: all 0.2s ease;
   font-size: 13px;
   font-weight: ${props => props.$variant === 'primary' ? '500' : '400'};
-  min-width: 56px;
+  min-width: 48px;
 
   &:hover {
     background-color: ${props => 
       props.$variant === 'primary' 
-        ? 'rgba(255, 255, 255, 0.3)' 
-        : 'rgba(255, 255, 255, 0.1)'
+        ? 'rgba(255, 255, 255, 0.15)'
+        : 'rgba(255, 255, 255, 0.05)'
     };
     border-color: ${props => 
       props.$variant === 'primary' 
-        ? 'rgba(255, 255, 255, 0.4)' 
-        : 'rgba(255, 255, 255, 0.25)'
+        ? 'rgba(255, 255, 255, 0.25)'
+        : 'rgba(255, 255, 255, 0.15)'
     };
   }
 

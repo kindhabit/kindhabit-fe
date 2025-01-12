@@ -18,6 +18,7 @@ const ChatWrapper = styled.div<DebugProps>`
   flex-direction: column;
   width: 100%;
   height: 100%;
+  overflow-y: auto;
   background: #FAF7F2;
   position: relative;
   padding: 0 10px;
@@ -43,7 +44,7 @@ const ContentSection = styled.div<DebugProps>`
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   
   ${props => props['data-debug'] && `
@@ -60,6 +61,7 @@ const MessageSection = styled.div<DebugProps>`
   display: flex;
   flex-direction: column;
   position: relative;
+  min-height: 100%;
   
   ${props => props['data-debug'] && `
     border: 1px dashed ${colors.debug.messageSection};
@@ -165,7 +167,7 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
         id: `msg1_${baseTimestamp}_${Math.random().toString(36).substr(2, 9)}`,
         type: 'jerry',
         timestamp: baseTimestamp,
-        message: '우선 개별의 항목의 정상 유/무 만을 기반으로 기본 적인 성분을 추천 해 드릴께요 ✨',
+        message: '우선 개별의 건강 항목 기반으로 기본 적인 성분을 추천 해 드릴께요 🧐',
         showProfile: true,
         profileText: '김제리'
       },
@@ -215,11 +217,11 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
         id: `msg2_${baseTimestamp + 2}_${Math.random().toString(36).substr(2, 9)}`,
           type: 'jerry',
         timestamp: baseTimestamp + 1000,
-        message: '1차 분석 결과 5개의 성분이 추천되었어요. 혹시 혈압약을 드시나요?',
+        message: '기본 5개의 성분이 추천되었어요. 혹시.... 혈압약을 드시나요? 👀',
           showProfile: true,
         profileText: '김제리',
         link: {
-          text: '이 질문을 한 이유는? 🤔',
+          text: '이 질문을 한 이유는 무엇일까요? 🤔',
           onClick: () => console.log('Link clicked'),
           position: {
             bottom: -18,
