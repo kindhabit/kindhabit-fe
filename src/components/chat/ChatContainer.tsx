@@ -215,10 +215,10 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
       },
       {
         id: `msg2_${baseTimestamp + 2}_${Math.random().toString(36).substr(2, 9)}`,
-          type: 'jerry',
+        type: 'jerry',
         timestamp: baseTimestamp + 1000,
         message: '기본 5개의 성분이 추천되었어요. 혹시.... 혈압약을 드시나요? 👀',
-          showProfile: true,
+        showProfile: true,
         profileText: '김제리',
         link: {
           text: '이 질문을 한 이유는 무엇일까요? 🤔',
