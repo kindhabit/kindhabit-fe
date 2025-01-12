@@ -9,6 +9,11 @@ interface DebugProps {
   'data-debug'?: boolean;
 }
 
+interface DebugLabelProps {
+  'data-debug'?: boolean;
+  showOnHover?: boolean;
+}
+
 const HeaderWrapper = styled.div<DebugProps>`
   height: 64px;
   display: flex;
