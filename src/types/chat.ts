@@ -40,6 +40,7 @@ export interface TextMessage extends BaseMessage {
   link?: ChatLink;
   profileText?: string;
   isLink?: boolean;
+  buttonPosition?: 'inside' | 'outside';
 }
 
 export interface SliderMessage extends BaseMessage {

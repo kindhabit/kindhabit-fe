@@ -1,5 +1,5 @@
 import React from 'react';
-import { styled } from 'styled-components';
+import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/store/debug';
 import { createDebugStyles } from '@/styles/debug';

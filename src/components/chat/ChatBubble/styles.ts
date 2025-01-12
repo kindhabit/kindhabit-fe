@@ -23,6 +23,7 @@ interface MessageBubbleProps {
   $isHistory?: boolean;
   'data-debug'?: boolean;
   $isLink?: boolean;
+  $hasButtons?: boolean;
 }
 
 interface LinkTextProps {
@@ -46,28 +47,17 @@ interface ProfileSectionProps {
 }
 
 const getDebugLabelPosition = (componentType: string, index: number = 0) => {
-  const basePosition = {
-    top: 4 + (index * 24),
-    left: 4,
-    right: 4
-  };
+  const component = COMPONENT_HIERARCHY[componentType];
+  if (!component) return '';
 
-  switch (componentType) {
-    case 'BubbleWrapper':
-      return `top: ${basePosition.top}px; left: ${basePosition.left}px;`;
-    case 'ProfileSection':
-      return `top: ${basePosition.top}px; left: ${basePosition.left}px;`;
-    case 'BubbleContainer':
-      return `top: ${basePosition.top}px; right: ${basePosition.right}px;`;
-    case 'MessageBubble':
-      return `top: ${basePosition.top}px; left: ${basePosition.left}px;`;
-    case 'ButtonContainer':
-      return `top: ${basePosition.top}px; right: ${basePosition.right}px;`;
-    case 'LinkText':
-      return `top: ${basePosition.top}px; right: ${basePosition.right}px;`;
-    default:
-      return `top: ${basePosition.top}px; right: ${basePosition.right}px;`;
-  }
+  const level = component.level;
+  const baseOffset = 4;
+  const levelOffset = level * 24;  // 레벨에 따라 위치 조정
+
+  return `
+    top: ${baseOffset + levelOffset}px;
+    ${level % 2 === 0 ? 'left' : 'right'}: ${baseOffset + (level * 8)}px;
+  `;
 };
 
 const getComponentHierarchy = (componentType: string): string => {
@@ -185,6 +175,7 @@ export const BubbleWrapper = styled.div<BubbleWrapperProps>`
   ${props => props['data-debug'] && `
     border: 1px dashed ${colors.debug.bubbleWrapper};
     ${debugLabel(colors.debug.bubbleWrapper, 'BubbleWrapper')}
+    ${debugAreaStyle(colors.debug.bubbleWrapper)}
   `}
 `;
 
@@ -250,20 +241,24 @@ export const BubbleContainer = styled.div<{ $type: ChatType; 'data-debug'?: bool
 
 export const MessageBubble = styled.div<MessageBubbleProps>`
   position: relative;
-  padding: 6px 10px;
+  padding: ${props => props.$type === 'jerry' ? '8px 12px' : '10px'};
   border-radius: ${props =>
     props.$type === 'jerry' ? '18px 18px 18px 4px' : '18px 4px 18px 18px'};
   background-color: ${props =>
-    props.$type === 'jerry' ? colors.chat.jerryBubble : '#F5EBE0'};
+    props.$type === 'jerry' ? colors.chat.jerryBubble : '#7B5F3F'};
   border: ${props =>
     props.$type === 'jerry' ? '1px solid #E8E1D9' : 'none'};
-  color: ${colors.textPrimary};
+  color: ${props => props.$type === 'jerry' ? colors.textPrimary : '#FFFFFF'};
   font-size: 13px;
   line-height: 1.5;
   word-break: break-word;
   white-space: pre-wrap;
   display: flex;
   flex-direction: column;
+  ${props => props.$hasButtons && `
+    min-height: 80px;
+    padding-bottom: 35px;
+  `}
   gap: 8px;
   animation: slideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   
@@ -280,39 +275,80 @@ export const MessageBubble = styled.div<MessageBubbleProps>`
   ${props => props['data-debug'] && `
     border: 1px dashed ${colors.debug.messageBubble};
     ${debugLabel(colors.debug.messageBubble, 'MessageBubble')}
+    ${debugAreaStyle(colors.debug.messageBubble)}
   `}
 `;
 
-export const ButtonContainer = styled.div<{ 'data-debug'?: boolean }>`
+export const ButtonContainer = styled.div<{ 'data-debug'?: boolean; $position?: 'inside' | 'outside' }>`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 12px;
+  margin-top: ${props => props.$position === 'inside' ? '0' : '4px'};
+  padding-top: ${props => props.$position === 'inside' ? '8px' : '0'};
+  border-top: ${props => props.$position === 'inside' ? '1px solid rgba(255, 255, 255, 0.2)' : 'none'};
+  position: ${props => props.$position === 'inside' ? 'absolute' : 'relative'};
+  bottom: ${props => props.$position === 'inside' ? '8px' : 'auto'};
+  left: ${props => props.$position === 'inside' ? '0' : 'auto'};
+  right: ${props => props.$position === 'inside' ? '0' : 'auto'};
+  padding-right: 10px;
+
   ${props => props['data-debug'] && `
     border: 1px dashed ${colors.debug.buttonContainer};
     ${debugLabel(colors.debug.buttonContainer, 'ButtonContainer')}
+    ${debugAreaStyle(colors.debug.buttonContainer)}
   `}
 `;
 
-export const BubbleButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  padding: 6px 12px;
+export const BubbleButton = styled.button<{ 
+  $variant: 'primary' | 'secondary';
+  'data-debug'?: boolean;
+}>`
+  padding: 6px 14px;
   border-radius: 12px;
-  border: 1px solid #E0E0E0;
-  background-color: transparent;
-  color: #666666;
+  border: 1px solid ${props => 
+    props.$variant === 'primary' 
+      ? 'rgba(255, 255, 255, 0.3)' 
+      : 'rgba(255, 255, 255, 0.15)'
+  };
+  background-color: ${props => 
+    props.$variant === 'primary' 
+      ? 'rgba(255, 255, 255, 0.2)' 
+      : 'transparent'
+  };
+  color: #FFFFFF;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   font-size: 13px;
-  min-width: 60px;
+  font-weight: ${props => props.$variant === 'primary' ? '500' : '400'};
+  min-width: 56px;
 
   &:hover {
-    background-color: #F5F5F5;
+    background-color: ${props => 
+      props.$variant === 'primary' 
+        ? 'rgba(255, 255, 255, 0.3)' 
+        : 'rgba(255, 255, 255, 0.1)'
+    };
+    border-color: ${props => 
+      props.$variant === 'primary' 
+        ? 'rgba(255, 255, 255, 0.4)' 
+        : 'rgba(255, 255, 255, 0.25)'
+    };
   }
 
   &:active {
-    background-color: #E0E0E0;
+    background-color: ${props => 
+      props.$variant === 'primary' 
+        ? 'rgba(255, 255, 255, 0.35)' 
+        : 'rgba(255, 255, 255, 0.15)'
+    };
   }
+
+  ${props => props['data-debug'] && `
+    border: 1px dashed ${colors.debug.bubbleButton};
+    ${debugLabel(colors.debug.bubbleButton, 'BubbleButton')}
+    ${debugAreaStyle(colors.debug.bubbleButton)}
+  `}
 `;
 
 export const LinkText = styled.span<{ $position?: ChatLinkPosition; 'data-debug'?: boolean }>`
@@ -440,3 +476,89 @@ export const useDebugWidth = (ref: React.RefObject<HTMLElement>) => {
     }
   }, []);  // Empty dependency array
 }; 
+
+// 디버그 모드용 공통 스타일 추가
+const debugAreaStyle = (color: string) => `
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: linear-gradient(
+      45deg,
+      ${color}10 25%,
+      transparent 25%,
+      transparent 50%,
+      ${color}10 50%,
+      ${color}10 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 20px 20px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+
+  &:hover::before {
+    opacity: 0.5;
+  }
+`; 
+
+export const BubbleLoadingIndicator = styled.div`
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 16px);
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  animation: pulse 1.5s ease-in-out infinite;
+
+  @keyframes pulse {
+    0% { opacity: 0.4; transform: translateY(-50%) scale(0.95); }
+    50% { opacity: 1; transform: translateY(-50%) scale(1.05); }
+    100% { opacity: 0.4; transform: translateY(-50%) scale(0.95); }
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+`; 
+
+export const UserWaitingIndicator = styled.div<{ 'data-debug'?: boolean }>`
+  position: absolute;
+  top: 40%;
+  right: calc(100% + 4px);
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  animation: pulse 1.5s ease-in-out infinite;
+
+  @keyframes pulse {
+    0% { opacity: 0.4; transform: translateY(-40%) scale(0.95); }
+    50% { opacity: 1; transform: translateY(-40%) scale(1.05); }
+    100% { opacity: 0.4; transform: translateY(-40%) scale(0.95); }
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    
+    ${props => props['data-debug'] && `
+      border: 1px dashed ${colors.debug.waitingIndicatorImage};
+      ${debugLabel(colors.debug.waitingIndicatorImage, 'WaitingIndicatorImage')}
+      ${debugAreaStyle(colors.debug.waitingIndicatorImage)}
+    `}
+  }
+
+  ${props => props['data-debug'] && `
+    border: 1px dashed ${colors.debug.waitingIndicator};
+    ${debugLabel(colors.debug.waitingIndicator, 'UserWaitingIndicator')}
+    ${debugAreaStyle(colors.debug.waitingIndicator)}
+  `}
+`; 

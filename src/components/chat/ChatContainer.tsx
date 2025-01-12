@@ -20,7 +20,7 @@ const ChatWrapper = styled.div<DebugProps>`
   height: 100%;
   background: #FAF7F2;
   position: relative;
-  padding: 0 20px;
+  padding: 0 10px;
   
   ${(props: DebugProps) => props['data-debug'] && `
     border: 1px dashed ${colors.debug.chatWrapper};
@@ -79,7 +79,7 @@ const InputSection = styled.div<DebugProps>`
   `}
 `;
 
-const LoadingOverlay = styled.div`
+const LoadingOverlay = styled.div<DebugProps>`
   position: relative;
   background: transparent;
   display: flex;
@@ -89,12 +89,18 @@ const LoadingOverlay = styled.div`
   justify-content: center;
   z-index: 1000;
   opacity: 1;
-  transition: opacity 0.8s ease-out;
+  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 24px 0;
   
   &.fade-out {
     opacity: 0;
+    transform: translateY(10px);
   }
+
+  ${props => props['data-debug'] && `
+    border: 1px dashed ${colors.debug.loadingOverlay};
+    ${debugLabel(colors.debug.loadingOverlay, 'LoadingOverlay')}
+  `}
 `;
 
 const LoadingImage = styled.img`
@@ -127,12 +133,28 @@ const LoadingText = styled.div`
   color: #666;
   font-size: 11px;
   opacity: 0.8;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.changing {
+    opacity: 0;
+    transform: translateY(5px);
+  }
 `;
 
 const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnabled = false }) => {
   const debugMode = useRecoilValue(debugModeState);
   const [messages, setMessages] = useState<(TextMessage | SliderMessage)[]>([]);
-  const [showLoading, setShowLoading] = useState(true);
+  const [waitingMessageId, setWaitingMessageId] = useState<string | null>(null);
+  const [showLoading, setShowLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  const loadingMessages = [
+    '유효 성분을 고민 중이에요...',
+    '성분을 매칭 중입니다...',
+    '곧 화면에 분석결과가 표출됩니다...'
+  ];
+
+  const loadingTimings = [3000, 2000, 2000, 1500]; // 마지막은 페이드아웃 시간
 
   useEffect(() => {
     setMessages([]);
@@ -191,10 +213,10 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
       },
       {
         id: `msg2_${baseTimestamp + 2}_${Math.random().toString(36).substr(2, 9)}`,
-        type: 'jerry',
+          type: 'jerry',
         timestamp: baseTimestamp + 1000,
         message: '1차 분석 결과 5개의 성분이 추천되었어요. 혹시 혈압약을 드시나요?',
-        showProfile: true,
+          showProfile: true,
         profileText: '김제리',
         link: {
           text: '이 질문을 한 이유는? 🤔',
@@ -211,6 +233,7 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
         timestamp: baseTimestamp + 1500,
         message: '과거/현재에 혈압약을 드시거나 드실 예정인가요?',
         showProfile: false,
+        buttonPosition: 'inside',
         buttons: [
           { 
             text: '네',
@@ -238,19 +261,37 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
       const splashTimer = setTimeout(() => {
         setShowLoading(true);
         
-        // 3. 스플래시 표시 시간 (3초 → 4초로 변경)
-        const afterSplashTimer = setTimeout(() => {
-          setShowLoading(false);
-          
-          // 4. 슬라이더와 나머지 메시지들 순차적 표시 (간격 2초 → 2.5초로 변경)
-          initialMessages.slice(1).forEach((message, index) => {
-            const timerId = setTimeout(() => {
-              setMessages(prev => [...prev, message]);
-            }, index * 2500);
-            timerIds.push(timerId);
-          });
-        }, 4000);
-        timerIds.push(afterSplashTimer);
+        // 순차적으로 메시지 변경
+        let currentStep = 0;
+        const stepTimers: NodeJS.Timeout[] = [];
+        
+        const runNextStep = () => {
+          if (currentStep <= loadingMessages.length) {
+            const timer = setTimeout(() => {
+              if (currentStep === loadingMessages.length) {
+                setShowLoading(false);
+                // 슬라이더와 나머지 메시지들 표시
+                initialMessages.slice(1).forEach((message, index) => {
+                  const timerId = setTimeout(() => {
+                    setMessages(prev => [...prev, message]);
+                  }, index * 2500);
+                  timerIds.push(timerId);
+                });
+              } else {
+                setLoadingStep(currentStep);
+                currentStep++;
+                runNextStep();
+              }
+            }, loadingTimings[currentStep]);
+            stepTimers.push(timer);
+          }
+        };
+        
+        runNextStep();
+        
+        return () => {
+          stepTimers.forEach(timer => clearTimeout(timer));
+        };
       }, 2000);
       timerIds.push(splashTimer);
     }, 300);
@@ -260,6 +301,21 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
       timerIds.forEach(id => clearTimeout(id));
     };
   }, []);
+
+  const handleButtonClick = (messageId: string, onClick: () => void) => {
+    setWaitingMessageId(null);
+    onClick();
+  };
+
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && 'type' in lastMessage && lastMessage.type === 'user') {
+      const timer = setTimeout(() => {
+        setWaitingMessageId(lastMessage.id);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [messages]);
 
   return (
     <ChatWrapper data-debug={debug || debugMode}>
@@ -278,16 +334,26 @@ const ChatContainer: React.FC<DebugProps> = ({ 'data-debug': debug, $inputEnable
                     onComplete={() => {}}
                   />
                 ) : (
-                  <ChatBubble 
+              <ChatBubble
                     message={message} 
                     prevType={prevType}
                     prevHasLink={prevHasLink}
+                    buttonPosition={message.buttonPosition}
+                    isWaitingForResponse={message.id === waitingMessageId}
+                    onClick={() => {
+                      if (message.buttons && message.buttons[0]?.onClick) {
+                        handleButtonClick(message.id, message.buttons[0].onClick);
+                      }
+                    }}
                   />
                 )}
                 {index === 0 && showLoading && (
-                  <LoadingOverlay className={!showLoading ? 'fade-out' : ''}>
+                  <LoadingOverlay 
+                    className={!showLoading ? 'fade-out' : ''}
+                    data-debug={debug || debugMode}
+                  >
                     <LoadingImage src="/assets/splash.png" alt="Loading..." />
-                    <LoadingText>유효 성분을 고민 중이에요...</LoadingText>
+                    <LoadingText>{loadingMessages[loadingStep]}</LoadingText>
                   </LoadingOverlay>
                 )}
               </React.Fragment>

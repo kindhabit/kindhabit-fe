@@ -28,46 +28,31 @@ interface DebugLabelProps {
   name: string;
   hierarchy: string;
   color: string;
+  zIndex?: number;
+  showOnHover?: boolean;
 }
 
-export const debugLabel = ({ name, hierarchy, color }: DebugLabelProps) => css`
+export const debugLabel = ({
+  name,
+  hierarchy,
+  color,
+  zIndex = 9000
+}: DebugLabelProps) => css`
   position: relative;
 
   &::before {
-    content: '${hierarchy}';
+    content: '[${hierarchy}] ${name}';
     position: absolute;
-    top: -20px;
-    left: 0;
-    font-size: 12px;
-    padding: 2px 6px;
+    top: 4px;
+    left: 4px;
     background-color: ${color};
     color: white;
-    border-radius: 4px;
-    z-index: 9999;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &:hover::before {
-    opacity: 0.9;
-  }
-
-  &::after {
-    content: '${name}';
-    position: absolute;
-    top: -20px;
-    left: 24px;
-    font-size: 12px;
     padding: 2px 6px;
-    background-color: ${color};
-    color: white;
     border-radius: 4px;
-    z-index: 9999;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: ${zIndex};
     opacity: 0;
-    pointer-events: none;
-  }
-
-  &:hover::after {
-    opacity: 0.9;
+    transition: opacity 0.2s;
   }
 `; 

@@ -1,4 +1,5 @@
-import { styled } from '@mui/material/styles';
+import React from 'react';
+import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/store/debug';
 import { createDebugStyles } from '@/styles/debug';
@@ -8,7 +9,7 @@ interface DebugProps {
   'data-debug'?: boolean;
 }
 
-const LayoutWrapper = styled('div')<DebugProps>`
+const LayoutWrapper = styled.div<DebugProps>`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -23,7 +24,7 @@ const LayoutWrapper = styled('div')<DebugProps>`
   })}
 `;
 
-const HeaderArea = styled('div')<DebugProps>`
+const HeaderArea = styled.div<DebugProps>`
   position: relative;
   
   ${createDebugStyles({
@@ -33,7 +34,7 @@ const HeaderArea = styled('div')<DebugProps>`
   })}
 `;
 
-const MainContent = styled('div')<DebugProps>`
+const MainContent = styled.div<DebugProps>`
   flex: 1;
   display: flex;
   overflow: hidden;
@@ -50,11 +51,15 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+interface ChildProps {
+  'data-debug'?: boolean;
+}
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const debugMode = useRecoilValue(debugModeState);
 
   const childrenWithDebug = React.Children.map(children, child => {
-    if (React.isValidElement(child)) {
+    if (React.isValidElement<ChildProps>(child)) {
       return React.cloneElement(child, { 'data-debug': debugMode });
     }
     return child;

@@ -1,10 +1,17 @@
 import styled from 'styled-components';
 import { colors } from '@/theme';
 import { debugLabel, debugBorder } from '@/styles/debug';
+import { NavigatorDotProps } from '@/types/slider';
 
 interface DebugProps {
   'data-debug'?: boolean;
 }
+
+export const SliderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;  // 슬라이더와 네비게이터 사이 간격
+`;
 
 export const SliderContainer = styled.div<DebugProps>`
   display: flex;
@@ -15,7 +22,24 @@ export const SliderContainer = styled.div<DebugProps>`
   width: 100%;
   position: relative;
   
+  /* Chrome, Safari, Opera */
   &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  
+  /* Firefox */
+  scrollbar-width: none;
+  
+  /* IE, Edge */
+  -ms-overflow-style: none;
+  
+  /* 추가적인 스크롤바 숨김 처리 */
+  &::-webkit-scrollbar-track {
+    display: none;
+  }
+  &::-webkit-scrollbar-thumb {
     display: none;
   }
 
@@ -24,7 +48,8 @@ export const SliderContainer = styled.div<DebugProps>`
     ${debugLabel({
       name: 'MessageArea > SliderContainer',
       hierarchy: '6',
-      color: '#FF8844'
+      color: '#FF8844',
+      zIndex: 9060
     })}
   `}
 `;
@@ -34,7 +59,7 @@ export const Card = styled.div<DebugProps & { $selected?: boolean }>`
   max-width: 200px;
   padding: 16px;
   border-radius: 20px;
-  background-color: ${colors.chat.jerryBubble};
+  background-color: #F8F4F0;
   border: 1.5px solid ${props => props.$selected ? colors.primary : '#E8E1D9'};
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
   cursor: pointer;
@@ -52,7 +77,8 @@ export const Card = styled.div<DebugProps & { $selected?: boolean }>`
     ${debugLabel({
       name: 'SliderContainer > Card',
       hierarchy: '7',
-      color: '#88FF44'
+      color: '#88FF44',
+      zIndex: 9070
     })}
   `}
 `;
@@ -145,4 +171,35 @@ export const Tag = styled.span<DebugProps>`
       color: '#FF8844'
     })}
   `}
+`;
+
+export const NavigatorContainer = styled.div<DebugProps>`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 0;
+
+  ${props => props['data-debug'] && `
+    ${debugBorder('#FF44FF')}
+    ${debugLabel({
+      name: 'SliderSection > NavigatorContainer',
+      hierarchy: '7',
+      color: '#FF44FF'
+    })}
+  `}
+`;
+
+export const NavigatorDot = styled.button<NavigatorDotProps>`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${props => props.$active ? colors.primary : colors.secondaryDark};
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: ${props => props.$active ? colors.primary : colors.secondaryHover};
+  }
 `; 

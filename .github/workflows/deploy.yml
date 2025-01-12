@@ -17,12 +17,13 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install --force
+        run: npm install
         
       - name: Build
         run: npm run build:dev
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          CI: false
         
       - name: Test connection
         run: |
@@ -59,4 +60,11 @@ jobs:
               sudo systemctl restart nginx
               exit 1
             }
+          "
+
+      - name: Cleanup old backups
+        run: |
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
+            cd /workspace/KINDHABITFE
+            find . -name 'dist_backup_*' -type d -mtime +7 -exec rm -rf {} \;
           "

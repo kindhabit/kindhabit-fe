@@ -8,4 +8,14 @@ export interface SliderItem {
     emoji?: string;
   };
   tags?: string[];
+}
+
+export interface SliderNavigatorProps {
+  total: number;
+  current: number;
+  onSelect: (index: number) => void;
+}
+
+export interface NavigatorDotProps {
+  $active: boolean;
 } 

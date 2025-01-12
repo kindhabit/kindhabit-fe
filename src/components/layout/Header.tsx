@@ -1,4 +1,5 @@
-import { styled } from '@mui/material/styles';
+import React from 'react';
+import styled from 'styled-components';
 import { colors } from '@/theme';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/store/debug';
@@ -8,7 +9,7 @@ interface DebugProps {
   'data-debug'?: boolean;
 }
 
-const HeaderWrapper = styled('div')<DebugProps>`
+const HeaderWrapper = styled.div<DebugProps>`
   height: 64px;
   display: flex;
   align-items: center;
@@ -28,7 +29,7 @@ const HeaderWrapper = styled('div')<DebugProps>`
   `}
 `;
 
-const LogoContainer = styled('div')<DebugProps>`
+const LogoContainer = styled.div<DebugProps>`
   display: flex;
   align-items: center;
   position: relative;
@@ -44,7 +45,7 @@ const LogoContainer = styled('div')<DebugProps>`
   `}
 `;
 
-const Logo = styled('img')<DebugProps>`
+const Logo = styled.img<DebugProps>`
   height: 32px;
   width: auto;
   position: relative;

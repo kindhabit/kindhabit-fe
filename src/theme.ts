@@ -45,7 +45,19 @@ export const colors = {
     dotsContainer: '#74B9FF',
     contentSection: '#44FF44',
     messageSection: '#4444FF',
-    inputSection: '#FF8844'
+    inputSection: '#FF8844',
+    loadingOverlay: '#FFB6C1',
+    appLayout: '#E8E8E8',
+    header: '#D3D3D3',
+    mainContent: '#C0C0C0',
+    sidebar: '#B8B8B8',
+    dashboard: '#FFE4E1',
+    dashboardHeader: '#FFC0CB',
+    dashboardContent: '#FFB6C1',
+    dashboardSection: '#FF69B4',
+    bubbleButton: '#FF6B6B',
+    waitingIndicator: '#4ECDC4',
+    waitingIndicatorImage: '#45B7AF'
   }
 };
 
