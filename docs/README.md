@@ -54,3 +54,22 @@
 - GitHub Actions (CI/CD)
 
 ## 프로젝트 구조
+
+src/
+├── assets/           # 정적 자원 (이미지, 폰트 등)
+├── atoms/            # 아톰 단위 컴포넌트
+├── components/       # 컴포넌트
+│   ├── chat/        # 대화형 UI 컴포넌트
+│   └── common/      # 공통 컴포넌트
+├── constants/        # 상수 정의
+├── pages/           # 페이지 컴포넌트
+│   ├── supplement/  # 건기식 서비스
+│   └── booking/     # 예약 서비스
+├── services/        # 서비스 로직
+├── store/           # 상태 관리
+├── styles/          # 스타일 정의
+├── theme/           # 테마 설정
+├── types/           # 타입 정의
+├── App.tsx          # 앱 진입점
+├── Router.tsx       # 라우터 설정
+└── main.tsx         # 메인 진입점
