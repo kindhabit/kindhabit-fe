@@ -5,9 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:supplement": "vite --mode supplement",
+    "dev:booking": "vite --mode booking",
     "build": "tsc && vite build",
     "build:dev": "tsc && vite build --mode development",
     "build:prod": "tsc && vite build --mode production",
+    "build:supplement": "tsc && vite build --mode supplement",
+    "build:booking": "tsc && vite build --mode booking",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
@@ -45,6 +49,6 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
-    "vite": "^4.5.1"
+    "vite": "^4.5.5"
   }
 }

@@ -7,24 +7,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        service: [supplement, booking]
+        include:
+          - service: supplement
+            build_command: build:supplement
+            dist_path: dist/supplement
+          - service: booking
+            build_command: build:booking
+            dist_path: dist/booking
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v2
+      
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
-
+          
       - name: Install dependencies
         run: npm install
         
       - name: Build
-        run: npm run build:dev
+        run: npm run ${{ matrix.build_command }}
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          CI: false
-        
+          
       - name: Test connection
         run: |
           nc -zv ${{ secrets.HOST }} 22
