@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { DebugProps } from '@/types/theme';
-import { createDebugStyles } from '@/styles/debug';
+import { createDebugStyles } from '@/core/styles/debug';
 
 interface PaperProps extends DebugProps {
   variant?: 'elevation' | 'outlined';

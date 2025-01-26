@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
-import { createDebugStyles } from '@/styles/debug';
+import { debugModeState } from '@/core/store/debug';
+import { createDebugStyles } from '@/core/styles/debug';
 import { SliderItem } from '@/types/slider';
 import { colors } from '@/theme';
 import { NavigatorContainer, NavigatorDot } from './styles';
@@ -22,8 +22,21 @@ const SliderContainer = styled.div<DebugProps>`
   gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-right: 20px;
+  padding: 10px;
   margin: 10px 0;
+  
+  /* Chrome, Safari, Opera */
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+  
+  /* Firefox */
+  scrollbar-width: none;
+  
+  /* IE, Edge */
+  -ms-overflow-style: none;
   
   ${createDebugStyles({
     name: 'MessageSection > SliderContainer',

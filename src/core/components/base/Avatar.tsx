@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import { DebugProps } from '@/types/theme';
-import { createDebugStyles } from '@/styles/debug';
+import { createDebugStyles } from '@/core/styles/debug';
 
 interface AvatarProps extends DebugProps {
   $size?: number;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
-import { ChatType, TextMessage } from '@/types/chat';
+import { debugModeState } from '@/core/store/debug';
+import { ChatType, TextMessage } from '@/core/types/chat';
 import {
   BubbleWrapper,
   BubbleContainer,

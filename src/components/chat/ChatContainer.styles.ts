@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { createDebugStyles } from '@/styles/debug';
-import { DebugProps } from '@/types/theme';
+import { DebugProps } from '@/core/theme/types/theme';
+import { createDebugStyles } from '@/core/styles/debug';
 
 interface InputAreaProps extends DebugProps {
   $inputEnabled?: boolean;

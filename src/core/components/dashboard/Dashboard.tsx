@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Flex, Paper, Text, H2 } from '@/components/common/base';
-import SectionTitle from '@/components/common/SectionTitle';
-import ContainerHeader from '@/components/common/ContainerHeader';
+import { Flex, Paper, Text, H2 } from '@/core/components/base';
+import SectionTitle from '@/core/components/common/SectionTitle';
+import ContainerHeader from '@/core/components/common/ContainerHeader';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
-import { debugLabel, debugBorder } from '@/styles/debug';
+import { debugModeState } from '@/core/store/debug';
+import { debugLabel, debugBorder } from '@/core/styles/debug';
 
 interface DebugProps {
   'data-debug'?: boolean;

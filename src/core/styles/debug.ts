@@ -1,6 +1,6 @@
 import type { DefaultTheme } from 'styled-components';
 import { css } from 'styled-components';
-import { DebugProps } from '@/core/types/debug';
+import { DebugProps } from '@/types/debug';
 import { Theme } from '@/core/theme/types/theme';
 
 interface DebugConfig {

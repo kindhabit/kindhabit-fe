@@ -1,10 +1,10 @@
 import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Layout from '@/components/common/Layout';
-import Loading from '@/components/common/Loading';
+import Layout from '@/core/components/common/Layout';
+import Loading from '@/core/components/common/Loading';
 
 // 레이지 로딩 적용
-const ChatPage = React.lazy(() => import('@/pages/chat/ChatPage'));
+const ChatPage = React.lazy(() => import('@/pages/kindhabit/supplement/chat/ChatPage'));
 const AnalysisPage = React.lazy(() => import('@/pages/analysis/AnalysisPage'));
 const ReportPage = React.lazy(() => import('@/pages/analysis/ReportPage'));
 

@@ -1,15 +1,19 @@
 import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
+import { debugModeState } from '@/core/store/debug';
 import ChatContainer from '@/components/chat/ChatContainer';
 
 const ChatPage: React.FC = () => {
   const debugMode = useRecoilValue(debugModeState);
   
   useEffect(() => {
-    console.log('ChatPage Mounted, Debug Mode:', debugMode);
+    if (debugMode) {
+      console.log('ChatPage Mounted, Debug Mode:', debugMode);
+    }
     return () => {
-      console.log('ChatPage Unmounted');
+      if (debugMode) {
+        console.log('ChatPage Unmounted');
+      }
     };
   }, [debugMode]);
   
@@ -23,9 +27,9 @@ const ChatPage: React.FC = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      <ChatContainer data-debug={true} $inputEnabled={true} />
+      <ChatContainer data-debug={debugMode} $inputEnabled={true} />
     </div>
-  ), []); // 의존성 배열이 비어있으므로 한 번만 생성됨
+  ), [debugMode]); // debugMode가 변경될 때마다 리렌더링
 };
 
 export default React.memo(ChatPage); // 불필요한 리렌더링 방지 

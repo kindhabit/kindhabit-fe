@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
-import { DebugProps } from '@/types/theme';
-import { createDebugStyles } from '@/styles/debug';
-import Header from '../common/Header';
+import { DebugProps } from '@/core/theme/types/theme';
+import { debugModeState } from '@/core/store/debug';
+import Header from '@/core/components/common/Header';
+import { createDebugStyles } from '@/core/styles/debug';
 
 interface StyledProps extends DebugProps {
   $isSidebarOpen?: boolean;

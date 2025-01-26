@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { debugLabel, debugBorder } from '@/styles/debug';
+import { debugLabel, debugBorder } from '@/core/styles/debug';
 
 interface DebugProps {
   'data-debug'?: boolean;

@@ -1,11 +1,11 @@
 import React, { useRef, useMemo, useCallback, useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
+import { debugModeState } from '@/core/store/debug';
 import { useChat } from '@/hooks/useChat';
 import { ChatWrapper, ContentSection, MessageSection, InputSection } from './ChatContainer.styles';
-import { Splash } from '@/components/common/Splash';
+import { Splash } from '@/core/components/common/Splash';
 import ChatBubble from './ChatBubble';
-import Slider from './Slider';
+import Slider from '@/core/components/common/Slider';
 import { TextMessage, SliderMessage, ChatMessage, ChatType } from '@/types/chat';
 
 interface Props {
@@ -24,13 +24,6 @@ const ChatContainer: React.FC<Props> = React.memo(({ $inputEnabled = true }) => 
     setShowLoading,
     setLoadingStep
   } = useChat({ isDebugMode });
-
-  // 메시지 상태 모니터링
-  useEffect(() => {
-    if (isDebugMode) {
-      console.log('Current messages in ChatContainer:', messages);
-    }
-  }, [messages, isDebugMode]);
 
   const handleLoadingComplete = useCallback(() => {
     setLoadingStep(0);
@@ -51,13 +44,9 @@ const ChatContainer: React.FC<Props> = React.memo(({ $inputEnabled = true }) => 
     <Slider
       key={message.id}
       items={message.sliderData}
-      onComplete={() => {
-        if (isDebugMode) {
-          console.log('Slider complete');
-        }
-      }}
+      onComplete={() => {}}
     />
-  ), [isDebugMode]);
+  ), []);
 
   const renderMessage = useCallback((message: ChatMessage, index: number) => {
     const prevMessage = index > 0 ? messages[index - 1] : null;
@@ -95,13 +84,13 @@ const ChatContainer: React.FC<Props> = React.memo(({ $inputEnabled = true }) => 
   const messageList = useMemo(() => messages.map(renderMessage), [messages, renderMessage]);
 
   return (
-    <ChatWrapper data-debug={isDebugMode}>
+    <ChatWrapper data-debug={!!isDebugMode}>
       <ContentSection>
-        <MessageSection data-debug={isDebugMode}>
+        <MessageSection data-debug={!!isDebugMode}>
           {messageList}
           {loadingOverlay}
         </MessageSection>
-        <InputSection data-debug={isDebugMode} $inputEnabled={$inputEnabled} />
+        <InputSection data-debug={!!isDebugMode} $inputEnabled={$inputEnabled} />
       </ContentSection>
     </ChatWrapper>
   );

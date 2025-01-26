@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { colors } from '@/theme';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
-import { debugLabel, debugBorder } from '@/styles/debug';
+import { debugModeState } from '@/core/store/debug';
+import { debugLabel, debugBorder } from '@/core/styles/debug';
 
 interface DebugProps {
   'data-debug'?: boolean;

@@ -1,8 +1,8 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ChatType, ChatLinkPosition, ChatProfilePosition } from '@/types/chat';
-import { COMPONENT_HIERARCHY } from '@/types/debug';
-import { Theme } from '@/types/theme';
+import { COMPONENT_HIERARCHY } from '@/core/types/debug';
+import { Theme } from '@/core/theme/types/theme';
 
 interface BubbleWrapperProps {
   $type: ChatType;

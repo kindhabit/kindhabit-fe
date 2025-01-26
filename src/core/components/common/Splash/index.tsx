@@ -4,11 +4,11 @@ import { StandaloneSplash, FlowItemSplash, IndicatorSplash, SplashImage, SplashM
 export interface SplashProps {
   variant: 'standalone' | 'flowItem' | 'indicator';
   variantProps?: {
-    type?: 'fixed' | 'absolute';
-    prevElement?: HTMLElement | null;
-    targetElement?: HTMLElement | null;
-    placement?: 'left' | 'right' | 'top' | 'bottom';
-    offset?: number;
+    $type?: 'fixed' | 'absolute';
+    $prevElement?: HTMLElement | null;
+    $targetElement?: HTMLElement | null;
+    $placement?: 'left' | 'right' | 'top' | 'bottom';
+    $offset?: number;
   };
   message?: string;
   isVisible: boolean;

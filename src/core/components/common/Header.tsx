@@ -1,11 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Flex } from './base';
-import { Avatar } from './base';
-import { Text } from './base';
-import { createDebugStyles } from '@/styles/debug';
+import { Flex, Avatar, Text } from '@/core/components/base';
+import { createDebugStyles } from '@/core/styles/debug';
 import { useRecoilValue } from 'recoil';
-import { debugModeState } from '@/store/debug';
+import { debugModeState } from '@/core/store/debug';
 
 const HeaderContainer = styled.header`
   height: 64px;
@@ -63,4 +61,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header; 
+export default Header;
