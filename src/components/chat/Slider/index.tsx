@@ -37,9 +37,20 @@ const Card = styled.div<DebugProps & { $selected?: boolean; $index?: number }>`
   max-width: 240px;
   padding: 12px;
   border-radius: 20px;
-  background-color: ${colors.chat.jerryBubble};
-  border: 1.5px solid ${props => props.$selected ? colors.primary : '#E8E1D9'};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background-color: ${({ theme }) => {
+    const color = theme.colors.chat.slider.card.background;
+    const alpha = theme.colors.chat.slider.card.backgroundAlpha;
+    // hex to rgba 변환
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }};
+  border: 1.5px solid ${props => 
+    props.$selected 
+      ? props.theme.colors.chat.slider.card.selectedBorder 
+      : props.theme.colors.chat.slider.card.border};
+  box-shadow: 0 2px 4px ${({ theme }) => theme.colors.chat.slider.card.shadow};
   cursor: pointer;
   transition: all 0.2s ease;
   opacity: 0;
@@ -59,8 +70,8 @@ const Card = styled.div<DebugProps & { $selected?: boolean; $index?: number }>`
   
   &:hover {
     transform: translateY(-2px);
-    border-color: ${colors.primary};
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+    border-color: ${({ theme }) => theme.colors.chat.slider.card.selectedBorder};
+    box-shadow: 0 6px 12px ${({ theme }) => theme.colors.chat.slider.card.hoverShadow};
   }
   
   ${createDebugStyles({
@@ -146,9 +157,10 @@ const Tag = styled.span<DebugProps>`
 interface SliderProps {
   items: SliderItem[];
   onComplete: () => void;
+  onAction?: (item: SliderItem) => void;
 }
 
-const Slider: React.FC<SliderProps> = ({ items, onComplete }) => {
+const Slider: React.FC<SliderProps> = ({ items, onComplete, onAction }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const debugMode = useRecoilValue(debugModeState);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,6 +179,12 @@ const Slider: React.FC<SliderProps> = ({ items, onComplete }) => {
 
   const handleSelect = (index: number) => {
     setCurrentIndex(index);
+    const selectedItem = items[index];
+    
+    if (selectedItem.action && onAction) {
+      onAction(selectedItem);
+    }
+    
     if (containerRef.current) {
       const cards = containerRef.current.children;
       if (cards[index]) {

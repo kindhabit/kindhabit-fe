@@ -1,18 +1,19 @@
-import { Box, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import React from 'react';
+import styled from 'styled-components';
 import { colors } from '@/theme';
 
-const HeaderWrapper = styled(Box)({
-  padding: '0 0 20px 0',
-  borderBottom: `1px solid ${colors.primary}10`
-});
+const HeaderWrapper = styled.div`
+  padding: 0 0 20px 0;
+  border-bottom: 1px solid ${colors.primary}10;
+`;
 
-const HeaderTitle = styled(Typography)({
-  fontFamily: 'Pretendard',
-  fontSize: '20px',
-  fontWeight: 700,
-  color: colors.brown
-});
+const HeaderTitle = styled.h2`
+  font-family: 'Pretendard';
+  font-size: 20px;
+  font-weight: 700;
+  color: ${colors.brown};
+  margin: 0;
+`;
 
 interface ContainerHeaderProps {
   title: string;

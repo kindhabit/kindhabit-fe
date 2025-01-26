@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { styled } from '@mui/material/styles';
-import { Box, Typography, Paper } from '@mui/material';
-import { colors } from '@/theme';
+import styled from 'styled-components';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Flex, Paper, Text, H2 } from '@/components/common/base';
 import SectionTitle from '@/components/common/SectionTitle';
 import ContainerHeader from '@/components/common/ContainerHeader';
 import { useRecoilValue } from 'recoil';
@@ -13,11 +12,12 @@ interface DebugProps {
   'data-debug'?: boolean;
 }
 
-const DashboardWrapper = styled(Box)<DebugProps>`
-  padding: 20px;
+const StyledContainer = styled.div<{ $padding?: string; $flex?: string }>`
+  padding: ${props => props.$padding || '0'};
+  flex: ${props => props.$flex || 'none'};
   height: 100%;
   width: 100%;
-  background: ${colors.dashboard.background};
+  background: ${props => props.theme.colors.dashboard.background};
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
@@ -34,31 +34,30 @@ const DashboardWrapper = styled(Box)<DebugProps>`
   `}
 `;
 
-const StatCard = styled(Paper)<DebugProps>`
-  padding: 20px;
-  margin-bottom: 16px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(107, 68, 35, 0.06);
-  border: 1px solid rgba(107, 68, 35, 0.08);
-  position: relative;
+const StatCard = styled.div<{ $isOpen?: boolean }>`
+  background: ${props => props.theme.colors.white};
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
   
-  ${props => props['data-debug'] && `
-    ${debugBorder('#44FFFF')}
-    ${debugLabel({
-      name: 'DashboardWrapper > StatCard',
-      hierarchy: '5',
-      color: '#44FFFF'
-    })}
+  &:hover {
+    background: ${props => props.theme.colors.hover};
+  }
+  
+  ${props => props.$isOpen && `
+    background: ${props => props.theme.colors.hover};
   `}
 `;
 
-const HealthMetricsCard = styled(Paper)<DebugProps>`
-  padding: 20px;
+const HealthMetricsCard = styled(Paper)<DebugProps & { $padding?: number }>`
   margin-bottom: 16px;
   border-radius: 16px;
-  background: ${colors.cardBg};
   position: relative;
+  padding: ${props => props.$padding ? `${props.$padding * 8}px` : '20px'};
   
   ${props => props['data-debug'] && `
     ${debugBorder('#FFFF44')}
@@ -70,74 +69,68 @@ const HealthMetricsCard = styled(Paper)<DebugProps>`
   `}
 `;
 
-const CardHeader = styled(Box)`
-  display: flex;
+const CardHeader = styled(Flex)`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
   cursor: pointer;
 `;
 
-const MetricItem = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  padding: '12px 0',
-  borderBottom: '1px solid rgba(0, 0, 0, 0.05)',
+const MetricItem = styled(Flex)`
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid ${props => props.theme.colors.primary}05;
   
-  '&:last-of-type': {
-    borderBottom: 'none',
-    paddingBottom: 0
-  },
-  
-  '&:first-of-type': {
-    paddingTop: 0
+  &:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
   }
-});
+  
+  &:first-of-type {
+    padding-top: 0;
+  }
+`;
 
-const MetricLabel = styled(Typography)({
-  fontFamily: 'Pretendard',
-  fontSize: '14px',
-  color: colors.textSecondary,
-  display: 'flex',
-  alignItems: 'center',
-  gap: '8px'
-});
+const MetricLabel = styled(Text)`
+  color: ${props => props.theme.colors.textSecondary};
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
 
-const MetricValue = styled(Typography)({
-  fontFamily: 'Pretendard',
-  fontSize: '15px',
-  fontWeight: 600,
-  color: colors.brown
-});
+const MetricValue = styled(Text)`
+  font-weight: 600;
+  color: ${props => props.theme.colors.brown};
+`;
 
-const MetricGraph = styled(Box)({
-  height: '40px',
-  background: 'rgba(0, 0, 0, 0.03)',
-  borderRadius: '6px',
-  position: 'relative',
-  marginTop: '8px'
-});
+const MetricGraph = styled.div`
+  height: 40px;
+  background: ${props => props.theme.colors.primary}03;
+  border-radius: 6px;
+  position: relative;
+  margin-top: 8px;
+`;
 
-const MetricBar = styled(Box)<{ value: number; warning?: boolean }>`
+const MetricBar = styled.div<{ $value: number; $warning?: boolean }>`
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  width: ${props => props.value}%;
-  background: ${props => props.warning ? '#ff9800' : colors.primary};
+  width: ${props => props.$value}%;
+  background: ${props => props.$warning ? '#ff9800' : props.theme.colors.primary};
   border-radius: 6px;
   transition: width 0.3s ease-in-out;
 `;
 
-const MetricRange = styled(Typography)({
-  fontSize: '12px',
-  color: colors.textSecondary,
-  marginTop: '4px',
-  textAlign: 'right'
-});
+const MetricRange = styled(Text)`
+  font-size: 12px;
+  color: ${props => props.theme.colors.textSecondary};
+  margin-top: 4px;
+  text-align: right;
+`;
 
-// 월별 데이터 타입 수정
+// 월별 데이터 타입
 interface MonthlyMetric {
   month: string;
   체중: number;
@@ -155,7 +148,7 @@ const monthlyData: MonthlyMetric[] = [
   { month: '6월', 체중: 68, 혈압: 120, 콜레스테롤: 180, 간수치: 28 },
 ];
 
-const MetricChart = styled(Box)`
+const MetricChart = styled.div`
   width: 100%;
   height: 100px;
   min-width: 200px;
@@ -164,14 +157,18 @@ const MetricChart = styled(Box)`
   overflow: hidden;
 `;
 
-const MetricsContent = styled(Box, {
-  shouldForwardProp: (prop) => prop !== 'isOpen'
-})<{ isOpen: boolean }>(({ isOpen }) => ({
-  maxHeight: isOpen ? '2000px' : '0',
-  overflow: 'hidden',
-  opacity: isOpen ? 1 : 0,
-  transition: 'max-height 0.5s ease-in-out, opacity 0.3s ease-in-out'
-}));
+const MetricsContent = styled.div<{ $isOpen: boolean }>`
+  max-height: ${props => props.$isOpen ? '2000px' : '0'};
+  overflow: hidden;
+  opacity: ${props => props.$isOpen ? 1 : 0};
+  transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out;
+`;
+
+const StyledFlex = styled.div<{ $direction?: string; $flex?: string | number }>`
+  display: flex;
+  flex-direction: ${props => props.$direction || 'row'};
+  flex: ${props => props.$flex || 'none'};
+`;
 
 const Dashboard = () => {
   const [openCharts, setOpenCharts] = useState<{[key: string]: boolean}>({
@@ -191,38 +188,36 @@ const Dashboard = () => {
   };
 
   return (
-    <DashboardWrapper data-debug={debugMode}>
+    <StyledContainer $padding="20px" $flex="1" data-debug={debugMode}>
       <ContainerHeader title="건강 대시보드" />
-      <HealthMetricsCard data-debug={debugMode}>
+      <HealthMetricsCard data-debug={debugMode} $padding={2.5} elevation={1}>
         <CardHeader onClick={() => setIsMetricsOpen(!isMetricsOpen)}>
-          <Typography variant="h6">
-            건강 지표
-          </Typography>
-          <Box sx={{ 
+          <H2>건강 지표</H2>
+          <Text style={{ 
             transform: `rotate(${isMetricsOpen ? 180 : 0}deg)`,
             transition: 'transform 0.3s ease-in-out'
           }}>
             ▼
-          </Box>
+          </Text>
         </CardHeader>
 
-        <MetricsContent isOpen={isMetricsOpen}>
+        <MetricsContent $isOpen={isMetricsOpen}>
           <MetricItem>
-            <Box sx={{ flex: 1 }}>
+            <StyledFlex $direction="column" $flex={1}>
               <MetricLabel>
                 <span>📏</span>키
               </MetricLabel>
               <MetricValue>175cm</MetricValue>
-            </Box>
+            </StyledFlex>
           </MetricItem>
 
-          <MetricItem onClick={() => toggleChart('체중')} sx={{ cursor: 'pointer' }}>
-            <Box sx={{ flex: 1 }}>
+          <MetricItem onClick={() => toggleChart('체중')} style={{ cursor: 'pointer' }}>
+            <StyledFlex $direction="column" $flex={1}>
               <MetricLabel>
                 <span>⚖️</span>체중
               </MetricLabel>
               <MetricValue>68kg</MetricValue>
-              <Box sx={{ 
+              <div style={{ 
                 maxHeight: openCharts.체중 ? '120px' : '0',
                 transition: 'max-height 0.3s ease-in-out',
                 overflow: 'hidden'
@@ -237,33 +232,33 @@ const Dashboard = () => {
                       <Line 
                         type="monotone" 
                         dataKey="체중" 
-                        stroke={colors.primary} 
+                        stroke={props => props.theme.colors.primary}
                         strokeWidth={2}
-                        dot={{ fill: colors.primary }}
+                        dot={{ fill: props => props.theme.colors.primary }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </MetricChart>
-              </Box>
-            </Box>
+              </div>
+            </StyledFlex>
           </MetricItem>
 
           <MetricItem>
-            <Box sx={{ flex: 1 }}>
+            <StyledFlex $direction="column" $flex={1}>
               <MetricLabel>
                 <span>📏</span>허리둘레
               </MetricLabel>
               <MetricValue>82cm</MetricValue>
-            </Box>
+            </StyledFlex>
           </MetricItem>
 
-          <MetricItem onClick={() => toggleChart('혈압')} sx={{ cursor: 'pointer' }}>
-            <Box sx={{ flex: 1 }}>
+          <MetricItem onClick={() => toggleChart('혈압')} style={{ cursor: 'pointer' }}>
+            <StyledFlex $direction="column" $flex={1}>
               <MetricLabel>
                 <span>💓</span>혈압
               </MetricLabel>
               <MetricValue>120/80 mmHg</MetricValue>
-              <Box sx={{ 
+              <div style={{ 
                 maxHeight: openCharts.혈압 ? '120px' : '0',
                 transition: 'max-height 0.3s ease-in-out',
                 overflow: 'hidden'
@@ -278,24 +273,24 @@ const Dashboard = () => {
                       <Line 
                         type="monotone" 
                         dataKey="혈압" 
-                        stroke={colors.primary} 
+                        stroke={props => props.theme.colors.primary}
                         strokeWidth={2}
-                        dot={{ fill: colors.primary }}
+                        dot={{ fill: props => props.theme.colors.primary }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </MetricChart>
-              </Box>
-            </Box>
+              </div>
+            </StyledFlex>
           </MetricItem>
 
-          <MetricItem onClick={() => toggleChart('콜레스테롤')} sx={{ cursor: 'pointer' }}>
-            <Box sx={{ flex: 1 }}>
+          <MetricItem onClick={() => toggleChart('콜레스테롤')} style={{ cursor: 'pointer' }}>
+            <StyledFlex $direction="column" $flex={1}>
               <MetricLabel>
                 <span>🔬</span>콜레스테롤
               </MetricLabel>
               <MetricValue>180 mg/dL</MetricValue>
-              <Box sx={{ 
+              <div style={{ 
                 maxHeight: openCharts.콜레스테롤 ? '120px' : '0',
                 transition: 'max-height 0.3s ease-in-out',
                 overflow: 'hidden'
@@ -310,24 +305,24 @@ const Dashboard = () => {
                       <Line 
                         type="monotone" 
                         dataKey="콜레스테롤" 
-                        stroke={colors.primary} 
+                        stroke={props => props.theme.colors.primary}
                         strokeWidth={2}
-                        dot={{ fill: colors.primary }}
+                        dot={{ fill: props => props.theme.colors.primary }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </MetricChart>
-              </Box>
-            </Box>
+              </div>
+            </StyledFlex>
           </MetricItem>
 
-          <MetricItem onClick={() => toggleChart('간수치')} sx={{ cursor: 'pointer' }}>
-            <Box sx={{ flex: 1 }}>
+          <MetricItem onClick={() => toggleChart('간수치')} style={{ cursor: 'pointer' }}>
+            <StyledFlex $direction="column" $flex={1}>
               <MetricLabel>
                 <span>🔋</span>간수치(AST/ALT)
               </MetricLabel>
               <MetricValue>28/30 U/L</MetricValue>
-              <Box sx={{ 
+              <div style={{ 
                 maxHeight: openCharts.간수치 ? '120px' : '0',
                 transition: 'max-height 0.3s ease-in-out',
                 overflow: 'hidden'
@@ -342,19 +337,19 @@ const Dashboard = () => {
                       <Line 
                         type="monotone" 
                         dataKey="간수치" 
-                        stroke={colors.primary} 
+                        stroke={props => props.theme.colors.primary}
                         strokeWidth={2}
-                        dot={{ fill: colors.primary }}
+                        dot={{ fill: props => props.theme.colors.primary }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
                 </MetricChart>
-              </Box>
-            </Box>
+              </div>
+            </StyledFlex>
           </MetricItem>
         </MetricsContent>
       </HealthMetricsCard>
-    </DashboardWrapper>
+    </StyledContainer>
   );
 };
 

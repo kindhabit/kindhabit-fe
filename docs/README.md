@@ -10,6 +10,8 @@
 2. [서비스 구성](#서비스-구성)
 3. [기술 스택](#기술-스택)
 4. [프로젝트 구조](#프로젝트-구조)
+5. [테마 시스템](#테마-시스템)
+6. [컴포넌트 구조](#컴포넌트-구조)
 
 ## 프로젝트 개요
 - AI 기반 대화형 인터페이스 플랫폼
@@ -18,12 +20,12 @@
 
 ## 서비스 구성
 
-### 1. 건강기능식품 상담 서비스
+### 1. 건강기능식품 상담 서비스 (supplement)
 - 사용자 맞춤형 건강 상담
 - 영양제 추천 시스템
 - 건강 데이터 분석 및 시각화
 
-### 2. 건강검진 예약 서비스
+### 2. 건강검진 예약 서비스 (booking)
 - 대화형 예약 시스템
 - 맞춤형 검진 프로그램 추천
 - 예약 관리 및 알림
@@ -55,11 +57,15 @@
 
 ## 프로젝트 구조
 
+```
 src/
 ├── assets/           # 정적 자원 (이미지, 폰트 등)
 ├── atoms/            # 아톰 단위 컴포넌트
 ├── components/       # 컴포넌트
 │   ├── chat/        # 대화형 UI 컴포넌트
+│   │   ├── ChatContainer.tsx
+│   │   ├── ChatBubble/
+│   │   └── Slider/
 │   └── common/      # 공통 컴포넌트
 ├── constants/        # 상수 정의
 ├── pages/           # 페이지 컴포넌트
@@ -73,3 +79,64 @@ src/
 ├── App.tsx          # 앱 진입점
 ├── Router.tsx       # 라우터 설정
 └── main.tsx         # 메인 진입점
+```
+
+## 테마 시스템
+
+### 색상 시스템
+```typescript
+colors: {
+  // 기본 색상
+  primary: '#6B4423',
+  secondary: '#f5f5f5',
+  background: '#f5e6d3',
+  
+  // 서비스별 색상
+  chat: {
+    background: '#fdfaf7',
+    userBubble: '#6B4423',
+    jerryBubble: '#ffffff',
+    // ...
+  },
+  
+  // 디버그 모드 색상
+  debug: {
+    chatWrapper: '#FF4444',
+    bubbleWrapper: '#FF6B6B',
+    // ...
+  }
+}
+```
+
+### 폰트 시스템
+- 기본 폰트: Pretendard
+- 크기 변형: normal, large
+- 타이포그래피 스케일:
+  - Title: 20px (normal) / 24px (large)
+  - Subtitle: 16px (normal) / 20px (large)
+  - Body: 14px (normal) / 18px (large)
+  - Caption: 12px (normal) / 16px (large)
+
+## 컴포넌트 구조
+
+### 채팅 컴포넌트
+1. ChatContainer
+   - 채팅 UI의 메인 컨테이너
+   - 메시지 상태 관리
+   - 디버그 모드 지원
+
+2. ChatBubble
+   - 사용자/챗봇 메시지 표시
+   - 스타일 변형: userBubble, jerryBubble
+   - 애니메이션 효과
+
+3. Slider
+   - 선택형 응답 UI
+   - 카드 기반 인터랙션
+   - 반응형 레이아웃
+
+### 공통 컴포넌트
+- Button
+- Dialog
+- Header
+- Layout

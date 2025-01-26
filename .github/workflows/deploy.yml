@@ -8,17 +8,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     
-    strategy:
-      matrix:
-        service: [supplement, booking]
-        include:
-          - service: supplement
-            build_command: build:supplement
-            dist_path: dist/supplement
-          - service: booking
-            build_command: build:booking
-            dist_path: dist/booking
-    
     steps:
       - uses: actions/checkout@v2
       
@@ -27,54 +16,23 @@ jobs:
         with:
           node-version: '18'
           
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
         
+      - name: Create env file
+        run: |
+          echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" > .env
+        
       - name: Build
-        run: npm run ${{ matrix.build_command }}
+        run: npm run build
+        
+      - name: Deploy to Server
+        uses: easingthemes/ssh-deploy@main
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          
-      - name: Test connection
-        run: |
-          nc -zv ${{ secrets.HOST }} 22
-          
-      - name: Deploy with sshpass
-        env:
-          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-        run: |
-          sudo apt-get install -y sshpass
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
-            cd /workspace/KINDHABITFE
-            if [ -d dist ]; then
-              mv dist dist_backup_$(date +%Y%m%d_%H%M%S)
-            fi
-            mkdir -p dist
-          "
-          sshpass -p "$SSH_PASSWORD" scp -o StrictHostKeyChecking=no -r dist/* root@${{ secrets.HOST }}:/workspace/KINDHABITFE/dist/
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
-            cd /workspace/KINDHABITFE
-            nginx -t && {
-              sudo systemctl stop nginx
-              sudo rm -rf /var/cache/nginx
-              sudo systemctl start nginx
-              echo 'Deployment completed successfully'
-              rm -rf dist_backup_*
-            } || {
-              echo 'Deployment failed, rolling back...'
-              latest_backup=$(ls -td dist_backup_* | head -1)
-              if [ ! -z \"\$latest_backup\" ]; then
-                rm -rf dist
-                mv \"\$latest_backup\" dist
-              fi
-              sudo systemctl restart nginx
-              exit 1
-            }
-          "
-
-      - name: Cleanup old backups
-        run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@${{ secrets.HOST }} "
-            cd /workspace/KINDHABITFE
-            find . -name 'dist_backup_*' -type d -mtime +7 -exec rm -rf {} \;
-          "
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}
+          SOURCE: "dist/"
+          ARGS: "-rlgoDzvc -i --delete"
+          EXCLUDE: "/dist/, /node_modules/"

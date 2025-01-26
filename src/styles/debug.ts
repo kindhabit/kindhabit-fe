@@ -1,58 +1,39 @@
+import type { DefaultTheme } from 'styled-components';
 import { css } from 'styled-components';
+import { DebugProps, Theme } from '../types/theme';
 
 interface DebugConfig {
   name: string;
-  hierarchy: string;
-  color: string;
-  borderWidth?: string;
+  hierarchy?: string;
+  color?: string | ((props: { theme: DefaultTheme } & any) => string);
 }
 
-export const createDebugStyles = (config: DebugConfig) => css<{ 'data-debug'?: boolean }>`
+export const debugBorder = (color: string | ((props: { theme: DefaultTheme } & any) => string)) => 
+  (props: { theme: DefaultTheme } & any) => `
+    border: 2px dashed ${typeof color === 'function' ? color(props) : color};
+  `;
+
+export const debugLabel = (config: DebugConfig) => 
+  (props: { theme: DefaultTheme } & any) => `
+    &::before {
+      content: '${config.name}${config.hierarchy ? ` (${config.hierarchy})` : ''}';
+      position: absolute;
+      top: -20px;
+      left: 0;
+      background: ${typeof config.color === 'function' ? config.color(props) : (config.color || '#000')};
+      color: white;
+      padding: 2px 4px;
+      font-size: 10px;
+      z-index: 9999;
+    }
+  `;
+
+export const createDebugStyles = (config: DebugConfig) => css<DebugProps>`
   ${props =>
     props['data-debug'] &&
     css`
-      ${debugBorder(config.color, config.borderWidth || '1px')}
-      ${debugLabel({
-        name: config.name,
-        hierarchy: config.hierarchy,
-        color: config.color
-      })}
+      position: relative;
+      ${debugBorder(config.color || '#000')(props)}
+      ${debugLabel(config)(props)}
     `}
-`;
-
-export const debugBorder = (color: string, width: string = '1px') => css`
-  border: ${width} dashed ${color};
-`;
-
-interface DebugLabelProps {
-  name: string;
-  hierarchy: string;
-  color: string;
-  zIndex?: number;
-  showOnHover?: boolean;
-}
-
-export const debugLabel = ({
-  name,
-  hierarchy,
-  color,
-  zIndex = 9000
-}: DebugLabelProps) => css`
-  position: relative;
-
-  &::before {
-    content: '[${hierarchy}] ${name}';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    background-color: ${color};
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: ${zIndex};
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
 `; 

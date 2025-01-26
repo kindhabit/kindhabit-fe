@@ -1,108 +1,86 @@
-import { styled } from '@mui/material/styles';
-import { colors } from '@/theme';
-import Dashboard from '@/components/dashboard/Dashboard';
+import React from 'react';
+import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/store/debug';
-import { debugLabel, debugBorder } from '@/styles/debug';
+import { DebugProps } from '@/types/theme';
+import { createDebugStyles } from '@/styles/debug';
 import Header from '../common/Header';
 
-interface DebugProps {
-  'data-debug'?: boolean;
+interface StyledProps extends DebugProps {
+  $isSidebarOpen?: boolean;
 }
 
-const LayoutWrapper = styled('div')<DebugProps>`
+const LayoutWrapper = styled.div<StyledProps>`
+  ${createDebugStyles({
+    name: 'DashboardLayout',
+    color: props => props.theme.colors.debug?.appLayout ?? '#E8E8E8'
+  })}
   display: flex;
   flex-direction: column;
-  width: 100%;
   height: 100vh;
-  position: relative;
+  width: 100vw;
   overflow: hidden;
-  background: ${colors.background};
-  
-  ${props => props['data-debug'] && `
-    ${debugBorder('#FF4444')}
-    ${debugLabel({
-      name: 'DashboardLayout > LayoutWrapper',
-      hierarchy: '1',
-      color: '#FF4444'
-    })}
-  `}
 `;
 
-const ContentWrapper = styled('div')<DebugProps>`
+const ContentWrapper = styled.div<StyledProps>`
+  ${createDebugStyles({
+    name: 'ContentWrapper',
+    color: props => props.theme.colors.debug?.mainContent ?? '#C0C0C0'
+  })}
   display: flex;
   flex: 1;
   overflow: hidden;
-  
-  ${props => props['data-debug'] && `
-    ${debugBorder('#44FF44')}
-    ${debugLabel({
-      name: 'LayoutWrapper > ContentWrapper',
-      hierarchy: '2',
-      color: '#44FF44'
-    })}
-  `}
 `;
 
-const MainContent = styled('div')<DebugProps>`
+const MainContent = styled.main<StyledProps>`
+  ${createDebugStyles({
+    name: 'MainContent',
+    color: props => props.theme.colors.debug?.mainContent ?? '#C0C0C0'
+  })}
   flex: 1;
-  display: flex;
   overflow: hidden;
-  position: relative;
-  width: 100%;
-  
-  @media (min-width: 1024px) {
-    max-width: calc(100% - 320px);
-  }
-  
-  ${props => props['data-debug'] && `
-    ${debugBorder('#4444FF')}
-    ${debugLabel({
-      name: 'ContentWrapper > MainContent',
-      hierarchy: '3',
-      color: '#4444FF'
-    })}
-  `}
+  background: ${props => props.theme.colors.background};
+  transition: margin-right 0.3s ease;
+  margin-right: ${props => props.$isSidebarOpen ? '300px' : '0'};
 `;
 
-const SidebarArea = styled('div')<DebugProps>`
-  width: 320px;
+const SidebarArea = styled.aside<StyledProps>`
+  ${createDebugStyles({
+    name: 'SidebarArea',
+    color: props => props.theme.colors.debug?.sidebar ?? '#B8B8B8'
+  })}
+  width: 300px;
   height: 100%;
-  border-left: 1px solid ${colors.dashboard.background};
-  background: ${colors.cardBg};
-  display: none;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
-  
-  @media (min-width: 1024px) {
-    display: flex;
-  }
-  
-  ${props => props['data-debug'] && `
-    ${debugBorder('#FF44FF')}
-    ${debugLabel({
-      name: 'ContentWrapper > SidebarArea',
-      hierarchy: '3',
-      color: '#FF44FF'
-    })}
-  `}
+  position: fixed;
+  right: ${props => props.$isSidebarOpen ? '0' : '-300px'};
+  top: 0;
+  background: ${props => props.theme.colors.cardBg};
+  border-left: 1px solid ${props => props.theme.colors.primary}10;
+  transition: right 0.3s ease;
+  overflow-y: auto;
 `;
 
-const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface Props {
+  children: React.ReactNode;
+  sidebar?: React.ReactNode;
+}
+
+const DashboardLayout: React.FC<Props> = ({ children, sidebar }) => {
   const debugMode = useRecoilValue(debugModeState);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   return (
     <LayoutWrapper data-debug={debugMode}>
       <Header />
       <ContentWrapper data-debug={debugMode}>
-        <MainContent data-debug={debugMode}>
+        <MainContent data-debug={debugMode} $isSidebarOpen={isSidebarOpen}>
           {children}
         </MainContent>
-        <SidebarArea data-debug={debugMode}>
-          <Dashboard />
-        </SidebarArea>
+        {sidebar && (
+          <SidebarArea data-debug={debugMode} $isSidebarOpen={isSidebarOpen}>
+            {sidebar}
+          </SidebarArea>
+        )}
       </ContentWrapper>
     </LayoutWrapper>
   );

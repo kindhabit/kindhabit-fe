@@ -8,11 +8,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       reactPlugin({
-        jsxImportSource: '@emotion/react',
-        jsxRuntime: 'automatic',
-        babel: {
-          plugins: ['@emotion/babel-plugin']
-        }
+        jsxRuntime: 'automatic'
       })
     ],
     resolve: {
@@ -29,7 +25,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom', '@mui/material'],
+            vendor: ['react', 'react-dom'],
           }
         }
       },

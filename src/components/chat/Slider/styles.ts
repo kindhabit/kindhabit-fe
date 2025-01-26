@@ -1,10 +1,11 @@
 import styled from 'styled-components';
-import { colors } from '@/theme';
 import { debugLabel, debugBorder } from '@/styles/debug';
 import { NavigatorDotProps } from '@/types/slider';
+import { Theme } from '@/types/theme';
 
 interface DebugProps {
   'data-debug'?: boolean;
+  theme?: Theme;
 }
 
 export const SliderSection = styled.div`
@@ -59,17 +60,20 @@ export const Card = styled.div<DebugProps & { $selected?: boolean }>`
   max-width: 200px;
   padding: 16px;
   border-radius: 20px;
-  background-color: #F8F4F0;
-  border: 1.5px solid ${props => props.$selected ? colors.primary : '#E8E1D9'};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background-color: ${({ theme }) => theme.colors.chat.slider.card.background};
+  border: 1.5px solid ${props => 
+    props.$selected 
+      ? props.theme.colors.chat.slider.card.selectedBorder 
+      : props.theme.colors.chat.slider.card.border};
+  box-shadow: 0 2px 4px ${({ theme }) => theme.colors.chat.slider.card.shadow};
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   
   &:hover {
     transform: translateY(-2px);
-    border-color: ${colors.primary};
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+    border-color: ${({ theme }) => theme.colors.chat.slider.card.selectedBorder};
+    box-shadow: 0 6px 12px ${({ theme }) => theme.colors.chat.slider.card.hoverShadow};
   }
 
   ${props => props['data-debug'] && `
@@ -106,7 +110,7 @@ export const IconWrapper = styled.div<DebugProps>`
 export const HeaderTitle = styled.div<DebugProps>`
   font-size: 14px;
   font-weight: 600;
-  color: ${colors.textPrimary};
+  color: ${({ theme }) => theme.colors.chat.slider.title.text};
   margin-bottom: 4px;
   position: relative;
 
@@ -122,9 +126,9 @@ export const HeaderTitle = styled.div<DebugProps>`
 
 export const CardDescription = styled.div<DebugProps>`
   font-size: 12px;
-  color: ${colors.textSecondary};
+  color: ${({ theme }) => theme.colors.chat.slider.description.text};
   margin-bottom: 12px;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.chat.slider.description.border};
   padding-bottom: 12px;
   position: relative;
 
@@ -157,8 +161,8 @@ export const TagContainer = styled.div<DebugProps>`
 export const Tag = styled.span<DebugProps>`
   padding: 4px 8px;
   border-radius: 12px;
-  background-color: #E3F2FD;
-  color: #1976D2;
+  background-color: ${({ theme }) => theme.colors.chat.slider.tag.background};
+  color: ${({ theme }) => theme.colors.chat.slider.tag.text};
   font-size: 12px;
   font-weight: 500;
   position: relative;
@@ -193,13 +197,19 @@ export const NavigatorDot = styled.button<NavigatorDotProps>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: ${props => props.$active ? colors.primary : colors.secondaryDark};
+  background-color: ${props => 
+    props.$active 
+      ? props.theme.colors.chat.slider.navigator.active 
+      : props.theme.colors.chat.slider.navigator.inactive};
   border: none;
   padding: 0;
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    background-color: ${props => props.$active ? colors.primary : colors.secondaryHover};
+    background-color: ${props => 
+      props.$active 
+        ? props.theme.colors.chat.slider.navigator.active 
+        : props.theme.colors.chat.slider.navigator.hover};
   }
 `; 

@@ -1,6 +1,6 @@
 import { SliderItem } from './slider';
 
-export type ChatType = 'user' | 'jerry' | 'slider';
+export type ChatType = 'jerry' | 'user' | 'slider' | 'loading';
 
 export interface ChatLinkPosition {
   top?: number;
@@ -16,7 +16,7 @@ export interface ChatProfilePosition {
 export interface ChatLink {
   text: string;
   onClick?: () => void;
-  position?: ChatLinkPosition;
+  $position?: ChatLinkPosition;
 }
 
 export interface ChatButton {
@@ -29,18 +29,16 @@ export interface BaseMessage {
   id: string;
   type: ChatType;
   timestamp: number;
-  showProfile?: boolean;
-  profilePosition?: ChatProfilePosition;
 }
 
 export interface TextMessage extends BaseMessage {
-  type: 'user' | 'jerry';
+  type: 'jerry' | 'user';
   message: string;
+  link?: ChatLink & { url?: string };
   buttons?: ChatButton[];
-  link?: ChatLink;
+  buttonPosition?: 'bottom' | 'right' | 'inside';
+  showProfile?: boolean;
   profileText?: string;
-  isLink?: boolean;
-  buttonPosition?: 'inside' | 'outside';
 }
 
 export interface SliderMessage extends BaseMessage {
@@ -48,7 +46,13 @@ export interface SliderMessage extends BaseMessage {
   sliderData: SliderItem[];
 }
 
-export type ChatMessage = TextMessage | SliderMessage;
+export interface LoadingMessage extends BaseMessage {
+  type: 'loading';
+  message: string;
+  isTemporary?: boolean;
+}
+
+export type ChatMessage = TextMessage | SliderMessage | LoadingMessage;
 
 export interface ChatBubbleProps {
   message: ChatMessage;

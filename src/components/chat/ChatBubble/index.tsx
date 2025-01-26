@@ -18,8 +18,8 @@ interface ChatBubbleProps {
   message: TextMessage;
   prevType?: ChatType;
   prevHasLink?: boolean;
-  buttonPosition?: 'inside' | 'outside';
-  isWaitingForResponse?: boolean;
+  buttonPosition?: 'bottom' | 'right';
+  isWaiting?: boolean;
   onClick?: () => void;
 }
 
@@ -31,7 +31,14 @@ interface MessageBubbleProps {
   $hasButtons?: boolean;
 }
 
-const ChatBubble: React.FC<ChatBubbleProps> = ({ message, prevType, prevHasLink, buttonPosition = 'outside', isWaitingForResponse = false, onClick }) => {
+const ChatBubble: React.FC<ChatBubbleProps> = ({ 
+  message, 
+  prevType, 
+  prevHasLink, 
+  buttonPosition = 'bottom', 
+  isWaiting = false, 
+  onClick 
+}) => {
   const debugMode = useRecoilValue(debugModeState);
 
   const handleButtonClick = (buttonOnClick?: () => void) => {
@@ -43,7 +50,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, prevType, prevHasLink,
     <BubbleWrapper 
       $type={message.type}
       $prevType={prevType}
-      $hasLink={prevHasLink}
+      $hasLink={!!message.link}
       data-debug={debugMode}
     >
       <BubbleContainer $type={message.type} data-debug={debugMode}>
@@ -53,17 +60,16 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, prevType, prevHasLink,
         <MessageBubble 
           $type={message.type} 
           data-debug={debugMode} 
-          $isLink={message.isLink}
-          $hasButtons={buttonPosition === 'inside' && !!message.buttons}
+          $hasButtons={buttonPosition === 'bottom' && !!message.buttons}
         >
           {message.message}
-          {isWaitingForResponse && (
+          {isWaiting && (
             <UserWaitingIndicator>
               <img src="/assets/splash.png" alt="Waiting for response..." />
             </UserWaitingIndicator>
           )}
-          {buttonPosition === 'inside' && message.buttons && (
-            <ButtonContainer data-debug={debugMode} $position="inside">
+          {buttonPosition === 'bottom' && message.buttons && (
+            <ButtonContainer data-debug={debugMode} $position="bottom">
               {message.buttons.map((button, index) => (
                 <BubbleButton
                   key={index}
@@ -77,8 +83,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, prevType, prevHasLink,
             </ButtonContainer>
           )}
         </MessageBubble>
-        {buttonPosition === 'outside' && message.buttons && (
-          <ButtonContainer data-debug={debugMode}>
+        {buttonPosition === 'right' && message.buttons && (
+          <ButtonContainer data-debug={debugMode} $position="right">
             {message.buttons.map((button, index) => (
               <BubbleButton
                 key={index}
@@ -93,7 +99,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message, prevType, prevHasLink,
         )}
         {message.link && (
           <LinkText
-            $position={message.link.position}
+            $position={message.link.$position}
             onClick={message.link.onClick}
             data-debug={debugMode}
           >

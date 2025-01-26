@@ -1,140 +1,207 @@
-import { createTheme } from '@mui/material/styles';
+import { Theme, ThemeColors } from './types/theme';
+import { THEME_MODE, THEME_COLORS } from './constants/theme';
 
-export const colors = {
-  background: '#f5e6d3',
-  cardBg: '#fff9f2',
-  dialogBg: '#fdfaf7',
-  primary: '#6B4423',
-  primaryDark: '#4A3B2C',
-  primaryHover: '#8B5E34',
-  secondary: '#f5f5f5',
-  secondaryDark: '#e0e0e0',
-  secondaryHover: '#e8e8e8',
-  textPrimary: '#000000',
-  textSecondary: '#666666',
-  brown: '#6B4423',
-  logoText: '#4A3B2C',
+// 공통 색상
+const commonColors = {
+  textPrimary: "#000000",
+  textSecondary: "#666666",
+  white: "#ffffff",
+  debug: {}
+};
+
+// 브라운 테마 색상
+export const brownTheme: ThemeColors = {
+  ...commonColors,
+  background: "#f5e6d3",
+  cardBg: "#fff9f2",
+  dialogBg: "#fdfaf7",
+  primary: "#6B4423",
+  primaryDark: "#4A3B2C",
+  primaryHover: "#8B5E34",
+  secondary: "#8B7355",
+  secondaryDark: "#6B4423",
+  secondaryHover: "#A68B6C",
+  logoText: "#4A3B2C",
+  scrollbar: "#D4C3B3",
+  border: "#E8E1D9",
   dashboard: {
-    background: '#fff9f2'
+    background: "#FAF7F2"
   },
   chat: {
-    background: '#fdfaf7',
-    userBubble: '#6B4423',
-    jerryBubble: '#ffffff',
-    userText: '#ffffff',
-    jerryText: '#000000',
+    background: "#FFFFFF",
     messageArea: {
-      background: '#fff9f2'
-    }
-  },
-  debug: {
-    chatWrapper: '#FF4444',
-    bubbleWrapper: '#FF6B6B',
-    bubbleContainer: '#4ECDC4',
-    profileSection: '#45B7D1',
-    messageBubble: '#96CEB4',
-    buttonContainer: '#FFD93D',
-    linkText: '#FF9F1C',
-    sliderSection: '#A8E6CF',
-    sliderContainer: '#6C5CE7',
-    sliderCard: '#FF8B94',
-    cardContent: '#845EC2',
-    iconWrapper: '#00C9A7',
-    tagsContainer: '#C56CF0',
-    tag: '#FF7675',
-    dotsContainer: '#74B9FF',
-    contentSection: '#44FF44',
-    messageSection: '#4444FF',
-    inputSection: '#FF8844',
-    loadingOverlay: '#FFB6C1',
-    appLayout: '#E8E8E8',
-    header: '#D3D3D3',
-    mainContent: '#C0C0C0',
-    sidebar: '#B8B8B8',
-    dashboard: '#FFE4E1',
-    dashboardHeader: '#FFC0CB',
-    dashboardContent: '#FFB6C1',
-    dashboardSection: '#FF69B4',
-    bubbleButton: '#FF6B6B',
-    waitingIndicator: '#4ECDC4',
-    waitingIndicatorImage: '#45B7AF'
-  }
-};
-
-const baseTheme = createTheme({
-  palette: {
-    primary: {
-      main: colors.primary,
+      background: "#FAF7F2"
     },
-    text: {
-      primary: colors.textPrimary,
-      secondary: colors.textSecondary,
+    bubble: {
+      user: {
+        background: "#7B5F3F",
+        backgroundAlpha: 0.95,
+        text: "#FFFFFF"
+      },
+      jerry: {
+        background: "#F8F4F0",
+        backgroundAlpha: 0.85,
+        text: "#000000",
+        border: "#E8E1D9"
+      },
+      profile: {
+        text: "#8B7355"
+      },
+      button: {
+        background: "#8B7355",
+        text: "#FFFFFF",
+        hover: "#A68B6C"
+      }
     },
-    background: {
-      default: colors.background,
-      paper: colors.cardBg,
-    },
-  },
-  spacing: 8, // 기본 spacing 단위 설정
-  typography: {
-    fontFamily: 'Pretendard, sans-serif',
-    h1: {
-      fontSize: '24px',
-      fontWeight: 800,
-    },
-    h2: {
-      fontSize: '20px',
-      fontWeight: 700,
-    },
-    body1: {
-      fontSize: '14px',
-    },
-    body2: {
-      fontSize: '12px',
-    },
-  },
-});
-
-type FontSize = 'normal' | 'large';
-
-const fontSettings = {
-  normal: {
-    fontSize: {
-      title: '20px',
-      subtitle: '16px',
-      body: '14px',
-      caption: '12px'
-    },
-    spacing: {
-      card: '20px',
-      element: '16px'
-    },
-    cardSize: {
-      width: '260px',
-      height: '180px'
-    }
-  },
-  large: {
-    fontSize: {
-      title: '24px',
-      subtitle: '20px',
-      body: '18px',
-      caption: '16px'
-    },
-    spacing: {
-      card: '24px',
-      element: '20px'
-    },
-    cardSize: {
-      width: '300px',
-      height: '220px'
+    slider: {
+      card: {
+        background: "#F8F4F0",
+        backgroundAlpha: 0.92,
+        border: "#E8E1D9",
+        selectedBorder: "#6B4423",
+        shadow: "rgba(0, 0, 0, 0.02)",
+        hoverShadow: "rgba(0, 0, 0, 0.06)"
+      },
+      title: {
+        text: "#000000"
+      },
+      description: {
+        text: "#666666",
+        border: "#F0F0F0"
+      },
+      tag: {
+        background: "#F5E6D3",
+        text: "#6B4423"
+      },
+      navigator: {
+        active: "#6B4423",
+        inactive: "#8B7355",
+        hover: "#A68B6C"
+      }
     }
   }
 };
 
-export const createFontTheme = (size: FontSize) => {
-  const settings = fontSettings[size];
-  return settings;
+// 블루 테마 색상
+export const blueTheme: ThemeColors = {
+  ...commonColors,
+  background: "#f5f8ff",
+  cardBg: "#ffffff",
+  dialogBg: "#ffffff",
+  primary: "#4B7BF5",
+  primaryDark: "#3561D6",
+  primaryHover: "#6B93FF",
+  secondary: "#82A4FF",
+  secondaryDark: "#4B7BF5",
+  secondaryHover: "#9DB8FF",
+  logoText: "#3561D6",
+  scrollbar: "#D4E0FF",
+  border: "#E8F0FF",
+  dashboard: {
+    background: "#F5F8FF"
+  },
+  chat: {
+    background: "#FFFFFF",
+    messageArea: {
+      background: "#F5F8FF"
+    },
+    bubble: {
+      user: {
+        background: "#4B7BF5",
+        backgroundAlpha: 0.95,
+        text: "#FFFFFF"
+      },
+      jerry: {
+        background: "#F5F8FF",
+        backgroundAlpha: 0.85,
+        text: "#000000",
+        border: "#E8F0FF"
+      },
+      profile: {
+        text: "#4B7BF5"
+      },
+      button: {
+        background: "#82A4FF",
+        text: "#FFFFFF",
+        hover: "#9DB8FF"
+      }
+    },
+    slider: {
+      card: {
+        background: "#F5F8FF",
+        backgroundAlpha: 0.92,
+        border: "#E8F0FF",
+        selectedBorder: "#4B7BF5",
+        shadow: "rgba(0, 0, 0, 0.02)",
+        hoverShadow: "rgba(0, 0, 0, 0.06)"
+      },
+      title: {
+        text: "#000000"
+      },
+      description: {
+        text: "#666666",
+        border: "#F0F0F0"
+      },
+      tag: {
+        background: "#E3F2FD",
+        text: "#4B7BF5"
+      },
+      navigator: {
+        active: "#4B7BF5",
+        inactive: "#82A4FF",
+        hover: "#9DB8FF"
+      }
+    }
+  }
 };
 
-export default baseTheme; 
+export const typography = {
+  fontFamily: 'Pretendard, sans-serif',
+  h1: {
+    fontSize: '24px',
+    fontWeight: 800,
+  },
+  h2: {
+    fontSize: '20px',
+    fontWeight: 700,
+  },
+  body1: {
+    fontSize: '14px',
+  },
+  body2: {
+    fontSize: '12px',
+  },
+};
+
+export const spacing = {
+  unit: 8,
+  get: (multiplier: number) => `${multiplier * 8}px`,
+};
+
+const breakpointValues = {
+  mobile: '320px',
+  tablet: '768px',
+  desktop: '1024px',
+} as const;
+
+export const breakpoints = {
+  ...breakpointValues,
+  get: {
+    mobile: `@media (min-width: ${breakpointValues.mobile})`,
+    tablet: `@media (min-width: ${breakpointValues.tablet})`,
+    desktop: `@media (min-width: ${breakpointValues.desktop})`,
+  },
+};
+
+// 현재 활성화된 테마 색상
+export const colors = process.env.VITE_SERVICE_MODE === THEME_MODE.BLUE ? blueTheme : brownTheme;
+
+const theme: Theme = {
+  colors,
+  typography,
+  spacing,
+  breakpoints,
+};
+
+export type { Theme, ThemeColors };
+export default theme; 
