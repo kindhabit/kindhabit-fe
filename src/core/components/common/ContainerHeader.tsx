@@ -11,7 +11,7 @@ const HeaderTitle = styled.h2`
   font-family: 'Pretendard';
   font-size: 20px;
   font-weight: 700;
-  color: ${colors.brown};
+  color: ${colors.primary};
   margin: 0;
 `;
 

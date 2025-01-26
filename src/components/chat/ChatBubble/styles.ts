@@ -27,10 +27,7 @@ interface MessageBubbleProps {
 }
 
 interface LinkTextProps {
-  $position?: {
-    top?: number;
-    bottom?: number;
-  };
+  // position 관련 props 제거
 }
 
 interface DraggableLabelProps {
@@ -142,7 +139,7 @@ export const BubbleWrapper = styled.div<BubbleWrapperProps>`
       return '15px 0 10px';
     }
     if ($hasLink) {
-      return '8px 0 6px';
+      return '4px 0 0';
     }
     return $margin || '10px 0';
   }};
@@ -311,12 +308,10 @@ export const BubbleButton = styled.button<{ $variant?: 'primary' | 'secondary' }
   }
 `;
 
-export const LinkText = styled.span<LinkTextProps>`
-  position: relative;
+export const LinkText = styled.span`
   display: block;
   text-align: right;
-  ${({ $position }) => $position?.top !== undefined ? `top: ${$position.top}px;` : ''}
-  ${({ $position }) => $position?.bottom !== undefined ? `bottom: ${$position.bottom}px;` : ''}
+  margin-top: 2px;  // 버블과의 간격을 고정값으로 설정
   color: ${({ theme }) => theme.colors.chat.bubble.button.background};
   font-size: 12px;
   cursor: pointer;

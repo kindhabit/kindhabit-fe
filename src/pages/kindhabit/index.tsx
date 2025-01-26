@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes } from './routes';
-import { KindhabitThemeProvider } from '../theme/ThemeProvider';
+import { KindhabitThemeProvider } from './theme/ThemeProvider';
 
-const SupplementApp = () => {
+const KindhabitApp = () => {
   return (
     <KindhabitThemeProvider>
       <Routes />
@@ -10,4 +10,4 @@ const SupplementApp = () => {
   );
 };
 
-export default SupplementApp; 
+export default KindhabitApp; 

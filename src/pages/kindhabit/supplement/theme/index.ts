@@ -1,12 +1,10 @@
 import { Theme } from '@/core/theme/types/theme';
 
-// Kindhabit 테마 색상
-export const kindhabitTheme: Theme = {
+// Supplement 테마 색상
+export const supplementTheme: Theme = {
   colors: {
-    text: {
-      primary: "#000000",
-      secondary: "#666666"
-    },
+    textPrimary: "#000000",
+    textSecondary: "#666666",
     white: "#ffffff",
     background: "#f5e6d3",
     cardBg: "#fff9f2",
@@ -25,9 +23,6 @@ export const kindhabitTheme: Theme = {
     },
     chat: {
       background: "#FFFFFF",
-      messageArea: {
-        background: "#FFFFFF"
-      },
       bubble: {
         jerry: {
           background: "#FAF7F2",
@@ -48,40 +43,9 @@ export const kindhabitTheme: Theme = {
           text: "#FFFFFF",
           hover: "#8B5E34"
         }
-      },
-      slider: {
-        card: {
-          background: "#FFFFFF",
-          backgroundAlpha: 1,
-          border: "#E8E1D9",
-          selectedBorder: "#6B4423",
-          shadow: "rgba(107, 68, 35, 0.1)",
-          hoverShadow: "rgba(107, 68, 35, 0.2)"
-        },
-        title: {
-          text: "#000000"
-        },
-        description: {
-          text: "#666666",
-          border: "#E8E1D9"
-        },
-        tag: {
-          background: "#F5E6D3",
-          text: "#6B4423"
-        },
-        navigator: {
-          active: "#6B4423",
-          inactive: "#D4C3B3",
-          hover: "#8B5E34"
-        }
       }
     },
     debug: {}
-  },
-  borderRadius: {
-    sm: '4px',
-    md: '8px',
-    lg: '12px'
   },
   typography: {
     fontFamily: 'Pretendard, sans-serif',
@@ -101,21 +65,6 @@ export const kindhabitTheme: Theme = {
     },
   },
   spacing: {
-    get: (value: number) => `${value * 8}px`,
-    xs: '4px',
-    sm: '8px',
-    md: '16px',
-    lg: '24px',
-    xl: '32px'
-  },
-  breakpoints: {
-    mobile: '320px',
-    tablet: '768px',
-    desktop: '1024px',
-    get: {
-      mobile: '@media (min-width: 320px)',
-      tablet: '@media (min-width: 768px)',
-      desktop: '@media (min-width: 1024px)',
-    },
-  },
+    unit: 8,
+  }
 }; 

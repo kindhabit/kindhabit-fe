@@ -4,7 +4,7 @@ import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/store/debug';
 import { TextMessage, SliderMessage } from '@/types/chat';
 import ChatBubble from './ChatBubble';
-import Slider from './Slider';
+import Slider from '@/core/components/common/Slider/Slider_index';
 import { colors } from '@/theme';
 import { debugLabel } from './ChatBubble/styles';
 

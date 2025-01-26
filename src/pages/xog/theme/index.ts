@@ -3,8 +3,10 @@ import { Theme } from '@/core/theme/types/theme';
 // XOG 테마 색상
 export const xogTheme: Theme = {
   colors: {
-    textPrimary: "#000000",
-    textSecondary: "#666666",
+    text: {
+      primary: "#000000",
+      secondary: "#666666"
+    },
     white: "#ffffff",
     background: "#f5f8ff",
     cardBg: "#ffffff",
@@ -94,7 +96,11 @@ export const xogTheme: Theme = {
     },
   },
   spacing: {
-    unit: 8,
+    xs: '4px',
+    sm: '8px',
+    md: '16px',
+    lg: '24px',
+    xl: '32px',
     get: (multiplier: number) => `${8 * multiplier}px`,
   },
   breakpoints: {
@@ -107,4 +113,9 @@ export const xogTheme: Theme = {
       desktop: '@media (min-width: 1024px)',
     },
   },
+  borderRadius: {
+    sm: '4px',
+    md: '8px',
+    lg: '12px'
+  }
 }; 

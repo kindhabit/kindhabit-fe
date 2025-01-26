@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { TextMessage, SliderMessage, ChatMessage, LoadingMessage } from '@/types/chat';
-import { createInitialMessages, loadingMessages, ChatState, ChatStateType } from '@/services/chat';
+import { createInitialMessages, loadingMessages, ChatState, ChatStateType } from '@/services/kindhabit/supplement-main-chat';
 
 interface UseChatProps {
   isDebugMode?: boolean;

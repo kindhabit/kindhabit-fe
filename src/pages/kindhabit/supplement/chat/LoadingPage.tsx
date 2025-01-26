@@ -68,7 +68,7 @@ const LoadingPage: React.FC = () => {
 
     // 채팅 페이지로 이동
     const navigationTimer = setTimeout(() => {
-      navigate('/supplement/chat');
+      navigate('/kindhabit/chat');
     }, 3000);
 
     return () => {

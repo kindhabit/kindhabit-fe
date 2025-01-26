@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/core/store/debug';
-import { ChatType, TextMessage } from '@/core/types/chat';
+import { ChatType, TextMessage, ChatButton } from '@/types/chat';
 import {
   BubbleWrapper,
   BubbleContainer,
@@ -70,7 +70,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           )}
           {buttonPosition === 'bottom' && message.buttons && (
             <ButtonContainer data-debug={debugMode} $position="bottom">
-              {message.buttons.map((button, index) => (
+              {message.buttons.map((button: ChatButton, index: number) => (
                 <BubbleButton
                   key={index}
                   onClick={() => handleButtonClick(button.onClick)}
@@ -85,7 +85,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
         </MessageBubble>
         {buttonPosition === 'right' && message.buttons && (
           <ButtonContainer data-debug={debugMode} $position="right">
-            {message.buttons.map((button, index) => (
+            {message.buttons.map((button: ChatButton, index: number) => (
               <BubbleButton
                 key={index}
                 onClick={() => handleButtonClick(button.onClick)}
@@ -99,7 +99,6 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
         )}
         {message.link && (
           <LinkText
-            $position={message.link.$position}
             onClick={message.link.onClick}
             data-debug={debugMode}
           >

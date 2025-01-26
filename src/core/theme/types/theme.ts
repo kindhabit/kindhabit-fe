@@ -19,8 +19,12 @@ export interface Typography {
 }
 
 export interface Spacing {
-  unit: number;
   get: (multiplier: number) => string;
+  xs: string;
+  sm: string;
+  md: string;
+  lg: string;
+  xl: string;
 }
 
 export interface Breakpoints {
@@ -35,6 +39,10 @@ export interface Breakpoints {
 }
 
 export interface ThemeColors {
+  text: {
+    primary: string;
+    secondary: string;
+  };
   background: string;
   cardBg: string;
   dialogBg: string;
@@ -103,8 +111,6 @@ export interface ThemeColors {
       };
     };
   };
-  textPrimary: string;
-  textSecondary: string;
   white: string;
   debug?: Record<string, string>;
 }
@@ -119,4 +125,9 @@ export interface Theme {
   typography: Typography;
   spacing: Spacing;
   breakpoints: Breakpoints;
+  borderRadius: {
+    sm: string;
+    md: string;
+    lg: string;
+  };
 } 

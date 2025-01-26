@@ -1,6 +1,7 @@
 import { SliderItem } from './slider';
+import { CardProps } from '@/core/components/common/Card/Card_types';
 
-export type ChatType = 'jerry' | 'user' | 'slider' | 'loading';
+export type ChatType = 'jerry' | 'user' | 'slider' | 'loading' | 'card';
 
 export interface ChatLinkPosition {
   top?: number;
@@ -43,7 +44,8 @@ export interface TextMessage extends BaseMessage {
 
 export interface SliderMessage extends BaseMessage {
   type: 'slider';
-  sliderData: SliderItem[];
+  sliderData?: SliderItem[];
+  cards?: CardProps[];
 }
 
 export interface LoadingMessage extends BaseMessage {
@@ -52,7 +54,15 @@ export interface LoadingMessage extends BaseMessage {
   isTemporary?: boolean;
 }
 
-export type ChatMessage = TextMessage | SliderMessage | LoadingMessage;
+export interface CardMessage extends BaseMessage {
+  type: 'card';
+  cards: CardProps[];
+  layoutType?: 'grid' | 'slider';
+  gridColumns?: number;
+  gap?: string;
+}
+
+export type ChatMessage = TextMessage | SliderMessage | LoadingMessage | CardMessage;
 
 export interface ChatBubbleProps {
   message: ChatMessage;

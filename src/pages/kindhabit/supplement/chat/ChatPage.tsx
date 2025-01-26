@@ -2,9 +2,21 @@ import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/core/store/debug';
 import ChatContainer from '@/components/chat/ChatContainer';
+import { useChat } from '@/hooks/useChat';
 
 const ChatPage: React.FC = () => {
   const debugMode = useRecoilValue(debugModeState);
+  const {
+    messages,
+    waitingMessageId,
+    showLoading,
+    loadingStep,
+    loadingMessages,
+    setMessages,
+    setWaitingMessageId,
+    setShowLoading,
+    setLoadingStep,
+  } = useChat({ isDebugMode: debugMode });
   
   useEffect(() => {
     if (debugMode) {
@@ -27,9 +39,26 @@ const ChatPage: React.FC = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      <ChatContainer data-debug={debugMode} $inputEnabled={true} />
+      <ChatContainer 
+        data-debug={debugMode} 
+        $inputEnabled={true}
+        messages={messages}
+        showLoading={showLoading}
+        loadingStep={loadingStep}
+        loadingMessages={loadingMessages}
+        waitingMessageId={waitingMessageId || undefined}
+        sliderProps={{
+          cardMinWidth: '180px',
+          cardMaxWidth: '180px',
+          cardPadding: '16px',
+          showTags: true,
+          iconSize: '28px',
+          titleSize: '14px',
+          descriptionSize: '12px'
+        }}
+      />
     </div>
-  ), [debugMode]); // debugMode가 변경될 때마다 리렌더링
+  ), [debugMode, messages, showLoading, loadingStep, loadingMessages, waitingMessageId]); // debugMode가 변경될 때마다 리렌더링
 };
 
 export default React.memo(ChatPage); // 불필요한 리렌더링 방지 
