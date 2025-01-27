@@ -6,7 +6,6 @@ import {
   ChatState, 
   ChatStateType,
   createTargetSelectionResponse,
-  createProgramSelectionSlider,
   createProgramSelectionResponse,
   BookingProgram
 } from '@/services/xog/book-main-chat';
@@ -94,7 +93,7 @@ export const useXogBooking = ({ isDebugMode = false }: UseXogBookingProps = {}) 
     setShowLoading(true);
     const loadingId = addLoadingMessage(loadingMessages[1]);
     
-    // 프로그램 선택 슬라이더 표시
+    // 프로그램 선택 카드 표시
     setTimeout(() => {
       setShowLoading(false);
       removeMessage(loadingId);
@@ -109,10 +108,39 @@ export const useXogBooking = ({ isDebugMode = false }: UseXogBookingProps = {}) 
         profileText: '엠텍'
       });
       
-      // 프로그램 선택 슬라이더
+      // 프로그램 선택 카드
       setTimeout(() => {
-        const programSlider = createProgramSelectionSlider(Date.now());
-        addMessage(programSlider);
+        const programCard = {
+          id: `card2_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          type: 'card' as const,
+          timestamp: Date.now(),
+          layoutType: 'grid' as const,
+          gridColumns: 2,
+          gap: '16px',
+          cards: [
+            {
+              id: 'normal',
+              type: 'namecard-A' as const,
+              title: '엠텍이 84.04.13',
+              subtitle: '포항철강사업실|정비섹션',
+              description: '2025년 건강검진 대상자 입니다.',
+              icon: { emoji: '👤', color: '#4B89FF' },
+              tags: ['일반+특수검진', '종합검진', '배우자검진'],
+              buttonText: '건강검진 바로 예약하기'
+            },
+            {
+              id: 'comprehensive',
+              type: 'namecard-A' as const,
+              title: '엠텍이 84.04.13',
+              subtitle: '포항철강사업실|정비섹션',
+              description: '2025년 건강검진 대상자 입니다.',
+              icon: { emoji: '👤', color: '#4B89FF' },
+              tags: ['일반+특수검진', '종합검진', '배우자검진'],
+              buttonText: '건강검진 바로 예약하기'
+            }
+          ]
+        };
+        addMessage(programCard);
         setBookingState(BookingState.SELECT_PROGRAM);
       }, 500);
     }, 2000);
@@ -146,40 +174,19 @@ export const useXogBooking = ({ isDebugMode = false }: UseXogBookingProps = {}) 
     const baseTimestamp = Date.now();
     const initialMessages = createInitialMessages(baseTimestamp);
 
-    // 첫 메시지 표시
+    // 첫 메시지와 카드 표시
     const showFirstMessage = () => {
-      addMessage(initialMessages[0]);
-      log('First Message Set');
-      
-      // 로딩 메시지 표시
-      const showLoadingMessage = () => {
-        setShowLoading(true);
-        const loadingId = addLoadingMessage(loadingMessages[0]);
-        log('Loading Message Added');
-
-        // 대상자 선택 메시지와 슬라이더 표시
-        const showTargetSelection = () => {
-          setShowLoading(false);
-          removeMessage(loadingId);
-          
-          // 대상자 선택 안내 메시지
-          addMessage(initialMessages[1]);
-          
-          // 대상자 선택 슬라이더
-          setTimeout(() => {
-            addMessage(initialMessages[2]);
-            setBookingState(BookingState.SELECT_TARGET);
-          }, 500);
-        };
-
-        timersRef.current.push(setTimeout(showTargetSelection, 2000));
-      };
-
-      timersRef.current.push(setTimeout(showLoadingMessage, 1000));
+      // 초기 메시지 추가
+      initialMessages.forEach((message, index) => {
+        setTimeout(() => {
+          addMessage(message);
+          log(`Message ${index + 1} Set`);
+        }, index * 500);
+      });
     };
 
     timersRef.current.push(setTimeout(showFirstMessage, 1000));
-  }, [log, addMessage, addLoadingMessage, removeMessage]);
+  }, [log, addMessage]);
 
   // 초기화 Effect
   useEffect(() => {

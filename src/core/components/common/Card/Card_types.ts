@@ -1,17 +1,19 @@
 import { DefaultTheme } from 'styled-components';
 import styled from 'styled-components';
 
-export type CardType = 'default' | 'button' | 'xog';
+export type CardType = 'default' | 'namecard-A' | 'xog';
 export type CardLayoutType = 'grid' | 'slider';
 
 // 공통 속성
 interface CommonCardProps {
   id: string;
   title: string;
+  subtitle?: string;      // 부서/섹션 정보
   description?: string;
   icon?: {
     type?: string;
     emoji?: string;
+    color?: string;
   };
   tags?: string[];
   selected?: boolean;
@@ -21,6 +23,7 @@ interface CommonCardProps {
   showDescription?: boolean;
   iconSize?: string;
   titleSize?: string;
+  subtitleSize?: string;  // subtitle 크기 조절을 위한 속성
   descriptionSize?: string;
   width?: string;
   selectionData?: {
@@ -46,6 +49,13 @@ interface XOGCardProps {
   buttonText: string;
 }
 
+// 네임카드A 타입 속성
+interface NameCardAProps {
+  type: 'namecard-A';
+  subtitle: string;      // 부서/섹션 정보
+  buttonText: string;    // 버튼 텍스트
+}
+
 // 레이아웃 속성
 export interface CardLayoutProps {
   layoutType: CardLayoutType;
@@ -54,7 +64,7 @@ export interface CardLayoutProps {
 }
 
 // 최종 카드 Props
-export type CardProps = CommonCardProps & (DefaultCardProps | ButtonCardProps | XOGCardProps);
+export type CardProps = CommonCardProps & (DefaultCardProps | NameCardAProps | XOGCardProps);
 
 // 스타일 Props
 export interface StyledCardProps {

@@ -1,10 +1,10 @@
-import { TextMessage, SliderMessage, CardMessage } from '@/types/chat';
+import { TextMessage, CardMessage } from '@/types/chat';
 import { BookingTarget } from './book';
 
 // 검진 프로그램 타입 정의
 export type BookingProgram = 'normal' | 'comprehensive' | 'spouse';
 
-export const createInitialMessages = (baseTimestamp: number): (TextMessage | SliderMessage)[] => {
+export const createInitialMessages = (baseTimestamp: number): (TextMessage | CardMessage)[] => {
   return [
     {
       id: `msg1_${baseTimestamp}_${Math.random().toString(36).substr(2, 9)}`,
@@ -15,33 +15,32 @@ export const createInitialMessages = (baseTimestamp: number): (TextMessage | Sli
       profileText: '엠텍'
     },
     {
-      id: `msg2_${baseTimestamp + 1}_${Math.random().toString(36).substr(2, 9)}`,
-      type: 'jerry',
+      id: `card1_${baseTimestamp + 1}_${Math.random().toString(36).substr(2, 9)}`,
+      type: 'card',
       timestamp: baseTimestamp + 500,
-      message: '검진을 받으실 분을 선택해주세요.',
-      showProfile: true,
-      profileText: '엠텍'
-    },
-    {
-      id: `slider1_${baseTimestamp + 2}_${Math.random().toString(36).substr(2, 9)}`,
-      type: 'slider',
-      timestamp: baseTimestamp + 1000,
+      layoutType: 'grid',
+      gridColumns: 2,
+      gap: '16px',
       cards: [
         {
-          id: 'self',
-          type: 'button',
-          title: '본인',
-          description: '본인을 위한 검진 예약',
-          icon: { type: 'person' },
-          buttonText: '예약하기'
+          id: 'normal',
+          type: 'namecard-A',
+          title: '엠텍이 84.04.13',
+          subtitle: '포항철강사업실|정비섹션',
+          description: '체크-2025년 건강검진 대상자 입니다.',
+          icon: { emoji: '👤', color: '#4B89FF' },
+          tags: ['일반+특수검진', '종합검진', '배우자검진'],
+          buttonText: '건강검진 바로 예약하기'
         },
         {
-          id: 'family',
-          type: 'button',
-          title: '가족',
-          description: '가족을 위한 검진 예약',
-          icon: { type: 'family' },
-          buttonText: '예약하기'
+          id: 'comprehensive',
+          type: 'namecard-A',
+          title: '엠텍이 84.04.13',
+          subtitle: '포항철강사업실|정비섹션',
+          description: '체크-2025년 건강검진 대상자 입니다.',
+          icon: { emoji: '👤', color: '#4B89FF' },
+          tags: ['일반+특수검진', '종합검진', '배우자검진'],
+          buttonText: '건강검진 바로 예약하기'
         }
       ]
     }
@@ -82,39 +81,35 @@ export const createTargetSelectionResponse = (target: BookingTarget, timestamp: 
   };
 };
 
-// 검진 프로그램 선택 슬라이더 생성
+// 검진 프로그램 선택 카드 생성
 export const createProgramSelectionSlider = (timestamp: number): CardMessage => {
   return {
-    id: `slider2_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
+    id: `card2_${timestamp}_${Math.random().toString(36).substr(2, 9)}`,
     type: 'card',
     timestamp,
     layoutType: 'grid',
-    gridColumns: 3,
-    gap: '8px',
+    gridColumns: 2,
+    gap: '16px',
     cards: [
       {
         id: 'normal',
-        type: 'button',
-        title: '일반+특수검진',
-        description: '기본적인 건강검진과 특수검진을 함께 받으실 수 있습니다.',
-        icon: { type: 'health' },
-        buttonText: '선택'
+        type: 'namecard-A',
+        title: '엠텍이 84.04.13',
+        subtitle: '포항철강사업실|정비섹션',
+        description: '체크-2025년 건강검진 대상자 입니다.',
+        icon: { emoji: '👤', color: '#4B89FF' },
+        tags: ['일반+특수검진', '종합검진', '배우자검진'],
+        buttonText: '건강검진 바로 예약하기'
       },
       {
         id: 'comprehensive',
-        type: 'button',
-        title: '종합검진',
-        description: '더 자세한 검진이 필요하신 분들을 위한 프로그램입니다.',
-        icon: { type: 'comprehensive' },
-        buttonText: '선택'
-      },
-      {
-        id: 'spouse',
-        type: 'button',
-        title: '배우자검진',
-        description: '배우자를 위한 맞춤형 검진 프로그램입니다.',
-        icon: { type: 'spouse' },
-        buttonText: '선택'
+        type: 'namecard-A',
+        title: '엠텍이 84.04.13',
+        subtitle: '포항철강사업실|정비섹션',
+        description: '체크-2025년 건강검진 대상자 입니다.',
+        icon: { emoji: '👤', color: '#4B89FF' },
+        tags: ['일반+특수검진', '종합검진', '배우자검진'],
+        buttonText: '건강검진 바로 예약하기'
       }
     ]
   };

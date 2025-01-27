@@ -8,11 +8,15 @@ import {
   SliderDot,
   IconWrapper,
   Title,
+  Subtitle,
   Description,
   TagContainer,
   Tag,
   Button,
-  CardGrid
+  CardGrid,
+  HeaderSection,
+  TitleSection,
+  CheckIcon
 } from "./Card_styles";
 
 interface CardListProps {
@@ -116,6 +120,7 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
   id,
   type,
   title,
+  subtitle,
   description,
   icon,
   tags,
@@ -140,15 +145,24 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
       $layoutType={layoutType}
       onClick={onClick}
     >
-      {icon && (
-        <IconWrapper $size={iconSize}>
-          {icon.emoji}
-        </IconWrapper>
-      )}
-      <Title $size={titleSize}>{title}</Title>
-      
+      <HeaderSection>
+        {icon && (
+          <IconWrapper $size={iconSize}>
+            {icon.emoji}
+          </IconWrapper>
+        )}
+        <TitleSection>
+          <Title $size={titleSize}>{title}</Title>
+          {subtitle && (
+            <Subtitle>{subtitle}</Subtitle>
+          )}
+        </TitleSection>
+      </HeaderSection>
+
       {showDescription && description && (
-        <Description $size={descriptionSize}>{description}</Description>
+        <Description $size={descriptionSize}>
+          ⭐️ {description}
+        </Description>
       )}
       
       {showTags && tags && tags.length > 0 && (
@@ -159,7 +173,7 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
         </TagContainer>
       )}
       
-      {(type === 'button' || selectionData?.buttonText || buttonText) && (
+      {(type === 'namecard-A' || type === 'xog' || selectionData?.buttonText || buttonText) && (
         <Button>{buttonText || selectionData?.buttonText}</Button>
       )}
     </CardContainer>
