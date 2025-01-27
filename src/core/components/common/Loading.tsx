@@ -1,39 +1,32 @@
 import React from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import styled, { keyframes } from 'styled-components';
 
-const LoadingWrapper = styled(Box)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const LoadingWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
-  z-index: 1000;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
 `;
 
-const SplashImage = styled('img')`
-  width: 120px;
-  height: 120px;
-  margin-bottom: 24px;
+const Spinner = styled.div`
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: ${spin} 1s linear infinite;
 `;
 
-interface LoadingProps {
-  message?: string;
-}
-
-const Loading: React.FC<LoadingProps> = ({ message = '분석 중입니다...' }) => {
+const Loading = () => {
   return (
     <LoadingWrapper>
-      <SplashImage src="/assets/splash.png" alt="Loading" />
-      <CircularProgress size={32} sx={{ mb: 2 }} />
-      <Typography variant="body1" color="text.secondary">
-        {message}
-      </Typography>
+      <Spinner />
     </LoadingWrapper>
   );
 };

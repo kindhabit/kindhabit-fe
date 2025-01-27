@@ -2,22 +2,19 @@ import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/core/store/debug';
 import ChatContainer from '@/components/chat/ChatContainer';
-import { useChat } from '@/hooks/useChat';
+import { useSupplementChat } from '@/hooks/kindhabit/supplement/useSupplementChat';
+import { LOADING_MESSAGES } from '@/services/kindhabit/supplement/constants';
 
 const ChatPage: React.FC = () => {
   const debugMode = useRecoilValue(debugModeState);
-  const {
-    messages,
-    waitingMessageId,
-    showLoading,
-    loadingStep,
-    loadingMessages,
-    setMessages,
-    setWaitingMessageId,
-    setShowLoading,
-    setLoadingStep,
-  } = useChat({ isDebugMode: debugMode });
-  
+  const { 
+    messages, 
+    chatState, 
+    showLoading, 
+    loadingStep, 
+    waitingMessageId 
+  } = useSupplementChat();
+
   useEffect(() => {
     if (debugMode) {
       console.log('ChatPage Mounted, Debug Mode:', debugMode);
@@ -28,9 +25,8 @@ const ChatPage: React.FC = () => {
       }
     };
   }, [debugMode]);
-  
-  // 렌더링 최적화를 위해 메모이제이션 추가
-  return React.useMemo(() => (
+
+  return (
     <div style={{ 
       width: '100%', 
       height: '100%', 
@@ -40,13 +36,13 @@ const ChatPage: React.FC = () => {
       overflow: 'hidden'
     }}>
       <ChatContainer 
-        data-debug={debugMode} 
+        data-debug={debugMode}
         $inputEnabled={true}
         messages={messages}
         showLoading={showLoading}
         loadingStep={loadingStep}
-        loadingMessages={loadingMessages}
-        waitingMessageId={waitingMessageId || undefined}
+        loadingMessages={LOADING_MESSAGES}
+        waitingMessageId={waitingMessageId}
         sliderProps={{
           cardMinWidth: '180px',
           cardMaxWidth: '180px',
@@ -58,7 +54,8 @@ const ChatPage: React.FC = () => {
         }}
       />
     </div>
-  ), [debugMode, messages, showLoading, loadingStep, loadingMessages, waitingMessageId]); // debugMode가 변경될 때마다 리렌더링
+  );
 };
 
-export default React.memo(ChatPage); // 불필요한 리렌더링 방지 
+// 불필요한 리렌더링 방지
+export default React.memo(ChatPage); 

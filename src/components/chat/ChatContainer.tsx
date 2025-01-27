@@ -9,18 +9,19 @@ import { SliderStyleProps } from '@/core/components/common/Slider/Slider_types';
 import { TextMessage, SliderMessage, ChatMessage, ChatType, CardMessage } from '@/types/chat';
 import { CardList } from '@/core/components/common/Card/Card_index';
 
-interface Props {
+interface Props<T extends string = string> {
   $inputEnabled?: boolean;
   messages?: ChatMessage[];
   showLoading?: boolean;
   loadingStep?: number;
   loadingMessages?: string[];
   waitingMessageId?: string;
-  onSliderSelect?: (target: string) => void;
+  onSliderSelect?: (target: T) => void;
   sliderProps?: SliderStyleProps;
+  'data-debug'?: boolean;
 }
 
-const ChatContainer: React.FC<Props> = React.memo(({ 
+const ChatContainer = <T extends string = string>({ 
   $inputEnabled = true,
   messages = [],
   showLoading = false,
@@ -28,8 +29,9 @@ const ChatContainer: React.FC<Props> = React.memo(({
   loadingMessages = [],
   waitingMessageId,
   onSliderSelect,
-  sliderProps
-}) => {
+  sliderProps,
+  'data-debug': debug
+}: Props<T>) => {
   const isDebugMode = useRecoilValue(debugModeState);
   const lastBubbleRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +59,7 @@ const ChatContainer: React.FC<Props> = React.memo(({
       <Slider
         key={message.id}
         items={message.cards}
-        onComplete={() => onSliderSelect && onSliderSelect(message.id)}
+        onComplete={() => onSliderSelect?.(message.id as T)}
         {...sliderProps}
       />
     );
@@ -125,6 +127,6 @@ const ChatContainer: React.FC<Props> = React.memo(({
       </ContentSection>
     </ChatWrapper>
   );
-});
+};
 
 export default ChatContainer; 

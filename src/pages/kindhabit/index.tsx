@@ -1,11 +1,14 @@
 import React from 'react';
-import { Routes } from './routes';
+import { useRoutes } from 'react-router-dom';
+import routes from './routes';
 import { KindhabitThemeProvider } from './theme/ThemeProvider';
 
 const KindhabitApp = () => {
+  const element = useRoutes(routes);
+  
   return (
     <KindhabitThemeProvider>
-      <Routes />
+      {element}
     </KindhabitThemeProvider>
   );
 };

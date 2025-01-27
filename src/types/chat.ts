@@ -1,6 +1,8 @@
 import { SliderItem } from './slider';
 import { CardProps } from '@/core/components/common/Card/Card_types';
 
+export type MessageType = 'jerry' | 'user' | 'card' | 'loading';
+
 export type ChatType = 'jerry' | 'user' | 'slider' | 'loading' | 'card';
 
 export interface ChatLinkPosition {
@@ -32,14 +34,25 @@ export interface BaseMessage {
   timestamp: number;
 }
 
-export interface TextMessage extends BaseMessage {
-  type: 'jerry' | 'user';
-  message: string;
-  link?: ChatLink & { url?: string };
-  buttons?: ChatButton[];
-  buttonPosition?: 'bottom' | 'right' | 'inside';
+export interface TextMessage {
+  id: string;
+  type: 'jerry' | 'user' | 'loading';
+  timestamp: number;
+  text: string;
   showProfile?: boolean;
   profileText?: string;
+  isTemporary?: boolean;
+  buttons?: ChatButton[];
+  buttonPosition?: 'inside' | 'bottom';
+  variant?: 'error' | 'warning' | 'success';
+  link?: {
+    text: string;
+    onClick: () => void;
+    $position?: {
+      bottom?: number;
+      align?: 'left' | 'right';
+    };
+  };
 }
 
 export interface SliderMessage extends BaseMessage {
@@ -55,7 +68,7 @@ export interface LoadingMessage extends BaseMessage {
 }
 
 export interface CardMessage extends BaseMessage {
-  type: 'card';
+  type: MessageType;
   cards: CardProps[];
   layoutType?: 'grid' | 'slider';
   gridColumns?: number;

@@ -1,24 +1,30 @@
 import React, { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Layout from '@/core/components/common/Layout';
+import { Routes, Route, RouteObject } from 'react-router-dom';
+import { xogRoutes } from '@/pages/xog/routes';
+import { kindhabitRoutes } from '@/pages/kindhabit/routes';
 import Loading from '@/core/components/common/Loading';
 
-// 레이지 로딩 적용
-const ChatPage = React.lazy(() => import('@/pages/kindhabit/supplement/chat/ChatPage'));
-const AnalysisPage = React.lazy(() => import('@/pages/analysis/AnalysisPage'));
-const ReportPage = React.lazy(() => import('@/pages/analysis/ReportPage'));
+const MainPage = React.lazy(() => import('@/pages/kindhabit/supplement/chat/ChatPage'));
+
+// 라우트 객체를 Route 컴포넌트로 변환하는 함수
+const renderRoute = (route: RouteObject) => {
+  const { path, element, children } = route;
+  return (
+    <Route key={path} path={path} element={element}>
+      {children?.map(renderRoute)}
+    </Route>
+  );
+};
 
 const Router = () => {
   return (
-    <Layout>
-      <Suspense fallback={<Loading />}>
-        <Routes>
-          <Route path="/" element={<ChatPage />} />
-          <Route path="/analysis" element={<AnalysisPage />} />
-          <Route path="/report" element={<ReportPage />} />
-        </Routes>
-      </Suspense>
-    </Layout>
+    <Suspense fallback={<Loading />}>
+      <Routes>
+        <Route path="/" element={<MainPage />} />
+        {xogRoutes.map(renderRoute)}
+        {kindhabitRoutes.map(renderRoute)}
+      </Routes>
+    </Suspense>
   );
 };
 

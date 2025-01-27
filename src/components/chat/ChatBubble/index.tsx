@@ -62,7 +62,11 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           data-debug={debugMode} 
           $hasButtons={buttonPosition === 'bottom' && !!message.buttons}
         >
-          {message.message}
+          {'text' in message && (
+            <div className="message-text">
+              {message.text}
+            </div>
+          )}
           {isWaiting && (
             <UserWaitingIndicator>
               <img src="/assets/splash.png" alt="Waiting for response..." />
@@ -72,7 +76,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
             <ButtonContainer data-debug={debugMode} $position="bottom">
               {message.buttons.map((button: ChatButton, index: number) => (
                 <BubbleButton
-                  key={index}
+                  key={`${message.id}_btn_${index}`}
                   onClick={() => handleButtonClick(button.onClick)}
                   $variant={button.variant || 'secondary'}
                   data-debug={debugMode}
@@ -87,7 +91,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           <ButtonContainer data-debug={debugMode} $position="right">
             {message.buttons.map((button: ChatButton, index: number) => (
               <BubbleButton
-                key={index}
+                key={`${message.id}_btn_${index}`}
                 onClick={() => handleButtonClick(button.onClick)}
                 $variant={button.variant || 'secondary'}
                 data-debug={debugMode}
