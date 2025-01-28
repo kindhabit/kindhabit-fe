@@ -1,5 +1,5 @@
 import { BookingUIType } from '../types';
-import { ChatBookingState } from './chat/states';
+import { ChatBookingState } from './chat/booking_main';
 import { FormBookingState } from './form/states';
 
 export class BookingUIFactory {

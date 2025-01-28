@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BookingState, BookingTarget, BookingProgram } from '@/services/xog/booking/types';
-import { ChatBookingState } from '@/services/xog/booking/presentation/chat/states';
+import { ChatBookingState } from '@/services/xog/booking/presentation/chat/booking_main';
 
 export const useBooking = () => {
   const [bookingState] = useState<ChatBookingState>(new ChatBookingState());
