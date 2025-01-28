@@ -1,4 +1,5 @@
 import { DefaultTheme } from 'styled-components';
+import { ReactNode } from 'react';
 
 export type SelectionMode = 'date-first' | 'hospital-first';
 
@@ -10,11 +11,11 @@ export interface CalendarProps {
   disabledDates?: Date[];
   maxSelections?: number;
   availableCounts?: { [key: string]: number };
-  mode?: 'date-first' | 'hospital-first';
+  mode?: SelectionMode;
   selectedHospitalId?: string;
   buttonText?: string;
   onButtonClick?: () => void;
-  renderDateContent?: (date: Date) => React.ReactNode;
+  renderDateContent?: (date: Date) => ReactNode;
   showDateContent?: boolean;
 }
 
@@ -37,5 +38,5 @@ export interface DateCellProps {
   $isOtherMonth?: boolean;
   $isSaturday?: boolean;
   $isSunday?: boolean;
-  $mode?: 'date-first' | 'hospital-first';
+  $mode?: SelectionMode;
 } 

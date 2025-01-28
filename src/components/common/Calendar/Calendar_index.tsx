@@ -10,7 +10,10 @@ import {
   DatesGrid,
   DateCell,
   Legend,
-  LegendItem
+  LegendItem,
+  Footer,
+  Button,
+  BottomSection
 } from './Calendar_styles';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -25,7 +28,11 @@ const Calendar: React.FC<CalendarProps> = ({
   maxSelections = 2,
   availableCounts = {},
   mode = 'date-first',
-  selectedHospitalId
+  selectedHospitalId,
+  buttonText,
+  onButtonClick,
+  renderDateContent,
+  showDateContent = false
 }) => {
   const [currentDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
@@ -42,32 +49,22 @@ const Calendar: React.FC<CalendarProps> = ({
   }, []);
 
   const isAvailable = useCallback((date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 14);
-
-    const isWithinRange = date >= today && date <= maxDate;
-    if (!isWithinRange) return false;
-
+    if (minDate && date < minDate) return false;
+    if (maxDate && date > maxDate) return false;
     if (date.getDay() === 0 || date.getDay() === 6) return false;
-
+    
     const dateStr = date.toISOString().split('T')[0];
     return availableCounts[dateStr] > 0;
-  }, [availableCounts]);
+  }, [availableCounts, minDate, maxDate]);
 
   const isDisabled = useCallback((date: Date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 14);
-
-    if (date < today || date > maxDate) return true;
+    if (minDate && date < minDate) return true;
+    if (maxDate && date > maxDate) return true;
     if (date.getDay() === 0 || date.getDay() === 6) return true;
 
     const dateStr = date.toISOString().split('T')[0];
     return !availableCounts[dateStr] || availableCounts[dateStr] === 0;
-  }, [availableCounts]);
+  }, [availableCounts, minDate, maxDate]);
 
   const isSelected = useCallback((date: Date) => {
     return selectedDates.some(selectedDate =>
@@ -85,78 +82,55 @@ const Calendar: React.FC<CalendarProps> = ({
 
   const getAvailableCount = useCallback((dateString: string) => {
     if (mode === 'date-first') {
-      // 날짜 우선 모드: 전체 가용 병원 수 표시
       return availableCounts[dateString] || 0;
     } else {
-      // 병원 우선 모드: 선택된 병원의 가용 여부만 표시 (0 또는 1)
       return selectedHospitalId && availableCounts[dateString] ? 1 : 0;
     }
   }, [mode, availableCounts, selectedHospitalId]);
-
-  const handleDateClick = (date: Date, isOtherMonth: boolean) => {
+    
+  const handleDateClick = (date: Date) => {
     if (isDisabled(date)) return;
     
-    if (isOtherMonth) {
-        setCurrentMonth(date.getMonth());
-        setCurrentYear(date.getFullYear());
-        return;
-    }
+    // 새로운 날짜를 선택하면 이전 선택을 초기화하고 새 날짜만 선택
+    onDateSelect([date]);
     
-    const dateString = date.toISOString().split('T')[0];
-    const availableCount = getAvailableCount(dateString);
-
-    if (availableCount === 0) return;
-
-    if (mode === 'hospital-first' && !selectedHospitalId) return;
-
-    const isDateSelected = isSelected(date);
-    
-    if (isDateSelected) {
-        // 선택 해제
-        const newSelectedDates = selectedDates.filter(selectedDate => 
-            selectedDate.getTime() !== date.getTime()
-        );
-        onDateSelect(newSelectedDates);
-    } else if (selectedDates.length < maxSelections) {
-        // 선택 추가
-        const newSelectedDates = [...selectedDates, date];
-        onDateSelect(newSelectedDates);
+    if (mode === 'date-first') {
+      setCurrentMonth(date.getMonth());
+      setCurrentYear(date.getFullYear());
     }
   };
 
   const handlePrevMonth = () => {
-    if (!availableDates.length) return;  // 가용 날짜가 없으면 이동하지 않음
+    if (!availableDates.length) return;
     
     const firstAvailableDate = availableDates[0];
     const targetDate = new Date(currentYear, currentMonth - 1, 1);
 
-    // 이전 달로 이동 시 사용 가능한 날짜가 있는 경우에만 이동
     if (targetDate.getMonth() >= firstAvailableDate.getMonth() &&
         targetDate.getFullYear() >= firstAvailableDate.getFullYear()) {
-      if (currentMonth === 0) {
-        setCurrentMonth(11);
-        setCurrentYear(prev => prev - 1);
-      } else {
-        setCurrentMonth(prev => prev - 1);
-      }
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(prev => prev - 1);
+    } else {
+      setCurrentMonth(prev => prev - 1);
+    }
     }
   };
 
   const handleNextMonth = () => {
-    if (!availableDates.length) return;  // 가용 날짜가 없으면 이동하지 않음
+    if (!availableDates.length) return;
     
     const lastAvailableDate = availableDates[availableDates.length - 1];
     const targetDate = new Date(currentYear, currentMonth + 1, 1);
 
-    // 다음 달로 이동 시 사용 가능한 날짜가 있는 경우에만 이동
     if (targetDate.getMonth() <= lastAvailableDate.getMonth() &&
         targetDate.getFullYear() <= lastAvailableDate.getFullYear()) {
-      if (currentMonth === 11) {
-        setCurrentMonth(0);
-        setCurrentYear(prev => prev + 1);
-      } else {
-        setCurrentMonth(prev => prev + 1);
-      }
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(prev => prev + 1);
+    } else {
+      setCurrentMonth(prev => prev + 1);
+    }
     }
   };
 
@@ -185,7 +159,7 @@ const Calendar: React.FC<CalendarProps> = ({
           $isSaturday={dayOfWeek === 6}
           $isSunday={dayOfWeek === 0}
           $isDisabled={true}
-          onClick={() => handleDateClick(date, true)}
+          onClick={() => handleDateClick(date)}
         >
           <span className="date-number">{prevMonthDays - i}</span>
         </DateCell>
@@ -198,7 +172,7 @@ const Calendar: React.FC<CalendarProps> = ({
       const dayOfWeek = date.getDay();
       const dateString = date.toISOString().split('T')[0];
       const availableCount = getAvailableCount(dateString);
-      
+
       days.push(
         <DateCell
           key={i}
@@ -209,19 +183,23 @@ const Calendar: React.FC<CalendarProps> = ({
           $isSaturday={dayOfWeek === 6}
           $isSunday={dayOfWeek === 0}
           $mode={mode}
-          onClick={() => handleDateClick(date, false)}
+          onClick={() => handleDateClick(date)}
         >
           <span className="date-number">{i}</span>
-          {isAvailable(date) && (
-            <span className="available-count">
-              {mode === 'date-first' ? `${availableCount}개소` : '예약가능'}
-            </span>
+          {showDateContent && renderDateContent ? (
+            renderDateContent(date)
+          ) : (
+            isAvailable(date) && (
+              <span className="available-count">
+                {mode === 'date-first' ? availableCount : '1'}
+              </span>
+            )
           )}
         </DateCell>
       );
     }
 
-    // 다음 달의 날짜들 (현재 달의 마지막 주 채우기)
+    // 다음 달의 날짜들
     const lastDayOfMonth = new Date(currentYear, currentMonth, daysInMonth).getDay();
     const remainingCells = 6 - lastDayOfMonth;
     for (let i = 1; i <= remainingCells; i++) {
@@ -234,7 +212,7 @@ const Calendar: React.FC<CalendarProps> = ({
           $isSaturday={dayOfWeek === 6}
           $isSunday={dayOfWeek === 0}
           $isDisabled={true}
-          onClick={() => handleDateClick(date, true)}
+          onClick={() => handleDateClick(date)}
         >
           <span className="date-number">{i}</span>
         </DateCell>
@@ -278,14 +256,22 @@ const Calendar: React.FC<CalendarProps> = ({
         {renderDays()}
       </DatesGrid>
 
-      <Legend>
-        <LegendItem data-type="today">오늘</LegendItem>
-        <LegendItem data-type="selected">희망일</LegendItem>
-      </Legend>
+      <BottomSection>
+        <Legend>
+          <LegendItem data-type="today">오늘</LegendItem>
+          <LegendItem data-type="selected">희망일</LegendItem>
+        </Legend>
+          {buttonText && onButtonClick && (
+            <Button 
+              onClick={onButtonClick} 
+              disabled={selectedDates.length === 0}
+            >
+              {buttonText}
+          </Button>
+        )}
+      </BottomSection>
     </CalendarContainer>
   );
-}
+};
 
-export { Calendar };
-export { Calendar as CheckupDateSelector };
 export default Calendar; 

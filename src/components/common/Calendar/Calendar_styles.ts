@@ -1,26 +1,63 @@
 import styled, { css } from 'styled-components';
 import { StyledCalendarProps, DateCellProps } from './Calendar_types';
 
+export const Footer = styled.div`
+  width: 70%;
+  margin: 0 auto;
+  padding: 0;
+  background: ${props => props.theme.colors.background};
+  border-top: 1px solid ${props => props.theme.colors.border};
+  display: flex;
+  justify-content: flex-end;
+`;
+
+export const Button = styled.button`
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.white};
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 12px 20px 12px auto;
+  min-width: 100px;
+
+  &:hover {
+    background: ${props => props.theme.colors.primaryDark};
+  }
+
+  &:disabled {
+    background: ${props => props.theme.colors.disabled};
+    cursor: not-allowed;
+  }
+`;
+
 export const CalendarContainer = styled.div`
   width: 100%;
   background: ${props => props.theme.colors.white};
-  border-radius: 16px;
-  padding: 16px;
+  padding: 0;
   color: #333333;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 export const CalendarHeader = styled.div`
+  width: 70%;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  padding: 2px 0;
 `;
 
 export const MonthYearDisplay = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 20px;
+  gap: 4px;
+  font-size: 17px;
   font-weight: 600;
   color: #333333;
 
@@ -55,11 +92,12 @@ export const NavigationButton = styled.button`
 export const WeekdayHeader = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   text-align: center;
 `;
 
 export const WeekdayCell = styled.div<{ $isSaturday?: boolean; $isSunday?: boolean }>`
+  text-align: center;
   font-size: 13px;
   font-weight: 500;
   color: ${props => {
@@ -67,19 +105,19 @@ export const WeekdayCell = styled.div<{ $isSaturday?: boolean; $isSunday?: boole
     if (props.$isSunday) return '#2171D1';
     return '#333333';
   }};
-  padding: 6px 4px;
+  padding: 4px;
 `;
 
 export const DatesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  padding: 0 4px;
+  padding: 0;
 `;
 
 export const DateCell = styled.button<DateCellProps>`
   width: 100%;
-  height: 52px;
+  height: 48px;
   border: none;
   border-radius: 6px;
   background: transparent;
@@ -91,7 +129,7 @@ export const DateCell = styled.button<DateCellProps>`
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 6px 2px 4px;
+  padding: 4px 2px 2px;
   color: ${props => {
     if (props.$isOtherMonth) return '#999999';
     if (props.$isSaturday) return '#4A90E2';
@@ -105,13 +143,26 @@ export const DateCell = styled.button<DateCellProps>`
   `}
 
   ${props => props.$isToday && css`
-    border: 1px solid ${props.theme.colors.primary};
-    color: ${props.theme.colors.primary};
+    position: relative;
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: ${props.theme.colors.text.disabled};
+    }
   `}
 
   ${props => props.$isSelected && css`
     background: ${props.theme.colors.primary};
     color: ${props.theme.colors.white};
+    &::after {
+      display: none;
+    }
   `}
 
   ${props => props.$isInRange && css`
@@ -125,13 +176,15 @@ export const DateCell = styled.button<DateCellProps>`
   .date-number {
     font-weight: 500;
     line-height: 1;
+    font-size: 15px;
     margin-bottom: 2px;
   }
 
   .available-count {
-    font-size: 11px;
-    padding: 1px 3px;
-    border-radius: 3px;
+    font-size: 12px;
+    margin-top: 2px;
+    padding: 1px 4px;
+    border-radius: 4px;
     background-color: ${({ $mode }) => 
       $mode === 'hospital-first' 
         ? '#E3F2FD'
@@ -142,38 +195,49 @@ export const DateCell = styled.button<DateCellProps>`
         ? '#1976D2'
         : '#FF4081'
     };
+
+    &::after {
+      content: '개소';
+      margin-left: 1px;
+      font-size: 11px;
+    }
   }
 `;
 
 export const Legend = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid ${props => props.theme.colors.border};
+  gap: 12px;
+  padding: 12px 20px;
+  flex: 1;
 `;
 
 export const LegendItem = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #333333;
-
-  &::before {
-    content: '';
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
+  gap: 4px;
+  font-size: 12px;
+  color: ${props => props.theme.colors.text.secondary};
 
   &[data-type="today"]::before {
-    border: 1px solid ${props => props.theme.colors.primary};
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E0E0E0;
   }
 
   &[data-type="selected"]::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
     background: ${props => props.theme.colors.primary};
   }
+`;
+
+export const BottomSection = styled.div`
+  display: flex;
+  align-items: center;
+  border-top: 1px solid ${props => props.theme.colors.border};
+  margin-top: 2px;
 `;

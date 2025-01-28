@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 
 export interface CheckupDateSelectorProps {
   selectedDates: Date[];
-  onDateSelect: (date: Date) => void;
+  onDateSelect: (dates: Date[]) => void;
   minDate?: Date;
   maxDate?: Date;
   disabledDates?: Date[];
@@ -16,5 +16,5 @@ export interface CheckupDateSelectorProps {
 }
 
 export interface StyledContainerProps {
-  hasFooter: boolean;
+  $hasFooter: boolean;
 } 

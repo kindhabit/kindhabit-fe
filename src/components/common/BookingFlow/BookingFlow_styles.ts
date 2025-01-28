@@ -13,7 +13,7 @@ export const Navigation = styled.div`
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 20px;
+  padding: 12px 20px;
   background: ${props => props.theme.colors.white};
   border-bottom: 1px solid ${props => props.theme.colors.border};
 `;
@@ -44,19 +44,19 @@ export const StepIndicator = styled.div<StyledStepIndicatorProps>`
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 8px;
+  gap: 4px;
 
   .step {
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
     background: ${props => props.theme.colors.border};
     transition: all 0.2s ease-out;
 
     &.active {
       background: ${props => props.theme.colors.primary};
-      width: 16px;
-      border-radius: 3px;
+      width: 12px;
+      border-radius: 2px;
     }
   }
 `;

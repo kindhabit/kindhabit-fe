@@ -38,6 +38,7 @@ import CheckupDateSelector from '../CheckupDateSelector/CheckupDateSelector_inde
 import { BookingAPI } from '@/services/xog/booking/api/client';
 import { AvailableDatesResponse } from '@/services/xog/booking/types';
 import { ChatBookingState } from '@/services/xog/booking/presentation/chat/booking_main';
+import { Splash } from '@/components/common/Splash';
 
 interface CardListProps {
   cards: CardProps[];
@@ -182,6 +183,7 @@ const Card: React.FC<CardProps & {
   const [isBookingFlowOpen, setIsBookingFlowOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [availableCounts, setAvailableCounts] = useState<{ [key: string]: number }>({});
+  const [showSplash, setShowSplash] = useState(false);
 
   const handleButtonClick = () => {
     if (type === 'namecard-A' && bookingState) {
@@ -202,12 +204,8 @@ const Card: React.FC<CardProps & {
     }
   };
 
-  const handleDateSelect = (date: Date) => {
-    if (selectedDates.some(d => d.getTime() === date.getTime())) {
-      setSelectedDates(prev => prev.filter(d => d.getTime() !== date.getTime()));
-    } else {
-      setSelectedDates(prev => [...prev, date].slice(-2));
-    }
+  const handleDateSelect = (dates: Date[]) => {
+    setSelectedDates(dates);
   };
 
   const handlePhoneSubmit = () => {
@@ -218,21 +216,29 @@ const Card: React.FC<CardProps & {
     }
   };
 
-  // 이니셜 모달에서 날짜 우선으로 시작할 때.
-  const handleDateFirstReservation = async () => {
-    if (!bookingState) return;
-    
-    console.log('🔍 [이벤트] 날짜 우선 예약 버튼 클릭');
-    setIsReservationModalOpen(false);
-    
+  const handleDateFirstBooking = async () => {
+    console.log('🔍 [이벤트] 날짜 우선으로 예약하기 버튼 클릭');
+    console.log('🔍 [디버그] bookingState:', bookingState);
+    if (!bookingState) {
+      console.error('🔍 [에러] bookingState가 없습니다');
+      return;
+    }
     try {
+      console.log('🔍 [디버그] 스플래시 표시 시작');
       setIsLoading(true);
+      setShowSplash(true);
+      console.log('🔍 [디버그] showSplash 상태:', true);
       const availableCounts = await bookingState.handleDateFirstBooking();
       console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
-      setAvailableCounts(availableCounts);
-      setIsCalendarOpen(true);
+      setIsReservationModalOpen(false);
+      setTimeout(() => {
+        console.log('🔍 [디버그] 스플래시 종료');
+        setShowSplash(false);
+        setIsBookingFlowOpen(true);
+      }, 1000);
     } catch (error) {
       console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
+      setShowSplash(false);
     } finally {
       setIsLoading(false);
     }
@@ -290,157 +296,38 @@ const Card: React.FC<CardProps & {
 
   return (
     <>
+      {showSplash && (
+        <Splash
+          variant="standalone"
+          isVisible={showSplash}
+          message="날짜 정보를 불러오는 중입니다..."
+          animation="fade"
+        />
+      )}
+      
       <CardContainer
+        onClick={handleCardClick}
         $type={type}
         $selected={selected}
         $width={width}
         $layoutType={layoutType}
-        onClick={type === 'namecard-B' ? handleCardClick : onClick}
-        style={{ cursor: type === 'namecard-B' ? 'pointer' : 'default' }}
         data-debug={debugMode}
       >
-        {(type === 'namecard-A' || type === 'namecard-B') && (
-          <>
-            {renderProfileSection()}
-            
-            {type === 'namecard-A' && (
-              <>
-                <div className="description-section">
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <path d="M16.6666 5L7.49992 14.1667L3.33325 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  <span>{description}</span>
-                </div>
-                
-                {showTags && tags && tags.length > 0 && (
-                  <TagContainer>
-                    {tags.map((tag, idx) => (
-                      <Tag 
-                        key={`${id}-tag-${idx}`}
-                        $type="namecard-A"
-                      >
-                        {tag}
-                      </Tag>
-                    ))}
-                  </TagContainer>
-                )}
-                
-                {buttonText && (
-                  <Button 
-                    onClick={() => {
-                      handleButtonClick();
-                    }}
-                  >
-                    {buttonText}
-                  </Button>
-                )}
-              </>
-            )}
-          </>
+        {renderProfileSection()}
+        {showDescription && description && (
+          <Description>{description}</Description>
         )}
-        
-        {type === 'default' && (
-          <>
-            {showDescription && description && (
-              <Description $size={descriptionSize}>
-                ⭐️ {description}
-              </Description>
-            )}
-            {showTags && tags && tags.length > 0 && (
-              <TagContainer>
-                {tags.map((tag, idx) => (
-                  <Tag 
-                    key={`${id}-tag-${idx}`}
-                    $type="default"
-                  >
-                    {tag}
-                  </Tag>
-                ))}
-              </TagContainer>
-            )}
-            {buttonText && (
-              <Button 
-                onClick={() => {
-                  handleButtonClick();
-                }}
-              >
-                {buttonText}
-              </Button>
-            )}
-          </>
+        {showTags && tags && tags.length > 0 && (
+          <TagContainer>
+            {tags.map((tag, index) => (
+              <Tag key={index}>{tag}</Tag>
+            ))}
+          </TagContainer>
         )}
-
-        {type === 'hospital' && (
-          <>
-            <div className="hospital-thumbnail">
-              {icon && icon.image && (
-                <img 
-                  src={icon.image} 
-                  alt={title}
-                  onError={(e) => {
-                    console.error('Hospital Image Load Error:', {
-                      title,
-                      element: e.currentTarget
-                    });
-                  }}
-                />
-              )}
-            </div>
-            <div className="hospital-content">
-              <TitleSection>
-                <Title>{title}</Title>
-                <span className="subtitle">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 8.5C9.10457 8.5 10 7.60457 10 6.5C10 5.39543 9.10457 4.5 8 4.5C6.89543 4.5 6 5.39543 6 6.5C6 7.60457 6.89543 8.5 8 8.5Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M13 6.5C13 11 8 14.5 8 14.5C8 14.5 3 11 3 6.5C3 3.18629 5.23858 1 8 1C10.7614 1 13 3.18629 13 6.5Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  {subtitle}
-                </span>
-              </TitleSection>
-              
-              {showTags && tags && tags.length > 0 && (
-                <TagContainer>
-                  {tags.map((tag, idx) => (
-                    <Tag 
-                      key={`${id}-tag-${idx}`}
-                      $type="default"
-                    >
-                      {tag}
-                    </Tag>
-                  ))}
-                </TagContainer>
-              )}
-              
-              {buttonText && (
-                <Button 
-                  onClick={() => {
-                    handleButtonClick();
-                  }}
-                >
-                  {buttonText}
-                </Button>
-              )}
-            </div>
-          </>
-        )}
-
-        {type === 'checkup-date' && (
-          <>
-            <TitleSection>
-              <Title>{title}</Title>
-              <span className="subtitle">{subtitle}</span>
-            </TitleSection>
-            
-            {buttonText && (
-              <Button 
-                onClick={() => {
-                  handleButtonClick();
-                }}
-              >
-                {buttonText}
-              </Button>
-            )}
-          </>
+        {buttonText && (
+          <Button onClick={handleButtonClick}>
+            {buttonText}
+          </Button>
         )}
       </CardContainer>
 
@@ -507,24 +394,7 @@ const Card: React.FC<CardProps & {
         <OptionsGrid>
           <OptionCard
             $type="date"
-            onClick={async () => {
-              console.log('🔍 [이벤트] 날짜 우선으로 예약하기 버튼 클릭');
-              if (!bookingState) {
-                console.error('🔍 [에러] bookingState가 없습니다');
-                return;
-              }
-              try {
-                setIsLoading(true);
-                const availableCounts = await bookingState.handleDateFirstBooking();
-                console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
-                setIsReservationModalOpen(false);
-                setIsBookingFlowOpen(true);
-              } catch (error) {
-                console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
-              } finally {
-                setIsLoading(false);
-              }
-            }}
+            onClick={handleDateFirstBooking}
           >
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

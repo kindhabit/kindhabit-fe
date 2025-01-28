@@ -51,20 +51,27 @@ const BaseSplash = css<BaseSplashProps>`
 
 export const StandaloneSplash = styled.div<BaseSplashProps & { type?: 'fixed' | 'absolute' }>`
   ${BaseSplash}
-  position: ${({ type }) => type === 'fixed' ? 'fixed' : 'absolute'};
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.9);
-  z-index: 1000;
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 99999;
 `;
 
 export const FlowItemSplash = styled.div<BaseSplashProps>`
   ${BaseSplash}
-  position: relative;
-  padding: 16px;
-  margin: 8px 0;
+  position: absolute;
+  top: -40%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: 100;
 `;
 
 export const IndicatorSplash = styled.div<BaseSplashProps & { 
@@ -116,16 +123,17 @@ export const SplashImage = styled.img<{ $animation?: string; $variant?: 'standal
   width: ${({ $variant }) => {
     switch ($variant) {
       case 'indicator':
-        return '25px';
+        return '75px';
       case 'flowItem':
-        return '40px';
+        return '120px';
       case 'standalone':
       default:
-        return '50px';
+        return '240px';
     }
   }};
   height: auto;
   animation: ${({ $animation }) => getAnimation($animation)};
+  opacity: 0.7;
 `;
 
 export const SplashMessage = styled.div`

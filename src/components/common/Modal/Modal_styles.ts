@@ -64,8 +64,8 @@ export const ModalContainer = styled.div<StyledModalProps & DebugProps>`
 `;
 
 export const Header = styled.div<DebugProps>`
-  padding: 16px 20px;
-  min-height: 56px;
+  padding: 3px 16px;
+  min-height: 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -87,7 +87,7 @@ export const Header = styled.div<DebugProps>`
 
 export const Title = styled.h2<DebugProps>`
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: ${props => props.theme.colors.text.primary};
   flex: 1;

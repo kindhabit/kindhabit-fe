@@ -1,11 +1,7 @@
 import React from 'react';
 import Calendar from '../Calendar/Calendar_index';
 import { CheckupDateSelectorProps } from './CheckupDateSelector_types';
-import {
-  Container,
-  Footer,
-  Button
-} from './CheckupDateSelector_styles';
+import { Container } from './CheckupDateSelector_styles';
 
 const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
   selectedDates,
@@ -22,7 +18,7 @@ const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
   showDateContent
 }) => {
   return (
-    <Container $hasFooter={!!footer}>
+    <Container $hasFooter={!!footer || !!buttonText}>
       <Calendar
         selectedDates={selectedDates}
         onDateSelect={onDateSelect}
@@ -31,17 +27,12 @@ const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
         disabledDates={disabledDates}
         maxSelections={maxSelections}
         availableCounts={availableCounts}
+        buttonText={buttonText}
+        onButtonClick={onButtonClick}
+        renderDateContent={renderDateContent}
+        showDateContent={showDateContent}
       />
-
-      {(buttonText || footer) && (
-        <Footer>
-          {footer || (
-            <Button onClick={onButtonClick} disabled={selectedDates.length === 0}>
-              {buttonText}
-            </Button>
-          )}
-        </Footer>
-      )}
+      {footer}
     </Container>
   );
 };

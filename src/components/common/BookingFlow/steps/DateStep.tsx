@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
 import { StepContainer } from '../BookingFlow_styles';
 import { Splash } from '@/components/common/Splash';
 import CheckupDateSelector from '@/components/common/CheckupDateSelector/CheckupDateSelector_index';
-import { BookingAPI } from '@/services/xog/booking/api/client';
-import { AvailableDatesResponse } from '@/services/xog/booking/types';
 import styled from 'styled-components';
 
 const LoadingOverlay = styled.div`
@@ -20,9 +18,6 @@ const LoadingOverlay = styled.div`
   z-index: 1000;
 `;
 
-// BookingAPI 인스턴스를 컴포넌트 외부에서 생성
-const bookingAPI = new BookingAPI();
-
 const DateStep: React.FC<BookingStepProps> = ({ 
   onNext, 
   onBack, 
@@ -31,16 +26,8 @@ const DateStep: React.FC<BookingStepProps> = ({
   availableDates: propAvailableDates 
 }) => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [availableDates, setAvailableDates] = useState<AvailableDatesResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
-
-  useEffect(() => {
-    if (propAvailableDates) {
-      console.log('🔍 [이벤트] 가용 날짜 업데이트:', propAvailableDates);
-      setAvailableDates(propAvailableDates);
-    }
-  }, [propAvailableDates]);
 
   // 가용 병원 수는 이미 변환된 형태로 전달됨
   const availableCounts = useMemo(() => {
@@ -62,6 +49,17 @@ const DateStep: React.FC<BookingStepProps> = ({
       onNext('hospital-list');
     }
   };
+
+  if (showSplash) {
+    return (
+      <Splash
+        variant="standalone"
+        message="가용 병원을 조회하는 중입니다..."
+        isVisible={true}
+        animation="pulse"
+      />
+    );
+  }
 
   return (
     <StepContainer>
@@ -86,7 +84,7 @@ const DateStep: React.FC<BookingStepProps> = ({
           if (count) {
             return (
               <div className="date-content">
-                <span className="hospital-count">{count}개 병원</span>
+                <span className="available-count">{count}</span>
               </div>
             );
           }
