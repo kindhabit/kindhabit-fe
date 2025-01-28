@@ -4,10 +4,13 @@ import { createDebugStyles } from '@/core/styles/debug';
 
 interface InputAreaProps extends DebugProps {
   $inputEnabled?: boolean;
+  $sender?: never;
 }
 
 interface MessageSectionProps extends DebugProps {
   $inputEnabled?: boolean;
+  $sender?: never;
+  $padding?: number;
 }
 
 export const ChatWrapper = styled.div<DebugProps>`
@@ -90,66 +93,4 @@ export const InputSection = styled.div<InputAreaProps>`
   min-height: ${props => props.$inputEnabled ? '80px' : '0'};
   background: ${props => props.theme.colors.background};
   margin: 0;
-`;
-
-export const LoadingOverlay = styled.div<DebugProps>`
-  ${createDebugStyles({
-    name: 'MessageSection > LoadingOverlay',
-    hierarchy: '6',
-    color: props => props.theme.colors.debug?.loadingOverlay ?? '#44FFFF'
-  })}
-  position: relative;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  justify-content: center;
-  z-index: 1000;
-  opacity: 1;
-  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 24px 0;
-  
-  &.fade-out {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-`;
-
-export const LoadingImage = styled.img`
-  width: 50px;
-  height: auto;
-  opacity: 0.8;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-  animation: float 2s ease-in-out infinite;
-  
-  @keyframes float {
-    0% {
-      transform: translateY(0px);
-    }
-    25% {
-      transform: translateY(-5px);
-    }
-    50% {
-      transform: translateY(-3px);
-    }
-    75% {
-      transform: translateY(-6px);
-    }
-    100% {
-      transform: translateY(0px);
-    }
-  }
-`;
-
-export const LoadingText = styled.div`
-  color: #666;
-  font-size: 11px;
-  opacity: 0.8;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  
-  &.changing {
-    opacity: 0;
-    transform: translateY(5px);
-  }
 `; 

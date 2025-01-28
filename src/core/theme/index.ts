@@ -1,7 +1,10 @@
-import { Theme } from './types/theme';
+import { Theme, ThemeMode } from './types/theme';
 import { THEME_MODE } from './constants/theme';
-import { brownTheme } from './variants/brown';
-import { blueTheme } from './variants/blue';
+import { brownColors } from './variants/brown';
+import { blueColors } from './variants/blue';
+import { baseTheme } from './base';
+import { xogOverrides } from './variants/xog';
+import deepmerge from 'deepmerge';
 
 export const typography = {
   fontFamily: 'Pretendard, sans-serif',
@@ -24,6 +27,11 @@ export const typography = {
 export const spacing = {
   unit: 8,
   get: (multiplier: number) => `${multiplier * 8}px`,
+  xs: '4px',
+  sm: '8px',
+  md: '16px',
+  lg: '24px',
+  xl: '32px'
 };
 
 const breakpointValues = {
@@ -42,14 +50,21 @@ export const breakpoints = {
 };
 
 // 현재 활성화된 테마 색상
-export const colors = process.env.VITE_SERVICE_MODE === THEME_MODE.BLUE ? blueTheme : brownTheme;
+export const colors = import.meta.env.VITE_SERVICE_MODE === THEME_MODE.BLUE ? blueColors : brownColors;
 
-const theme: Theme = {
-  colors,
-  typography,
-  spacing,
-  breakpoints,
+export const createTheme = (variant: ThemeMode): Theme => {
+  const base = baseTheme;
+  const colors = variant === 'blue' 
+    ? blueColors 
+    : deepmerge(blueColors, xogOverrides);
+
+  return {
+    ...base,
+    colors
+  };
 };
+
+export const theme = createTheme('blue');
 
 export * from './types/theme';
 export * from './variants/brown';

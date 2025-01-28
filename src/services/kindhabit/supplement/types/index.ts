@@ -1,4 +1,5 @@
-import { TextMessage as BaseTextMessage, CardMessage } from '@/types/chat';
+import { Message } from '@/types/chat';
+import { CardProps } from '@/components/common/Card/Card_types';
 
 // 영양제 추천 대상 타입
 export type SupplementTarget = 'basic' | 'health' | 'custom';
@@ -58,30 +59,29 @@ export interface RecommendInfo {
 }
 
 // 확장된 메시지 타입
-export interface ExtendedTextMessage extends Omit<BaseTextMessage, 'message'> {
-  text: string;
-  link?: MessageLink;
-}
-
-// 영양제 카드 타입
-export interface SupplementCardProps {
-  id: string;
-  type: 'default';
-  title: string;
-  description: string;
-  icon: { emoji: string };
-  tags: string[];
-  buttonText: string;
+export interface ExtendedTextMessage extends Message.ChatMessage {
+  display: 'text';
+  content: {
+    text: {
+      value: string;
+      profile?: Message.Profile;
+    };
+    actions?: {
+      buttons?: Message.Button[];
+      link?: MessageLink;
+    };
+  };
 }
 
 // 영양제 카드 메시지 타입
-export interface SupplementCardMessage {
-  id: string;
-  type: 'slider';
-  timestamp: number;
-  layoutType: 'slider';
-  gap: string;
-  cards: SupplementCardProps[];
+export interface SupplementCardMessage extends Message.ChatMessage {
+  display: 'card' | 'slider';
+  content: {
+    card: {
+      items: CardProps[];
+      layout: Message.Layout;
+    };
+  };
 }
 
 // 메시지 타입

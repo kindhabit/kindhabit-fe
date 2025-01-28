@@ -1,51 +1,31 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { useRecoilState } from 'recoil';
-import { loadingMessages } from '@/services/booking';
-import { bookingStateAtom } from '@/store/booking/atoms';
-import { BookingState } from '@/services/booking';
+import { Splash } from '@/components/common/Splash';
 
-const LoadingPage = () => {
+interface LoadingPageProps {
+  type?: 'chat' | 'form';
+}
+
+const LoadingPage: React.FC<LoadingPageProps> = ({ type = 'chat' }) => {
   const navigate = useNavigate();
-  const [, setBookingState] = useRecoilState(bookingStateAtom);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setBookingState(BookingState.READY);
-      navigate('/xog/booking/booking', { replace: true });
-    }, 2000);
+      navigate(`../${type}`, { replace: true });
+    }, 2000); // 2초 후 해당 타입의 페이지로 이동
 
     return () => clearTimeout(timer);
-  }, [navigate, setBookingState]);
+  }, [navigate, type]);
 
   return (
-    <LoadingContainer>
-      <LoadingContent>
-        <LoadingText>
-          {loadingMessages[Math.floor(Math.random() * loadingMessages.length)]}
-        </LoadingText>
-      </LoadingContent>
-    </LoadingContainer>
+    <Splash 
+      variant="standalone"
+      variantProps={{ $type: 'fixed' }}
+      message={type === 'chat' ? "예약 상담을 준비하고 있어요..." : "예약 페이지를 준비하고 있어요..."}
+      isVisible={true}
+      animation="fade"
+    />
   );
 };
-
-const LoadingContainer = styled.div\`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: \${({ theme }) => theme.colors.background};
-\`;
-
-const LoadingContent = styled.div\`
-  text-align: center;
-\`;
-
-const LoadingText = styled.p\`
-  color: \${({ theme }) => theme.colors.primary};
-  font-size: \${({ theme }) => theme.fontSizes.large};
-  margin: 0;
-\`;
 
 export default LoadingPage; 

@@ -29,7 +29,7 @@ export const xogTheme: Theme = {
         background: "#FFFFFF"
       },
       bubble: {
-        jerry: {
+        system: {
           background: "#F5F8FF",
           backgroundAlpha: 1,
           text: "#000000",
@@ -41,7 +41,18 @@ export const xogTheme: Theme = {
           text: "#000000"
         },
         profile: {
-          text: "#666666"
+          text: "#666666",
+          spacing: {
+            sameSpeaker: '8px',    // 동일 화자 메시지 간격
+            differentSpeaker: '24px', // 다른 화자 메시지 간격
+            profile: {
+              top: '-24px',        // 프로필 상단 간격
+              image: {
+                size: '32px',      // 프로필 이미지 크기
+                borderRadius: '50%' // 프로필 이미지 모서리
+              }
+            }
+          }
         },
         button: {
           background: "#4B7BF5",
@@ -77,6 +88,11 @@ export const xogTheme: Theme = {
       }
     },
     debug: {}
+  },
+  assets: {
+    splash: {
+      image: '/assets/mdx.png'
+    }
   },
   typography: {
     fontFamily: 'Pretendard, sans-serif',
@@ -117,5 +133,11 @@ export const xogTheme: Theme = {
     sm: '4px',
     md: '8px',
     lg: '12px'
+  },
+  logo: {
+    height: {
+      kindhabit: '120px',
+      xog: '20px'
+    }
   }
 }; 

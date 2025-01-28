@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Splash } from '@/core/components/common/Splash';
+import { Splash } from '@/components/common/Splash';
 
 const LoadingPage = () => {
   const navigate = useNavigate();

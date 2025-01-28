@@ -29,24 +29,24 @@ export const kindhabitTheme: Theme = {
         background: "#FFFFFF"
       },
       bubble: {
-        jerry: {
-          background: "#FAF7F2",
-          backgroundAlpha: 1,
-          text: "#000000",
-          border: "#E8E1D9"
-        },
         user: {
-          background: "#6B4423",
-          backgroundAlpha: 0.1,
-          text: "#000000"
+          background: '#F5F5F5',
+          backgroundAlpha: 0.8,
+          text: '#333333'
+        },
+        system: {
+          background: '#FFFFFF',
+          backgroundAlpha: 0.8,
+          text: '#333333',
+          border: '#E0E0E0'
         },
         profile: {
-          text: "#666666"
+          text: '#666666'
         },
         button: {
-          background: "#6B4423",
-          text: "#FFFFFF",
-          hover: "#8B5E34"
+          background: '#4CAF50',
+          text: '#FFFFFF',
+          hover: '#45A049'
         }
       },
       slider: {
@@ -118,4 +118,15 @@ export const kindhabitTheme: Theme = {
       desktop: '@media (min-width: 1024px)',
     },
   },
+  logo: {
+    height: {
+      kindhabit: '60px',
+      xog: '26px'
+    }
+  },
+  assets: {
+    splash: {
+      image: '/assets/splash.png'
+    }
+  }
 }; 

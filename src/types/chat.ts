@@ -1,85 +1,126 @@
-import { SliderItem } from './slider';
-import { CardProps } from '@/core/components/common/Card/Card_types';
+import { CardProps } from '@/components/common/Card/Card_types';
 
-export type MessageType = 'jerry' | 'user' | 'card' | 'loading';
+namespace Message {
+  export namespace Type {
+    // 발신자 타입
+    export type Sender = 'system' | 'user';
+    
+    // 표시 형식
+    export type Display = 'text' | 'card' | 'slider' | 'loading';
 
-export type ChatType = 'jerry' | 'user' | 'slider' | 'loading' | 'card';
+    // 레이아웃 타입
+    export type LayoutType = 'grid' | 'slider';
 
-export interface ChatLinkPosition {
-  top?: number;
-  bottom?: number;
-  align?: 'left' | 'right';
-}
+    // 애니메이션 타입
+    export type Animation = 'fadeIn' | 'slideIn' | 'none';
+  }
 
-export interface ChatProfilePosition {
-  align?: 'left' | 'right';
-  top?: number;
-}
+  // 기본 메시지 구조
+  export interface Base {
+    id: string;
+    sender: Type.Sender;
+    display: Type.Display;
+    timestamp?: number;
+    content: Content;
+    state?: State;
+    animation?: Type.Animation;
+  }
 
-export interface ChatLink {
-  text: string;
-  onClick?: () => void;
-  $position?: ChatLinkPosition;
-}
+  // 프로필 정보
+  export interface Profile {
+    show?: boolean;
+    text?: string;
+    gender?: 'M' | 'F';
+    image?: string;
+  }
 
-export interface ChatButton {
-  text: string;
-  onClick?: () => void;
-  variant?: 'primary' | 'secondary';
-}
-
-export interface BaseMessage {
-  id: string;
-  type: ChatType;
-  timestamp: number;
-}
-
-export interface TextMessage {
-  id: string;
-  type: 'jerry' | 'user' | 'loading';
-  timestamp: number;
-  text: string;
-  showProfile?: boolean;
-  profileText?: string;
-  isTemporary?: boolean;
-  buttons?: ChatButton[];
-  buttonPosition?: 'inside' | 'bottom';
-  variant?: 'error' | 'warning' | 'success';
-  link?: {
+  // 버튼 정보
+  export interface Button {
     text: string;
-    onClick: () => void;
-    $position?: {
+    onClick?: () => void;
+    variant?: 'primary' | 'secondary';
+  }
+
+  // 링크 정보
+  export interface Link {
+    text: string;
+    onClick?: () => void;
+    position?: {
+      top?: number;
       bottom?: number;
       align?: 'left' | 'right';
     };
-  };
+  }
+
+  // 레이아웃 설정
+  export interface Layout {
+    type: Type.LayoutType;
+    columns?: number;
+    spacing?: string;
+    showNavigator?: boolean;
+    cardWidth?: string;
+    cardMinWidth?: string;
+    cardMaxWidth?: string;
+    cardPadding?: string;
+    cardBorderRadius?: string;
+  }
+
+  // 컨텐츠 정의
+  export interface Content {
+    text?: {
+      value: string;
+      profile?: Profile;
+    };
+    card?: {
+      items: CardProps[];
+      layout: Layout;
+    };
+    actions?: {
+      buttons?: Button[];
+      link?: Link;
+    };
+  }
+
+  // 상태 정보
+  export interface State {
+    loading?: boolean;
+    temporary?: boolean;
+    isHistory?: boolean;
+    isWaiting?: boolean;
+  }
+
+  // 최종 메시지 타입
+  export interface ChatMessage extends Base {}
 }
 
-export interface SliderMessage extends BaseMessage {
-  type: 'slider';
-  sliderData?: SliderItem[];
-  cards?: CardProps[];
-}
+// 외부 사용을 위한 타입 export
+export type { Message };
 
-export interface LoadingMessage extends BaseMessage {
-  type: 'loading';
-  message: string;
-  isTemporary?: boolean;
-}
+// 이전 코드와의 호환성을 위한 타입 별칭
+export type BaseMessage = Message.Base;
+export type ChatType = Message.Type.Display;
+export type ChatMessage = Message.ChatMessage;
+export type TextMessage = Message.ChatMessage & { display: 'text' };
+export type CardMessage = Message.ChatMessage & { display: 'card' };
 
-export interface CardMessage extends BaseMessage {
-  type: MessageType;
-  cards: CardProps[];
-  layoutType?: 'grid' | 'slider';
-  gridColumns?: number;
-  gap?: string;
-}
-
-export type ChatMessage = TextMessage | SliderMessage | LoadingMessage | CardMessage;
-
+// 컴포넌트 Props 타입
 export interface ChatBubbleProps {
-  message: ChatMessage;
-  onHeightChange?: (height: number) => void;
+  message: Message.ChatMessage;
+  prevType?: Message.Type.Display;
+  prevHasLink?: boolean;
+  isWaiting?: boolean;
   margin?: string;
+  'data-debug'?: boolean;
+}
+
+export interface ChatContainerProps<T = string> {
+  $inputEnabled?: boolean;
+  messages?: Message.ChatMessage[];
+  showLoading?: boolean;
+  loadingStep?: number;
+  loadingMessages?: string[];
+  waitingMessageId?: string;
+  onSliderSelect?: (target: T) => void;
+  sliderProps?: Message.Layout;
   'data-debug'?: boolean;
 } 

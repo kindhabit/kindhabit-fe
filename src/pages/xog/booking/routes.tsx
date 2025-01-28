@@ -1,36 +1,45 @@
-import React, { useEffect } from 'react';
-import { Routes as RouterRoutes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import Layout from '@/core/components/common/Layout';
+import React from 'react';
+import { Routes as RouterRoutes, Route, Navigate } from 'react-router-dom';
+import { RedirectPage } from '@/components/common/RedirectPage';
+import { ChatBooking } from './ChatBooking';
+import { FormBooking } from './FormBooking';
+import { useBookingChat, useBookingForm } from '@/hooks/xog/booking';
 import LoadingPage from './LoadingPage';
-import BookingPage from './BookingPage';
 
-const MainPage = () => {
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    const redirectTimer = setTimeout(() => {
-      navigate('/xog/booking/loading', { replace: true });
-    }, 0);
-    
-    return () => {
-      clearTimeout(redirectTimer);
-    };
-  }, [navigate]);
-
-  return null;
+// 채팅 버전 래퍼 컴포넌트
+const ChatBookingWrapper = () => {
+  const bookingChat = useBookingChat();
+  return (
+    <ChatBooking 
+      messages={bookingChat.messages}
+      showLoading={bookingChat.showLoading}
+      loadingStep={bookingChat.loadingStep}
+      handleTargetSelection={bookingChat.handleTargetSelection}
+      handleProgramSelection={bookingChat.handleProgramSelection}
+    />
+  );
 };
 
-export const Routes = () => {
-  const location = useLocation();
-
+// 폼 버전 래퍼 컴포넌트
+const FormBookingWrapper = () => {
+  const bookingForm = useBookingForm();
   return (
-    <Layout>
-      <RouterRoutes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/loading" element={<LoadingPage />} />
-        <Route path="/booking" element={<BookingPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </RouterRoutes>
-    </Layout>
+    <FormBooking 
+      handleTargetSelection={bookingForm.handleTargetSelection}
+      handleProgramSelection={bookingForm.handleProgramSelection}
+    />
   );
-}; 
+};
+
+const routes = (
+  <RouterRoutes>
+    <Route path="/" element={<RedirectPage to="loading/chat" />} />
+    <Route path="chat" element={<ChatBookingWrapper />} />
+    <Route path="form" element={<FormBookingWrapper />} />
+    <Route path="loading/chat" element={<LoadingPage type="chat" />} />
+    <Route path="loading/form" element={<LoadingPage type="form" />} />
+    <Route path="*" element={<Navigate to="loading/chat" replace />} />
+  </RouterRoutes>
+);
+
+export default routes; 

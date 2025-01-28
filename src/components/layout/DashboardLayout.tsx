@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import { DebugProps } from '@/core/theme/types/theme';
 import { debugModeState } from '@/core/store/debug';
-import Header from '@/core/components/common/Header';
+import Header from '@/components/header/Header';
 import { createDebugStyles } from '@/core/styles/debug';
 
 interface StyledProps extends DebugProps {

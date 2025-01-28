@@ -4,6 +4,7 @@ import { debugModeState } from '@/core/store/debug';
 import ChatContainer from '@/components/chat/ChatContainer';
 import { useSupplementChat } from '@/hooks/kindhabit/supplement/useSupplementChat';
 import { LOADING_MESSAGES } from '@/services/kindhabit/supplement/constants';
+import { Message } from '@/types/chat';
 
 const ChatPage: React.FC = () => {
   const debugMode = useRecoilValue(debugModeState);
@@ -44,13 +45,11 @@ const ChatPage: React.FC = () => {
         loadingMessages={LOADING_MESSAGES}
         waitingMessageId={waitingMessageId}
         sliderProps={{
+          layoutType: 'slider',
           cardMinWidth: '180px',
           cardMaxWidth: '180px',
           cardPadding: '16px',
-          showTags: true,
-          iconSize: '28px',
-          titleSize: '14px',
-          descriptionSize: '12px'
+          gap: '16px'
         }}
       />
     </div>

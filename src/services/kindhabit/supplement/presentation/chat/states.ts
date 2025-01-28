@@ -69,7 +69,7 @@ export class SupplementChatState {
             
             // 건강 체크 메시지 추가 (4초 후)
             setTimeout(() => {
-              this.addMessage(MessageFactory.createTextMessage(HEALTH_CHECK_MESSAGE, 'jerry', {
+              this.addMessage(MessageFactory.createTextMessage(HEALTH_CHECK_MESSAGE, 'system', {
                 text: '이 질문을 한 이유는 무엇일까요? 🤔',
                 onClick: () => console.log('Link clicked'),
                 $position: {
@@ -113,7 +113,7 @@ export class SupplementChatState {
     this.messages = [...this.messages, message];
     
     // 사용자 메시지인 경우 waitingMessageId 설정
-    if (message.type === 'user') {
+    if (message.sender === 'user') {
       this.waitingMessageId = message.id;
     }
     

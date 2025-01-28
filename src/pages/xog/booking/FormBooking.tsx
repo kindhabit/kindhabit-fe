@@ -1,114 +1,56 @@
 import React from 'react';
-import { BookingState, BookingTarget, BookingProgram } from '@/services/xog/booking/types';
+import { BookingTarget, BookingProgram } from '@/services/xog/booking/types';
 
 interface FormBookingProps {
-  bookingState: BookingState;
   handleTargetSelection: (target: BookingTarget) => void;
   handleProgramSelection: (program: BookingProgram) => void;
-  handleDateSelection: (date: string) => void;
-  handleTimeSelection: (time: string) => void;
-  handleConfirm: () => void;
 }
 
-const FormBooking: React.FC<FormBookingProps> = ({
-  bookingState,
+export const FormBooking: React.FC<FormBookingProps> = ({
   handleTargetSelection,
-  handleProgramSelection,
-  handleDateSelection,
-  handleTimeSelection,
-  handleConfirm,
+  handleProgramSelection
 }) => {
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">예약하기</h2>
-      
-      {bookingState === BookingState.SELECT_TARGET && (
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">대상 선택</h3>
-          <div className="flex gap-2">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 p-4 space-y-6">
+        {/* 대상 선택 */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium">검진 대상자 선택</h2>
+          <div className="grid grid-cols-2 gap-4">
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => handleTargetSelection('self')}
+              className="p-4 border rounded-lg hover:bg-gray-50"
             >
-              성인
+              본인
             </button>
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => handleTargetSelection('family')}
+              className="p-4 border rounded-lg hover:bg-gray-50"
             >
-              청소년
+              가족
             </button>
           </div>
         </div>
-      )}
 
-      {bookingState === BookingState.SELECT_PROGRAM && (
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">프로그램 선택</h3>
-          <div className="flex gap-2">
+        {/* 프로그램 선택 */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-medium">프로그램 선택</h2>
+          <div className="grid grid-cols-2 gap-4">
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => handleProgramSelection('normal')}
+              className="p-4 border rounded-lg hover:bg-gray-50"
             >
-              기본 프로그램
+              일반 검진
             </button>
             <button
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => handleProgramSelection('premium')}
+              className="p-4 border rounded-lg hover:bg-gray-50"
             >
-              심화 프로그램
+              프리미엄 검진
             </button>
           </div>
         </div>
-      )}
-
-      {bookingState === BookingState.SELECT_DATE && (
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">날짜 선택</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {[1, 2, 3].map((day) => (
-              <button
-                key={day}
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-                onClick={() => handleDateSelection(`2024-03-${day}`)}
-              >
-                2024-03-{day}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {bookingState === BookingState.SELECT_TIME && (
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">시간 선택</h3>
-          <div className="grid grid-cols-3 gap-2">
-            {['10:00', '14:00', '16:00'].map((time) => (
-              <button
-                key={time}
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-                onClick={() => handleTimeSelection(time)}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {bookingState === BookingState.CONFIRM && (
-        <div className="mb-4">
-          <h3 className="font-medium mb-2">예약 확인</h3>
-          <button
-            className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            onClick={handleConfirm}
-          >
-            예약 확정하기
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
-};
-
-export default FormBooking; 
+}; 

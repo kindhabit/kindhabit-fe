@@ -1,58 +1,65 @@
 import React from 'react';
-import ChatContainer from '@/components/chat/ChatContainer';
-import { BookingState, BookingTarget, BookingProgram } from '@/services/xog/booking/types';
+import styled from 'styled-components';
+import { ChatContainer } from '@/components/chat';
+import { BookingTarget, BookingProgram } from '@/services/xog/booking/types';
 import { LOADING_MESSAGES } from '@/services/xog/booking/constants';
+import { ChatMessage } from '@/types/chat';
+
+interface ChatBookingWrapperProps {
+  sender?: never;
+}
+
+const ChatBookingWrapper = styled.div<ChatBookingWrapperProps>`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+`;
 
 interface ChatBookingProps {
-  messages: any[];
+  messages: ChatMessage[];
   showLoading: boolean;
   loadingStep: number;
-  bookingState: BookingState;
   handleTargetSelection: (target: BookingTarget) => void;
   handleProgramSelection: (program: BookingProgram) => void;
 }
 
-const ChatBooking: React.FC<ChatBookingProps> = ({
+export const ChatBooking: React.FC<ChatBookingProps> = ({
   messages,
   showLoading,
   loadingStep,
-  bookingState,
   handleTargetSelection,
-  handleProgramSelection,
+  handleProgramSelection
 }) => {
-  const handleSliderSelect = (target: BookingTarget | BookingProgram) => {
-    switch (bookingState) {
-      case BookingState.SELECT_TARGET:
-        handleTargetSelection(target as BookingTarget);
-        break;
-      case BookingState.SELECT_PROGRAM:
-        handleProgramSelection(target as BookingProgram);
-        break;
-      default:
-        console.warn('Unexpected slider selection in state:', bookingState);
+  const handleSliderSelect = (value: string) => {
+    if (value === 'self' || value === 'family' || value === 'other') {
+      handleTargetSelection(value as BookingTarget);
+    } else if (value === 'normal' || value === 'premium' || value === 'special') {
+      handleProgramSelection(value as BookingProgram);
     }
   };
 
   return (
-    <ChatContainer 
-      messages={messages}
-      showLoading={showLoading}
-      loadingStep={loadingStep}
-      loadingMessages={LOADING_MESSAGES}
-      onSliderSelect={handleSliderSelect}
-      sliderProps={{
-        layoutType: 'grid',
-        gridColumns: 2,
-        gap: '16px',
-        cardPadding: '20px',
-        cardBorderRadius: '12px',
-        showTags: false,
-        iconSize: '24px',
-        titleSize: '16px',
-        descriptionSize: '14px'
-      }}
-    />
+    <ChatBookingWrapper>
+      <ChatContainer
+        messages={messages}
+        showLoading={showLoading}
+        loadingStep={loadingStep}
+        loadingMessages={LOADING_MESSAGES}
+        onSliderSelect={handleSliderSelect}
+        sliderProps={{
+          layoutType: 'grid',
+          gridColumns: 1,
+          gap: '16px',
+          cardWidth: '100%',
+          cardPadding: '20px',
+          cardBorderRadius: '12px',
+          showTags: true,
+          iconSize: '32px',
+          titleSize: '16px',
+          descriptionSize: '14px'
+        }}
+      />
+    </ChatBookingWrapper>
   );
-};
-
-export default ChatBooking; 
+}; 

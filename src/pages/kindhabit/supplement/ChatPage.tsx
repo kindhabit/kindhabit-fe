@@ -1,4 +1,22 @@
-return (
+import React from 'react';
+import ChatContainer from '../../../components/chat/ChatContainer';
+
+interface ChatPageProps {
+  messages: any[];
+  showLoading: boolean;
+  loadingStep: number;
+  loadingMessages: string[];
+  handleSliderSelect: (value: any) => void;
+}
+
+const ChatPage: React.FC<ChatPageProps> = ({
+  messages,
+  showLoading,
+  loadingStep,
+  loadingMessages,
+  handleSliderSelect
+}) => {
+  return (
     <ChatContainer 
       messages={messages}
       showLoading={showLoading}
@@ -18,4 +36,7 @@ return (
         descriptionSize: '14px'
       }}
     />
-  ); 
+  );
+}
+
+export default ChatPage; 

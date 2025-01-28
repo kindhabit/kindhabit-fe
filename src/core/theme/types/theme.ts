@@ -43,6 +43,10 @@ export interface ThemeColors {
     primary: string;
     secondary: string;
   };
+  gender?: {
+    male: string;
+    female: string;
+  };
   background: string;
   cardBg: string;
   dialogBg: string;
@@ -69,7 +73,7 @@ export interface ThemeColors {
         backgroundAlpha: number;
         text: string;
       };
-      jerry: {
+      system: {
         background: string;
         backgroundAlpha: number;
         text: string;
@@ -77,6 +81,17 @@ export interface ThemeColors {
       };
       profile: {
         text: string;
+        spacing: {
+          sameSpeaker: string;
+          differentSpeaker: string;
+          profile: {
+            top: string;
+            image: {
+              size: string;
+              borderRadius: string;
+            }
+          }
+        };
       };
       button: {
         background: string;
@@ -113,6 +128,11 @@ export interface ThemeColors {
   };
   white: string;
   debug?: Record<string, string>;
+  assets?: {
+    splash?: {
+      image: string;
+    };
+  };
 }
 
 export interface DebugProps {
@@ -129,5 +149,16 @@ export interface Theme {
     sm: string;
     md: string;
     lg: string;
+  };
+  logo: {
+    height: {
+      kindhabit: string;
+      xog: string;
+    };
+  };
+  assets?: {
+    splash?: {
+      image: string;
+    };
   };
 } 

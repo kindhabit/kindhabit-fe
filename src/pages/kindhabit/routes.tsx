@@ -1,6 +1,7 @@
 import React from 'react';
-import { RouteObject } from 'react-router-dom';
-import Layout from '@/core/components/common/Layout';
+import { RouteObject, Outlet } from 'react-router-dom';
+import Layout from '@/components/common/Layout';
+import { RedirectPage } from '@/components/common/RedirectPage';
 import ChatPage from './supplement/chat/ChatPage';
 import LoadingPage from './supplement/chat/LoadingPage';
 import SupplementTest from './supplement/test';
@@ -8,55 +9,31 @@ import SupplementTest from './supplement/test';
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: (
-      <Layout>
-        <LoadingPage />
-      </Layout>
-    )
-  },
-  {
-    path: 'chat',
-    element: (
-      <Layout>
-        <ChatPage />
-      </Layout>
-    )
+    element: <RedirectPage to="./supplement/loading" />
   },
   {
     path: 'supplement',
-    element: (
-      <Layout>
-        <LoadingPage />
-      </Layout>
-    )
-  },
-  {
-    path: 'supplement/chat',
-    element: (
-      <Layout>
-        <ChatPage />
-      </Layout>
-    )
-  },
-  {
-    path: 'supplement/test',
-    element: <SupplementTest />,
+    element: <Layout><Outlet /></Layout>,
     children: [
       {
+        path: '',
+        element: <RedirectPage to="./loading" />
+      },
+      {
         path: 'loading',
-        element: (
-          <Layout>
-            <LoadingPage />
-          </Layout>
-        )
+        element: <LoadingPage />
       },
       {
         path: 'chat',
-        element: (
-          <Layout>
-            <ChatPage />
-          </Layout>
-        )
+        element: <ChatPage />
+      },
+      {
+        path: 'test/*',
+        element: <SupplementTest />
+      },
+      {
+        path: '*',
+        element: <RedirectPage to="./loading" />
       }
     ]
   }

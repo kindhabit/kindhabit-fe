@@ -1,8 +1,8 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, RouteObject } from 'react-router-dom';
-import { xogRoutes } from '@/pages/xog/routes';
-import { kindhabitRoutes } from '@/pages/kindhabit/routes';
-import Loading from '@/core/components/common/Loading';
+import routes from '@/pages/xog/routes';
+import kindhabitRoutes from '@/pages/kindhabit/routes';
+import { Splash } from '@/components/common/Splash';
 
 const MainPage = React.lazy(() => import('@/pages/kindhabit/supplement/chat/ChatPage'));
 
@@ -18,10 +18,18 @@ const renderRoute = (route: RouteObject) => {
 
 const Router = () => {
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={
+      <Splash 
+        variant="standalone"
+        variantProps={{ $type: 'fixed' }}
+        message="로딩중..."
+        isVisible={true}
+        animation="fade"
+      />
+    }>
       <Routes>
         <Route path="/" element={<MainPage />} />
-        {xogRoutes.map(renderRoute)}
+        {routes.map(renderRoute)}
         {kindhabitRoutes.map(renderRoute)}
       </Routes>
     </Suspense>

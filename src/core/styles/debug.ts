@@ -19,13 +19,15 @@ export const debugLabel = (config: DebugConfig) =>
     &::before {
       content: '${config.name}${config.hierarchy ? ` (${config.hierarchy})` : ''}';
       position: absolute;
-      top: -20px;
-      left: 0;
+      top: -24px;
+      left: ${config.hierarchy ? `${(parseInt(config.hierarchy) - 1) * 100}px` : '0'};
       background: ${typeof config.color === 'function' ? config.color(props) : (config.color || '#000')};
       color: white;
-      padding: 2px 4px;
-      font-size: 10px;
-      z-index: 9999;
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      white-space: nowrap;
+      z-index: ${config.hierarchy ? 9999 - parseInt(config.hierarchy) : 9999};
     }
   `;
 
@@ -33,7 +35,7 @@ export const createDebugStyles = (config: DebugConfig) => css<DebugProps>`
   ${props =>
     props['data-debug'] &&
     css`
-      position: relative;
+      ${props => !props.style?.position && css`position: relative;`}
       ${debugBorder(config.color || '#000')(props)}
       ${debugLabel(config)(props)}
     `}

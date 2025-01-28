@@ -1,66 +1,82 @@
 import React from 'react';
-import { Routes as RouterRoutes, Route, RouteObject } from 'react-router-dom';
+import { RouteObject, useRoutes, Outlet } from 'react-router-dom';
 import { XOGThemeProvider } from './theme/ThemeProvider';
-import ChatBooking from './booking/ChatBooking';
-import FormBooking from './booking/FormBooking';
-import TestBooking from './booking/TestBooking';
+import Layout from '@/components/common/Layout';
+import { RedirectPage } from '@/components/common/RedirectPage';
+import { ChatBooking } from './booking/ChatBooking';
+import { FormBooking } from './booking/FormBooking';
+import LoadingPage from './booking/LoadingPage';
 import { useBookingChat, useBookingForm } from '@/hooks/xog/booking';
 
 // 채팅 버전 래퍼 컴포넌트
 const ChatBookingWrapper = () => {
-  const state = useBookingChat();
-  
+  const bookingChat = useBookingChat();
   return (
-    <ChatBooking
-      messages={state.messages}
-      showLoading={state.showLoading}
-      loadingStep={state.loadingStep}
-      bookingState={state.bookingState}
-      handleTargetSelection={state.handleTargetSelection}
-      handleProgramSelection={state.handleProgramSelection}
+    <ChatBooking 
+      messages={bookingChat.messages}
+      showLoading={bookingChat.showLoading}
+      loadingStep={bookingChat.loadingStep}
+      handleTargetSelection={bookingChat.handleTargetSelection}
+      handleProgramSelection={bookingChat.handleProgramSelection}
     />
   );
 };
 
 // 폼 버전 래퍼 컴포넌트
 const FormBookingWrapper = () => {
-  const state = useBookingForm();
-  
+  const bookingForm = useBookingForm();
   return (
-    <FormBooking
-      bookingState={state.bookingState}
-      handleTargetSelection={state.handleTargetSelection}
-      handleProgramSelection={state.handleProgramSelection}
-      handleDateSelection={state.handleDateSelection}
-      handleTimeSelection={state.handleTimeSelection}
-      handleConfirm={state.handleConfirm}
+    <FormBooking 
+      handleTargetSelection={bookingForm.handleTargetSelection}
+      handleProgramSelection={bookingForm.handleProgramSelection}
     />
   );
 };
 
-export const xogRoutes: RouteObject[] = [
+const routes: RouteObject[] = [
   {
-    path: 'booking/chat',
-    element: <ChatBookingWrapper />
+    path: '/',
+    element: <RedirectPage to="./booking/loading/chat" />
   },
   {
-    path: 'booking/form',
-    element: <FormBookingWrapper />
-  },
-  {
-    path: 'booking/test',
-    element: <TestBooking />
+    path: 'booking',
+    element: <Layout><Outlet /></Layout>,
+    children: [
+      {
+        path: '',
+        element: <RedirectPage to="./loading/chat" />
+      },
+      {
+        path: 'chat',
+        element: <ChatBookingWrapper />
+      },
+      {
+        path: 'form',
+        element: <FormBookingWrapper />
+      },
+      {
+        path: 'loading/chat',
+        element: <LoadingPage type="chat" />
+      },
+      {
+        path: 'loading/form',
+        element: <LoadingPage type="form" />
+      },
+      {
+        path: '*',
+        element: <RedirectPage to="./loading/chat" />
+      }
+    ]
   }
 ];
 
 export const Routes = () => {
+  const element = useRoutes(routes);
   return (
     <XOGThemeProvider>
-      <RouterRoutes>
-        <Route path="/" element={<ChatBookingWrapper />} />
-        <Route path="/form" element={<FormBookingWrapper />} />
-        <Route path="/test" element={<TestBooking />} />
-      </RouterRoutes>
+      {element}
     </XOGThemeProvider>
   );
-}; 
+};
+
+export default routes; 

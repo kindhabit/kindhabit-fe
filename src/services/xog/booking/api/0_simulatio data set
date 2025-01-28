@@ -1,0 +1,7 @@
+[userinfo for checkup]
+    김엠택  : 840413 , 포항청철강사업실 , 정비섹션 , ['일반+특수검진' ,'종합검진']
+    배우자  : 850413 , 박영희 , 가족, 베우자,['종합검진']
+[checkup Hospital info]
+    HospitalID 01  : '세명기독병원' , ['일반+특수검진' ,'종합검진']
+    HospitalID 02  : '서울 KMI' ,  ['일반+특수검진' ,]
+    HospitalID 03  : '광주 KMI',   ['종합검진']

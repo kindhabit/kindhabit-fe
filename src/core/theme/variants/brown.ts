@@ -9,8 +9,12 @@ const commonColors = {
 };
 
 // 브라운 테마 색상
-export const brownTheme: ThemeColors = {
-  ...commonColors,
+export const brownColors: ThemeColors = {
+  text: {
+    primary: "#000000",
+    secondary: "#666666"
+  },
+  white: "#ffffff",
   background: "#f5e6d3",
   cardBg: "#fff9f2",
   dialogBg: "#fdfaf7",
@@ -37,14 +41,25 @@ export const brownTheme: ThemeColors = {
         backgroundAlpha: 0.95,
         text: "#FFFFFF"
       },
-      jerry: {
+      system: {
         background: "#F8F4F0",
         backgroundAlpha: 0.85,
         text: "#000000",
         border: "#E8E1D9"
       },
       profile: {
-        text: "#8B7355"
+        text: "#8B7355",
+        spacing: {
+          sameSpeaker: '8px',
+          differentSpeaker: '24px',
+          profile: {
+            top: '-24px',
+            image: {
+              size: '32px',
+              borderRadius: '50%'
+            }
+          }
+        }
       },
       button: {
         background: "#8B7355",
@@ -78,5 +93,6 @@ export const brownTheme: ThemeColors = {
         hover: "#A68B6C"
       }
     }
-  }
+  },
+  debug: {}
 }; 

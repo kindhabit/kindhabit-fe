@@ -9,8 +9,16 @@ const commonColors = {
 };
 
 // 블루 테마 색상
-export const blueTheme: ThemeColors = {
-  ...commonColors,
+export const blueColors: ThemeColors = {
+  text: {
+    primary: "#000000",
+    secondary: "#666666"
+  },
+  gender: {
+    male: "#4B7BF5",
+    female: "#FF69B4"
+  },
+  white: "#ffffff",
   background: "#f5f8ff",
   cardBg: "#ffffff",
   dialogBg: "#ffffff",
@@ -37,14 +45,25 @@ export const blueTheme: ThemeColors = {
         backgroundAlpha: 0.95,
         text: "#FFFFFF"
       },
-      jerry: {
-        background: "#F5F8FF",
-        backgroundAlpha: 0.85,
+      system: {
+        background: "#FFFFFF",
+        backgroundAlpha: 1,
         text: "#000000",
         border: "#E8F0FF"
       },
       profile: {
-        text: "#4B7BF5"
+        text: "#4B7BF5",
+        spacing: {
+          sameSpeaker: '0px',
+          differentSpeaker: '8px',
+          profile: {
+            top: '-24px',
+            image: {
+              size: '32px',
+              borderRadius: '50%'
+            }
+          }
+        }
       },
       button: {
         background: "#82A4FF",
@@ -77,6 +96,12 @@ export const blueTheme: ThemeColors = {
         inactive: "#82A4FF",
         hover: "#9DB8FF"
       }
+    }
+  },
+  debug: {},
+  assets: {
+    splash: {
+      image: '/assets/mdx.png'
     }
   }
 }; 
