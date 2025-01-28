@@ -20,6 +20,8 @@ import InfoStep from './steps/InfoStep';
 import CompleteStep from './steps/CompleteStep';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/core/store/debug';
+import { AvailableDatesResponse } from '@/services/xog/booking/types';
+import { ChatBookingState } from '@/core/types/chat';
 
 const STEPS: {
   [key in BookingStep]: {
@@ -68,11 +70,20 @@ const STEPS: {
 const DATE_FIRST_FLOW: BookingStep[] = ['options', 'date', 'hospital-list', 'basic-checkup', 'additional-checkup', 'info', 'complete'];
 const HOSPITAL_FIRST_FLOW: BookingStep[] = ['options', 'hospital', 'basic-checkup', 'additional-checkup', 'date-selection', 'info', 'complete'];
 
+interface BookingFlowProps {
+  isOpen: boolean;
+  onClose: () => void;
+  initialStep?: BookingStep;
+  onComplete?: () => void;
+  bookingState?: ChatBookingState;
+}
+
 const BookingFlow: React.FC<BookingFlowProps> = ({
   isOpen,
   onClose,
   initialStep = 'options',
-  onComplete
+  onComplete,
+  bookingState
 }) => {
   const debugMode = useRecoilValue(debugModeState);
   const [currentStep, setCurrentStep] = useState<BookingStep>(initialStep);
@@ -82,8 +93,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     selectedHospital: undefined,
     basicCheckups: [],
     additionalCheckups: [],
-    consultationType: 'direct'
+    consultationType: 'direct',
+    bookingState
   });
+  const [availableDates, setAvailableDates] = useState<AvailableDatesResponse | null>(null);
 
   const handleBack = () => {
     const currentIndex = bookingFlow.indexOf(currentStep);
@@ -107,12 +120,18 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     setBookingData(prev => ({ ...prev, ...data }));
   };
 
+  const handleAvailableDatesUpdate = (data: AvailableDatesResponse) => {
+    setAvailableDates(data);
+  };
+
   const renderStep = () => {
     const commonProps = {
       onNext: handleNext,
       onBack: handleBack,
       bookingData,
-      onUpdateBookingData: handleUpdateBookingData
+      onUpdateBookingData: handleUpdateBookingData,
+      onAvailableDatesUpdate: handleAvailableDatesUpdate,
+      availableDates
     };
 
     switch (currentStep) {

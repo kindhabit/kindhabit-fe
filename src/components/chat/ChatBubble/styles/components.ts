@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { BubbleProps, MessageProps, ButtonProps, ProfileProps, StyledProps } from './types';
 import { createDebugStyles } from '@/core/styles/debug';
 
@@ -25,22 +25,128 @@ export const BubbleWrapper = styled.div.withConfig({ shouldForwardProp })<Bubble
     return '4px 0';
   }};
   padding: 0;
-  animation: ${props => props.$animation === 'fadeIn' ? 'fadeOut 2s ease-out' : 'slideIn 0.5s ease-out'};
-  animation-fill-mode: forwards;
+
+  ${({ $animation, $animationDelay }) => {
+    if (!$animation) return '';
+    
+    const duration = $animation === 'bounceIn' ? '1.5s' : '1.2s';
+    const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    const delay = $animationDelay || 0;
+    
+    return css`
+      animation-name: ${$animation};
+      animation-duration: ${duration};
+      animation-timing-function: ${easing};
+      animation-fill-mode: forwards;
+      animation-delay: ${delay}s;
+      opacity: 0;  // 시작 상태
+    `;
+  }}
 
   @keyframes fadeOut {
     0% { opacity: 1; }
     100% { opacity: 0; }
   }
 
-  @keyframes slideIn {
-    0% { 
+  @keyframes fadeIn {
+    0% {
       opacity: 0;
-      transform: translateY(20px);
+      transform: scale(0.97);
     }
-    100% { 
+    50% {
+      opacity: 0.5;
+      transform: scale(0.99);
+    }
+    100% {
       opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideIn {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    60% {
+      transform: translateY(5px);
+      opacity: 0.7;
+    }
+    100% {
       transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInLeft {
+    0% {
+      transform: translateX(-25px);
+      opacity: 0;
+    }
+    60% {
+      transform: translateX(-8px);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      transform: translateX(25px);
+      opacity: 0;
+    }
+    60% {
+      transform: translateX(8px);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes zoomIn {
+    0% {
+      transform: scale(0.97);
+      opacity: 0;
+    }
+    40% {
+      transform: scale(0.98);
+      opacity: 0.4;
+    }
+    80% {
+      transform: scale(0.99);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.97);
+      opacity: 0;
+    }
+    40% {
+      transform: scale(1.01);
+      opacity: 0.5;
+    }
+    60% {
+      transform: scale(0.99);
+      opacity: 0.7;
+    }
+    80% {
+      transform: scale(1.005);
+      opacity: 0.9;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
     }
   }
 `;

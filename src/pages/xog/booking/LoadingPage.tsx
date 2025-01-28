@@ -11,7 +11,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ type = 'chat' }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate(`../${type}`, { replace: true });
+      navigate(`/booking/${type}`, { replace: true });
     }, 2000); // 2초 후 해당 타입의 페이지로 이동
 
     return () => clearTimeout(timer);

@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { AvailableDatesResponse } from '@/services/xog/booking/types';
 
 export type BookingStep = 
   | 'options'
@@ -9,7 +10,9 @@ export type BookingStep =
   | 'additional-checkup'
   | 'date-selection'
   | 'info'
-  | 'complete';
+  | 'complete'
+  | 'time'
+  | 'confirm';
 
 export interface BookingNavigationProps {
   currentStep: BookingStep;
@@ -24,10 +27,12 @@ export interface BookingNavigationProps {
 }
 
 export interface BookingStepProps {
-  onNext: (step: BookingStep) => void;
-  onBack: () => void;
-  bookingData?: BookingData;
+  onNext: (nextStep: BookingStep) => void;
+  onBack: (prevStep: BookingStep) => void;
   onUpdateBookingData?: (data: Partial<BookingData>) => void;
+  onAvailableDatesUpdate?: (data: AvailableDatesResponse) => void;
+  bookingData?: BookingData;
+  availableDates?: AvailableDatesResponse | null;
 }
 
 export interface BookingFlowProps {
@@ -60,8 +65,7 @@ export interface CheckupItem {
 
 export interface BookingData {
   selectedDate?: Date;
-  selectedHospital?: Hospital;
-  basicCheckups?: CheckupItem[];
-  additionalCheckups?: CheckupItem[];
-  consultationType?: 'direct' | 'phone';
+  selectedHospital?: string;
+  selectedTime?: string;
+  [key: string]: any;
 } 

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
-import Selector from '../../Selector/Selector_index';
-import { bookingAPI, HospitalAvailabilityResponse } from '@/core/api/booking';
 import { StepContainer } from '../BookingFlow_styles';
+import { Splash } from '@/components/common/Splash';
+import CheckupDateSelector from '@/components/common/CheckupDateSelector/CheckupDateSelector_index';
+import { BookingAPI } from '@/services/xog/booking/api/client';
+import { AvailableDatesResponse } from '@/services/xog/booking/types';
 import styled from 'styled-components';
 
 const LoadingOverlay = styled.div`
@@ -13,59 +15,52 @@ const LoadingOverlay = styled.div`
   bottom: 0;
   background: rgba(255, 255, 255, 0.8);
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 10;
+  align-items: center;
+  z-index: 1000;
 `;
 
-const DateStep: React.FC<BookingStepProps> = ({ onNext, onBack, onUpdateBookingData }) => {
+// BookingAPI 인스턴스를 컴포넌트 외부에서 생성
+const bookingAPI = new BookingAPI();
+
+const DateStep: React.FC<BookingStepProps> = ({ 
+  onNext, 
+  onBack, 
+  onUpdateBookingData,
+  bookingData,
+  availableDates: propAvailableDates 
+}) => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [availableHospitals, setAvailableHospitals] = useState<HospitalAvailabilityResponse[]>([]);
+  const [availableDates, setAvailableDates] = useState<AvailableDatesResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
 
   useEffect(() => {
-    const fetchAvailability = async () => {
-      setIsLoading(true);
-      try {
-        const startDate = new Date();
-        const endDate = new Date();
-        endDate.setMonth(endDate.getMonth() + 1);
-        
-        const data = await bookingAPI.getHospitalAvailability(startDate, endDate);
-        setAvailableHospitals(data);
-      } catch (error) {
-        console.error('병원 가용성 조회 실패:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (propAvailableDates) {
+      console.log('🔍 [이벤트] 가용 날짜 업데이트:', propAvailableDates);
+      setAvailableDates(propAvailableDates);
+    }
+  }, [propAvailableDates]);
 
-    fetchAvailability();
-  }, []);
+  // 가용 병원 수는 이미 변환된 형태로 전달됨
+  const availableCounts = useMemo(() => {
+    return propAvailableDates || {};
+  }, [propAvailableDates]);
 
-  const handleDateSelect = (date: Date) => {
-    setSelectedDates([date]);
-    onUpdateBookingData?.({ selectedDate: date });
+  const handleDateSelect = (date: Date | Date[]) => {
+    if (Array.isArray(date)) {
+      setSelectedDates(date);
+      onUpdateBookingData?.({ selectedDate: date[0] });
+    } else {
+      setSelectedDates([date]);
+      onUpdateBookingData?.({ selectedDate: date });
+    }
   };
 
   const handleButtonClick = () => {
     if (selectedDates.length > 0) {
       onNext('hospital-list');
     }
-  };
-
-  const renderDateContent = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    const hospitalData = availableHospitals.find(h => h.date === dateStr);
-    
-    if (hospitalData) {
-      return (
-        <div className="date-content">
-          <span className="hospital-count">{hospitalData.count}개 병원</span>
-        </div>
-      );
-    }
-    return null;
   };
 
   return (
@@ -75,20 +70,28 @@ const DateStep: React.FC<BookingStepProps> = ({ onNext, onBack, onUpdateBookingD
           <div>로딩 중...</div>
         </LoadingOverlay>
       )}
-      <Selector
+      <CheckupDateSelector
         selectedDates={selectedDates}
         onDateSelect={handleDateSelect}
         minDate={new Date()}
         maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
-        checkupType="일반+특수 건강검진"
-        subtitle="희망하시는 검진일을 선택해주세요"
+        availableCounts={availableCounts}
+        maxSelections={1}
         buttonText="선택 완료"
         onButtonClick={handleButtonClick}
-        renderDateContent={renderDateContent}
-        checkboxOptions={[
-          { id: 'morning', label: '오전 예약 가능', checked: false, onChange: () => {} },
-          { id: 'afternoon', label: '오후 예약 가능', checked: false, onChange: () => {} }
-        ]}
+        renderDateContent={(date) => {
+          const dateStr = date.toISOString().split('T')[0];
+          const count = availableCounts[dateStr];
+          
+          if (count) {
+            return (
+              <div className="date-content">
+                <span className="hospital-count">{count}개 병원</span>
+              </div>
+            );
+          }
+          return null;
+        }}
         showDateContent={true}
       />
     </StepContainer>

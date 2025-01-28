@@ -22,6 +22,17 @@ import { BookingAPI } from '../../api/client';
 import { CardProps, CardIcon } from '@/components/common/Card/Card_types';
 import { Message } from '@/types/chat';
 
+// API 응답 타입 정의
+interface ApiResponse<T> {
+  status: 'success' | 'error';
+  data: T;
+  message?: string;
+}
+
+interface HospitalListResponse {
+  hospitals: Hospital[];
+}
+
 export class ChatBookingState {
   private api: BookingAPI;
   private messages: ChatMessage[] = [];
@@ -33,17 +44,9 @@ export class ChatBookingState {
   private loadingStep = 0;
   private isInitializing = false;
   private waitingMessageId?: string;
+  private error: Error | null = null;
   private listeners: ((state: ReturnType<ChatBookingState['getState']>) => void)[] = [];
-
-  private readonly targetDescriptions = {
-    '성인': '성인 대상 프로그램',
-    '청소년': '청소년 대상 프로그램'
-  };
-
-  private readonly programDescriptions = {
-    '기본': '기본 프로그램입니다',
-    '심화': '심화 프로그램입니다'
-  };
+  private _availableDatesCache: { [date: string]: number } = {}; // 날짜별 가용 병원 수 캐시
 
   constructor() {
     this.api = new BookingAPI();
@@ -150,66 +153,60 @@ export class ChatBookingState {
     }
   }
 
-  // 카드 생성 유틸리티
-  private createProgramCard(userInfo: UserInfo): CardProps {
-    const icon: CardIcon = {
-      type: 'userImage',
-      image: userInfo.gender === 'M' ? '/assets/ava_m.png' : '/assets/ava_f.png',
-      gender: userInfo.gender,
-      fallbackEmoji: '👤',
-      size: 48
-    };
+  // 통합된 카드 생성 함수 - 초기 사용자 카드 
+  private createUserCardsFromResponse(users: UserInfo[]): CardMessage {
+    const formatBirthDate = (birthDate: string) => 
+      `${birthDate.slice(0,2)}.${birthDate.slice(2,4)}.${birthDate.slice(4,6)}`;
 
-    // 생년월일 포맷 변환 함수
-    const formatBirthDate = (birthDate: string) => {
-      return `${birthDate.slice(0,2)}.${birthDate.slice(2,4)}.${birthDate.slice(4,6)}`;
-    };
-
-    if (userInfo.relation === 'self') {
-      return {
-        id: `checkup_${userInfo.id}`,
-        type: 'namecard-A',
-        title: userInfo.name,
-        birthDate: formatBirthDate(userInfo.birthDate),
-        subtitle: `${userInfo.department}|${userInfo.section}`,
-        description: `${userInfo.checkupYear}년도 건강검진 대상자입니다.`,
-        icon,
-        tags: userInfo.availableCheckups,
-        buttonText: '건강검진 바로 예약하기',
-        onClick: () => this.handleCheckupSelection(userInfo.availableCheckups[0])
-      };
-    } else {
-      return {
-        id: `checkup_${userInfo.id}`,
-        type: 'namecard-B',
-        title: userInfo.name,
-        birthDate: formatBirthDate(userInfo.birthDate),
-        subtitle: userInfo.department && userInfo.section ? `${userInfo.department}|${userInfo.section}` : undefined,
-        tag: '가족',
-        icon,
-        onClick: () => this.handleCheckupSelection(userInfo.availableCheckups[0])
-      };
-    }
-  }
-
-  // 사용자 카드 생성
-  private createUserCards(users: UserInfo[]): CardMessage {
-    console.log('Creating user cards with animation');
-    const cards = users.map((user, index) => ({
-      ...this.createProgramCard(user),
-      delay: index * 300,
-      duration: 500,
+    const cardTemplate = {
+      duration: 800,
       easing: 'ease-out'
-    }));
+    } as const;
+
+    const animations: Message.Type.Animation[] = ['slideInLeft', 'bounceIn', 'zoomIn'];
+    const getAnimation = (index: number) => animations[index % animations.length];
+
+    const createCardContent = (user: UserInfo) => {
+      const icon: CardIcon = {
+        type: 'userImage',
+        image: user.gender === 'M' ? '/assets/ava_m.png' : '/assets/ava_f.png',
+        gender: user.gender,
+        fallbackEmoji: '👤',
+        size: 48
+      };
+
+      return {
+        ...cardTemplate,
+        id: `checkup_${user.id}`,
+        birthDate: formatBirthDate(user.birthDate),
+        icon,
+        bookingState: this,
+        ...(user.relation === 'self' 
+          ? {
+              type: 'namecard-A' as const,
+              title: user.name,
+              subtitle: `${user.department}|${user.section}`,
+              description: `${user.checkupYear}년도 건강검진 대상자입니다.`,
+              tags: user.availableCheckups,
+              buttonText: '건강검진 바로 예약하기'
+            }
+          : {
+              type: 'namecard-B' as const,
+              title: user.name,
+              subtitle: user.department && user.section ? `${user.department}|${user.section}` : undefined,
+              tag: '가족'
+            })
+      };
+    };
 
     return {
-      id: `card_${Date.now()}`,
+      id: `card_${Date.now()}_${users[0].id}`,
       sender: 'system',
       display: 'card',
       timestamp: Date.now(),
       content: {
         card: {
-          items: cards,
+          items: [createCardContent(users[0])],
           layout: {
             type: 'slider' as Message.Type.LayoutType,
             columns: 1,
@@ -217,88 +214,123 @@ export class ChatBookingState {
           }
         }
       },
-      animation: 'fadeIn'
+      animation: getAnimation(users[0].id.length % animations.length),
+      state: {
+        isHistory: false,
+        isWaiting: false
+      }
     };
   }
 
-  // 병원 선택 카드 생성
-  private async createHospitalCards(): Promise<CardMessage> {
-    const response = await this.api.getHospitalList(this.bookingInfo.checkupType);
+  
+
+  // 병원 선택 처리
+  private async handleHospitalSelection(hospital: Hospital) {
+    this.bookingInfo = {
+      ...this.bookingInfo,
+      hospitalId: hospital.id,
+      hospital
+    };
     
-    if (response.status === 'error' || !response.data.hospitals) {
-      throw new Error(response.message || '병원 목록을 불러올 수 없습니다.');
+    // 상태 업데이트
+    this.bookingState = BookingState.SELECT_DATE;
+    this.notifyStateChange();
+  }
+
+  // 날짜 선택 처리 - 캘린더 버튼 클릭 시 한 번만 호출
+  private async handleDateSelection() {
+    console.log('Starting date selection...');
+    if (!this.bookingInfo.hospital?.id || !this.bookingInfo.checkupType) {
+      const error = new Error('병원 또는 검진 종류가 선택되지 않았습니다.');
+      console.error(error);
+      this.error = error;
+      this.notifyStateChange();
+      return;
     }
 
-    // 첫 번째 병원만 사용
-    const cards = response.data.hospitals.slice(0, 1).map((hospital, index) => ({
-      id: hospital.id,
-      type: 'hospital' as const,
-      title: hospital.name,
-      subtitle: hospital.address,
-      icon: { 
-        type: 'userImage' as const,
-        image: `/src/assets/hospital/${hospital.id}.png`,
-        gender: 'M' as const,
-        fallbackEmoji: '🏥'
-      },
-      tags: hospital.availableCheckups,
-      buttonText: '기관 상세보기',
-      onClick: () => this.handleHospitalSelection(hospital)
-    }));
+    // 이미 가용 날짜 정보가 있다면 다시 호출하지 않음
+    if (Object.keys(this._availableDatesCache).length > 0) {
+      console.log('Available dates already loaded:', this._availableDatesCache);
+      return;
+    }
 
-    return {
-      id: `hospitals_${Date.now()}`,
-      sender: 'system',
-      display: 'card',
-      timestamp: Date.now(),
-      content: {
-        card: {
-          items: cards,
-          layout: {
-            type: 'grid' as Message.Type.LayoutType,
-            columns: 1,
-            spacing: '16px'
-          }
-        }
-      },
-      animation: 'slideIn'
-    };
+    try {
+      console.log('Fetching available dates...');
+      const response = await this.api.getAvailableDates(this.bookingInfo.hospital!.id);
+
+      console.log('API Response:', response);
+
+      if (!response.data.dates) {
+        throw new Error('날짜 정보가 없습니다.');
+      }
+
+      console.log('Caching available dates...');
+      // 날짜별 가용 병원 수만 캐시에 저장
+      response.data.dates.forEach(d => {
+        console.log('Caching date:', d);
+        this._availableDatesCache[d.date] = d.availableHospitals;
+      });
+      
+      console.log('Cache after update:', this._availableDatesCache);
+      this.notifyStateChange();
+    } catch (error) {
+      console.error('Failed to get available dates:', error);
+      this.error = error instanceof Error ? error : new Error('날짜 정보를 불러오는데 실패했습니다.');
+      this.notifyStateChange();
+    }
   }
 
-  // 검진 희망일 선택 카드 생성
-  private createCheckupDateCard(checkupType: string): CardMessage {
-    const card = {
-      id: `checkup_date_${Date.now()}`,
-      type: 'checkup-date' as const,
-      title: `${checkupType} 검진 희망일 선택`,
-      subtitle: '예약 일자에 모든 검진을 진행 시',
-      buttonText: '희망일을 선택해주세요',
-      onClick: () => this.handleDateSelection()
-    };
-
-    return {
-      id: `date_${Date.now()}`,
-      sender: 'system',
-      display: 'card',
-      timestamp: Date.now(),
-      content: {
-        card: {
-          items: [card],
-          layout: {
-            type: 'grid' as Message.Type.LayoutType,
-            columns: 1,
-            spacing: '16px'
-          }
-        }
-      },
-      animation: 'slideIn'
-    };
+  // 날짜 가용성 체크 - 캐시된 정보로만 판단
+  isDateAvailable(date: string): boolean {
+    return (this._availableDatesCache[date] || 0) > 0;
   }
 
-  // 날짜 선택 처리
-  private async handleDateSelection() {
-    // TODO: 날짜 선택 처리 로직 구현
-    console.log('날짜 선택 처리');
+  // 가용 날짜 목록 조회 - 캐시된 정보에서 가용한 날짜만 반환
+  getAvailableDates(): string[] {
+    return Object.entries(this._availableDatesCache)
+      .filter(([_, count]) => count > 0)
+      .map(([date]) => date);
+  }
+
+  // 날짜 선택 완료 처리
+  async handleDateComplete(selectedDate: string) {
+    console.log('Completing date selection:', selectedDate);
+    
+    if (!this.isDateAvailable(selectedDate)) {
+      const error = new Error('선택할 수 없는 날짜입니다.');
+      console.error(error);
+      this.error = error;
+      this.notifyStateChange();
+      return;
+    }
+
+    try {
+      this.bookingInfo = {
+        ...this.bookingInfo,
+        date: selectedDate
+      };
+      
+      // const date = new Date(selectedDate);
+      // const dateStr = date.toLocaleDateString('ko-KR', {
+      //   year: 'numeric',
+      //   month: 'long',
+      //   day: 'numeric'
+      // });
+      
+      // this.messages = [
+      //   ...this.messages, 
+      //   this.createMessage(`${dateStr}을 선택하셨습니다. (예약 가능 병원: ${this._availableDatesCache[selectedDate]}개)`)
+      // ];
+      this.bookingState = BookingState.CONFIRM;
+      this.notifyStateChange();
+      
+      console.log('Date selection completed');
+    } catch (error) {
+      console.error('Failed to complete date selection:', error);
+      this.error = error instanceof Error ? error : new Error('날짜 선택 처리 중 오류가 발생했습니다.');
+      this.messages = [...this.messages, this.createMessage(this.error.message, 'system')];
+      this.notifyStateChange();
+    }
   }
 
   // 대상자 선택 처리
@@ -323,109 +355,69 @@ export class ChatBookingState {
     }
   }
 
-  // 검진 종류 선택 처리
-  private async handleCheckupSelection(checkup: string) {
+  // 건강검진 바로 예약하기 -> 모달 팝업 (날짜 우선 병원 우선 선택창으로 이동)
+  async handleCheckupSelection(checkupType: string) {
+    console.log('🔍 [ChatBookingState] handleCheckupSelection 호출됨:', checkupType);
     this.bookingInfo = { 
       ...this.bookingInfo,
-      checkupType: checkup 
+      checkupType
     };
-    
-    try {
-      // API 호출과 카드 생성을 하나의 작업으로 처리
-      await this.sendMessageAndWait(
-        `${checkup}을 선택하셨습니다. 원하시는 병원을 선택해주세요.`,
-        async () => {
-          const hospitalCards = await this.createHospitalCards();
-          return hospitalCards;
-        }
-      ).then(hospitalCards => {
-        // API 호출이 완료된 후 카드 추가
-        this.messages = [...this.messages, hospitalCards];
-        this.notifyStateChange();
-      });
-    } catch (error) {
-      console.error('Failed to load hospitals:', error);
-      this.messages = [...this.messages, this.createMessage('죄송합니다. 병원 정보를 불러오는데 실패했습니다.', 'system')];
-      this.notifyStateChange();
-    }
-  }
-
-  // 병원 선택 처리
-  private handleHospitalSelection(hospital: Hospital) {
-    this.bookingInfo = {
-      ...this.bookingInfo,
-      hospitalId: hospital.id,
-      hospital
-    };
-    
-    this.messages = [...this.messages, this.createMessage(`${hospital.name}을 선택하셨습니다.`)];
+    // 모달 표시를 위한 상태 업데이트만 수행
     this.bookingState = BookingState.SELECT_DATE;
     this.notifyStateChange();
   }
 
-  // 초기화
+  //예약진입 (초기화 및 예약 그리고 사후관리 )
   async initialize() {
-    if (this.isInitializing) return;
+    if (this.isInitializing) {
+      console.log('Already initializing, skipping...');
+      return;
+    }
+    
+    console.log('Starting initialization...');
     this.isInitializing = true;
+    this.showLoading = true;
+    this.messages = [];
+    this.notifyStateChange();
 
     try {
-      console.log('채팅 초기화 시작');
-      
-      // 사용자 정보 로딩 (대기 상태 포함)
-      const response = await this.sendMessageAndWait(
-        '예약을 도와드릴 엠텍이입니다. 올 해 받으실 건강검진을 조회 해 볼께요 🤔',
-        () => this.api.getUserInfo()
-      );
-      console.log('사용자 정보 로딩 완료:', response);
-      
-      // 2초 대기
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // 검진 목록 안내 메시지
-      const users = response.data.users;
-      const userNames = users.map(user => user.name).join(', ');
-      const listMessage: TextMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        sender: 'system',
-        display: 'text',
-        timestamp: Date.now(),
-        content: {
-          text: {
-            value: `올 해는 ${userNames} 님의 검진을 예약하실 수 있습니다.`,
-            profile: { show: false }
-          }
-        },
-        state: { isHistory: false },
-        animation: 'slideIn'
-      };
-      this.messages = [...this.messages, listMessage];
+      // 첫 메시지 추가
+      const initialMessage = this.createMessage('예약을 도와드릴 엠텍이입니다. 올 해 받으실 건강검진을 조회 해 볼께요 🤔');
+      this.messages = [initialMessage];
       this.notifyStateChange();
-      
-      // 1.5초 대기
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // 사용자 선택 카드를 하나씩 추가
-      for (let i = 0; i < users.length; i++) {
-        const cardMessage = this.createUserCards([users[i]]);
-        this.messages = [...this.messages, cardMessage];
-        this.notifyStateChange();
-        await new Promise(resolve => setTimeout(resolve, 800));
-      }
-
-      // 1초 대기
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // 병원 카드 추가
-      const hospitalCard = await this.createHospitalCards();
-      this.messages = [...this.messages, hospitalCard];
+      // API 호출
+      const response = await this.api.getUserInfo();
+      
+      const users = response.data.users;
+      if (!users || users.length === 0) {
+        throw new Error('검진 대상자 정보가 없습니다.');
+      }
+
+      const userNames = users.map(user => user.name).join(', ');
+      const listMessage = this.createMessage(`올 해는 ${userNames} 님의 검진을 예약하실 수 있습니다.`);
+      this.messages = [...this.messages, listMessage];
       this.notifyStateChange();
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // 각 사용자별로 카드를 순차적으로 생성하고 추가
+      for (const user of users) {
+        const singleUserCard = this.createUserCardsFromResponse([user]);
+        this.messages = [...this.messages, singleUserCard];
+        this.notifyStateChange();
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
       
       this.bookingState = BookingState.SELECT_TARGET;
+      this.showLoading = false;
       this.notifyStateChange();
 
     } catch (error) {
-      console.error('Failed to load user info:', error);
-      this.messages = [...this.messages, this.createMessage('죄송합니다. 검진 정보를 불러오는데 실패했습니다.', 'system')];
+      console.error('Failed in initialization:', error);
+      this.showLoading = false;
+      this.error = error instanceof Error ? error : new Error('초기화 중 오류가 발생했습니다.');
+      this.messages = [this.createMessage(this.error.message, 'system')];
       this.notifyStateChange();
     } finally {
       this.isInitializing = false;
@@ -488,7 +480,84 @@ export class ChatBookingState {
       chatState: this.chatState,
       bookingState: this.bookingState,
       bookingInfo: this.bookingInfo,
-      waitingMessageId: this.waitingMessageId
+      waitingMessageId: this.waitingMessageId,
+      error: this.error
     };
+  }
+
+  // 검진 종류별 가용 날짜 및 병원 정보 조회
+  async fetchAvailableDatesAndHospitals(checkupType: string): Promise<{ [key: string]: number }> {
+    try {
+      // 병원 목록과 가용 날짜 동시 조회
+      const [hospitalResponse, datesResponse] = await Promise.all([
+        this.api.getHospitalList(checkupType),
+        this.api.getAvailableDates(MOCK_HOSPITALS[0].id)
+      ]);
+
+      if (!hospitalResponse || hospitalResponse.length === 0) {
+        throw new Error('병원 목록을 불러올 수 없습니다.');
+      }
+
+      // 날짜별 가용 병원 수 캐시 저장
+      if (datesResponse.data.dates) {
+        this._availableDatesCache = datesResponse.data.dates.reduce((acc, d) => {
+          acc[d.date] = d.availableHospitals;
+          return acc;
+        }, {} as Record<string, number>);
+      }
+
+      return this._availableDatesCache;
+    } catch (error) {
+      console.error('Failed to load hospitals and dates:', error);
+      throw error;
+    }
+  }
+
+  // 가용 날짜별 병원 수 조회
+  getAvailableCountsByDate(): { [key: string]: number } {
+    return { ...this._availableDatesCache };
+  }
+
+  // 날짜 우선 예약 처리
+  async handleDateFirstBooking(): Promise<{ [key: string]: number }> {
+    console.log('🔍 [ChatBookingState] handleDateFirstBooking 호출됨');
+    try {
+      // 로딩 메시지 추가
+      const loadingMessage = this.createMessage('예약 가능한 병원과 날짜를 확인하고 있습니다.', 'loading');
+      this.messages = [...this.messages, loadingMessage];
+      this.notifyStateChange();
+
+      console.log('🔍 [ChatBookingState] API 호출 시작');
+      // 병원 목록과 가용 날짜 동시 조회
+      const [hospitalResponse, datesResponse] = await Promise.all([
+        this.api.getHospitalList(this.bookingInfo.checkupType!),
+        this.api.getAvailableDates(MOCK_HOSPITALS[0].id)
+      ]);
+      console.log('🔍 [ChatBookingState] API 응답:', { hospitalResponse, datesResponse });
+
+      // 로딩 메시지 제거
+      this.messages = this.messages.filter(m => m.id !== loadingMessage.id);
+      this.notifyStateChange();
+
+      if (!hospitalResponse || hospitalResponse.length === 0) {
+        throw new Error('병원 목록을 불러올 수 없습니다.');
+      }
+
+      // 날짜별 가용 병원 수 캐시 저장
+      if (datesResponse.data.dates) {
+        this._availableDatesCache = datesResponse.data.dates.reduce((acc, d) => {
+          acc[d.date] = d.availableHospitals;
+          return acc;
+        }, {} as Record<string, number>);
+      }
+      console.log('🔍 [ChatBookingState] 캐시된 날짜 정보:', this._availableDatesCache);
+
+      return this._availableDatesCache;
+    } catch (error) {
+      console.error('🔍 [ChatBookingState] API 호출 실패:', error);
+      this.messages = [...this.messages, this.createMessage('죄송합니다. 정보를 불러오는데 실패했습니다.', 'system')];
+      this.notifyStateChange();
+      throw error;
+    }
   }
 } 

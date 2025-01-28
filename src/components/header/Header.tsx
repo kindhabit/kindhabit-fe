@@ -69,9 +69,10 @@ const ProfileContainer = styled(Flex)<DebugProps>`
 `;
 
 const ProfileText = styled(Text)`
-  font-size: 15px;
-  font-weight: 500;
-  color: ${props => props.theme.colors.text.primary};
+  font-size: 13px;
+  font-weight: 400;
+  color:rgb(102, 102, 102);
+  margin-top: 35px;
 `;
 
 const Header: React.FC<DebugProps> = ({ 'data-debug': debug }) => {
@@ -148,13 +149,6 @@ const Header: React.FC<DebugProps> = ({ 'data-debug': debug }) => {
         />
       </LogoContainer>
       <ProfileContainer $align="center" data-debug={debug || debugMode}>
-        <img 
-          src="/assets/ava_m.png"
-          alt="Profile"
-          style={{ width: '32px', height: '32px' }}
-          onError={handleImageError}
-        />
-        <ProfileText>안녕, 제리?</ProfileText>
       </ProfileContainer>
     </HeaderContainer>
   );

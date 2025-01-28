@@ -57,6 +57,8 @@ export interface Hospital {
     phone: string;
   };
   emr?: string;
+  isAvailable?: boolean;  // 예약 가능 여부
+  availableCount?: number;  // 예약 가능 인원
 }
 
 // API 응답 기본 구조
@@ -105,10 +107,9 @@ export interface BookingResponse extends ApiResponse<{
 
 // API 응답 타입
 export interface AvailableDate {
-  date: string;
-  availableTimes: string[];
-  hospitalId: string;
-  hospitalName: string;
+  date: string;                // 'YYYY-MM-DD' 형식
+  availableHospitals: number;  // 해당 날짜에 예약 가능한 총 병원 수
+  hospitals: Hospital[];       // 해당 날짜에 예약 가능한 병원 목록
 }
 
 // UI 타입

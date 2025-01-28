@@ -44,7 +44,7 @@ export const baseTheme: Omit<Theme, 'colors'> = {
   logo: {
     height: {
       kindhabit: '120px',
-      xog: '20px'
+      xog: '25px'
     }
   }
 }; 

@@ -51,9 +51,10 @@ const LogoContainer = styled.div<DebugProps>`
 `;
 
 const Logo = styled.img<DebugProps>`
-  height: 32px;
+  height: 34px;
   width: auto;
   position: relative;
+  transform: translateY(2px);
   
   ${props => props['data-debug'] && `
     ${debugBorder('#00FFFF')}

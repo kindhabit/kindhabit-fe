@@ -30,6 +30,11 @@ export const HeaderArea = styled.header<DebugProps>`
   padding: 0 20px;
   border-bottom: 1px solid ${({ theme }) => theme.colors.border};
   
+  h1 {
+    font-size: 110%;
+    transform: translateY(2px);
+  }
+  
   ${props => props['data-debug'] && `
     ${debugBorder('#00FF00')}
     ${debugLabel({

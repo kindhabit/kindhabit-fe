@@ -106,7 +106,7 @@ interface NameCardBProps {
 interface CheckupDateCardProps {
   type: 'checkup-date';
   title: string;         // 검진 종류
-  subtitle: string;      // 안내 메시지
+  subtitle?: string;      // 안내 메시지 (선택적)
   buttonText: string;    // 버튼 텍스트
 }
 

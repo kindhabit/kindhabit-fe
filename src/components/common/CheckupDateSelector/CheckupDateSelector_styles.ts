@@ -27,50 +27,6 @@ export const Subtitle = styled.p`
   margin: 0 0 24px;
 `;
 
-export const CheckboxGroup = styled.div`
-  padding: 0 24px;
-  margin-bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-export const CheckboxLabel = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: ${props => props.theme.colors.text.primary};
-  cursor: pointer;
-
-  input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
-    border: 2px solid ${props => props.theme.colors.border};
-    appearance: none;
-    cursor: pointer;
-    position: relative;
-
-    &:checked {
-      background: ${props => props.theme.colors.primary};
-      border-color: ${props => props.theme.colors.primary};
-
-      &::after {
-        content: '';
-        position: absolute;
-        left: 6px;
-        top: 2px;
-        width: 4px;
-        height: 8px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-      }
-    }
-  }
-`;
-
 export const Footer = styled.div`
   padding: 16px 24px;
   background: ${props => props.theme.colors.background};

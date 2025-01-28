@@ -36,7 +36,7 @@ const FormBookingWrapper = () => {
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <RedirectPage to="./booking/loading/chat" />
+    element: <RedirectPage to="booking/loading/chat" />
   },
   {
     path: 'booking',
@@ -44,7 +44,7 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '',
-        element: <RedirectPage to="./loading/chat" />
+        element: <RedirectPage to="loading/chat" />
       },
       {
         path: 'chat',
@@ -64,7 +64,7 @@ const routes: RouteObject[] = [
       },
       {
         path: '*',
-        element: <RedirectPage to="./loading/chat" />
+        element: <RedirectPage to="loading/chat" />
       }
     ]
   }

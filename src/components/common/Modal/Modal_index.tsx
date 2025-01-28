@@ -1,4 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
+import { useRecoilValue } from 'recoil';
+import { debugModeState } from '@/core/store/debug';
 import { ModalProps } from './Modal_types';
 import {
   Overlay,
@@ -19,6 +21,8 @@ const Modal: React.FC<ModalProps> = ({
   closeOnOverlayClick = true,
   animation = 'fadeIn'
 }) => {
+  const debugMode = useRecoilValue(debugModeState);
+
   const handleEscapeKey = useCallback((event: KeyboardEvent) => {
     if (event.key === 'Escape') {
       onClose();
@@ -48,17 +52,19 @@ const Modal: React.FC<ModalProps> = ({
       $isOpen={isOpen}
       $type={type}
       onClick={handleOverlayClick}
+      data-debug={debugMode}
     >
       <ModalContainer
         $isOpen={isOpen}
         $type={type}
         $animation={animation}
+        data-debug={debugMode}
       >
         {(title || showCloseButton) && (
-          <Header>
-            {title && <Title>{title}</Title>}
+          <Header data-debug={debugMode}>
+            {title && <Title data-debug={debugMode}>{title}</Title>}
             {showCloseButton && (
-              <CloseButton onClick={onClose}>
+              <CloseButton onClick={onClose} data-debug={debugMode}>
                 <svg viewBox="0 0 24 24" fill="none">
                   <path
                     d="M18 6L6 18M6 6L18 18"
@@ -72,7 +78,7 @@ const Modal: React.FC<ModalProps> = ({
             )}
           </Header>
         )}
-        <Content>
+        <Content data-debug={debugMode}>
           {children}
         </Content>
       </ModalContainer>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { CardProps, CardLayoutProps, SliderProps, NavigatorProps } from './Card_types';
 import {
   CardContainer,
@@ -22,18 +22,22 @@ import {
   PhoneInputContainer,
   PhoneInput,
   PhoneDescription,
-  SendButton
+  SendButton,
+  ReservationOptionsGrid,
+  ReservationOptionCard,
+  OptionsGrid,
+  OptionCard
 } from "./Card_styles";
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/core/store/debug';
 import { theme } from '@/core/theme';
 import Modal from '../Modal/Modal_index';
-import Selector from '../Selector/Selector_index';
-import {
-  ReservationOptionsGrid,
-  ReservationOptionCard
-} from '../Modal/Modal_styles';
+import { formatPhoneNumber } from '@/utils/string';
 import BookingFlow from '../BookingFlow/BookingFlow_index';
+import CheckupDateSelector from '../CheckupDateSelector/CheckupDateSelector_index';
+import { BookingAPI } from '@/services/xog/booking/api/client';
+import { AvailableDatesResponse } from '@/services/xog/booking/types';
+import { ChatBookingState } from '@/services/xog/booking/presentation/chat/booking_main';
 
 interface CardListProps {
   cards: CardProps[];
@@ -140,7 +144,11 @@ export const CardList: React.FC<CardListProps> = ({
   );
 };
 
-const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider' }> = ({
+const Card: React.FC<CardProps & { 
+  width?: string; 
+  layoutType?: 'grid' | 'slider';
+  bookingState?: ChatBookingState;
+}> = ({
   id,
   type,
   title,
@@ -161,10 +169,10 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
   selectionData,
   buttonText,
   birthDate,
-  tag
+  tag,
+  bookingState
 }) => {
   const debugMode = useRecoilValue(debugModeState);
-  console.log('Card Props:', { type, tags, showTags, tag });
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
@@ -172,14 +180,19 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isBookingFlowOpen, setIsBookingFlowOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [availableCounts, setAvailableCounts] = useState<{ [key: string]: number }>({});
 
   const handleButtonClick = () => {
-    if (type === 'namecard-A') {
+    if (type === 'namecard-A' && bookingState) {
+      console.log('🔍 [이벤트] 건강검진 바로 예약하기 버튼 클릭');
+      if (tags && tags.length > 0) {
+        bookingState.handleCheckupSelection(tags[0]);
+      }
       setIsBookingFlowOpen(true);
     } else if (type === 'checkup-date') {
-      setIsReservationModalOpen(true);
-    } else if (onClick) {
-      onClick();
+      console.log('🔍 [이벤트] 예약 모달 열림');
+      setIsBookingFlowOpen(true);
     }
   };
 
@@ -205,22 +218,29 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
     }
   };
 
-  const handleDateFirstReservation = () => {
+  // 이니셜 모달에서 날짜 우선으로 시작할 때.
+  const handleDateFirstReservation = async () => {
+    if (!bookingState) return;
+    
+    console.log('🔍 [이벤트] 날짜 우선 예약 버튼 클릭');
     setIsReservationModalOpen(false);
-    setIsCalendarOpen(true);
+    
+    try {
+      setIsLoading(true);
+      const availableCounts = await bookingState.handleDateFirstBooking();
+      console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
+      setAvailableCounts(availableCounts);
+      setIsCalendarOpen(true);
+    } catch (error) {
+      console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleHospitalFirstReservation = () => {
+    console.log('🔍 [이벤트] 병원 우선 예약 버튼 클릭');
     setIsReservationModalOpen(false);
-    // TODO: 병원 선택 모달 표시
-    console.log('병원 우선 예약');
-  };
-
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/[^\d]/g, '');
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 7) return numbers.slice(0, 3) + '-' + numbers.slice(3);
-    return numbers.slice(0, 3) + '-' + numbers.slice(3, 7) + '-' + numbers.slice(7, 11);
   };
 
   const renderProfileSection = () => (
@@ -276,6 +296,7 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
         $width={width}
         $layoutType={layoutType}
         onClick={type === 'namecard-B' ? handleCardClick : onClick}
+        style={{ cursor: type === 'namecard-B' ? 'pointer' : 'default' }}
         data-debug={debugMode}
       >
         {(type === 'namecard-A' || type === 'namecard-B') && (
@@ -305,7 +326,13 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
                 )}
                 
                 {buttonText && (
-                  <Button onClick={handleButtonClick}>{buttonText}</Button>
+                  <Button 
+                    onClick={() => {
+                      handleButtonClick();
+                    }}
+                  >
+                    {buttonText}
+                  </Button>
                 )}
               </>
             )}
@@ -332,7 +359,13 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
               </TagContainer>
             )}
             {buttonText && (
-              <Button onClick={handleButtonClick}>{buttonText}</Button>
+              <Button 
+                onClick={() => {
+                  handleButtonClick();
+                }}
+              >
+                {buttonText}
+              </Button>
             )}
           </>
         )}
@@ -379,7 +412,13 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
               )}
               
               {buttonText && (
-                <Button onClick={handleButtonClick}>{buttonText}</Button>
+                <Button 
+                  onClick={() => {
+                    handleButtonClick();
+                  }}
+                >
+                  {buttonText}
+                </Button>
               )}
             </div>
           </>
@@ -393,7 +432,13 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
             </TitleSection>
             
             {buttonText && (
-              <Button onClick={handleButtonClick}>{buttonText}</Button>
+              <Button 
+                onClick={() => {
+                  handleButtonClick();
+                }}
+              >
+                {buttonText}
+              </Button>
             )}
           </>
         )}
@@ -403,25 +448,20 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
         isOpen={isCalendarOpen}
         onClose={() => setIsCalendarOpen(false)}
         type="slideup"
-        title="검진일 선택"
+        title="검진일"
         animation="slideIn"
       >
-        <Selector
+        <CheckupDateSelector
           selectedDates={selectedDates}
           onDateSelect={handleDateSelect}
           minDate={new Date()}
           maxDate={new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)}
-          checkupType="일반+특수 건강검진"
-          subtitle="희망하시는 검진일을 선택해주세요"
           buttonText="선택 완료"
+          availableCounts={availableCounts}
           onButtonClick={() => {
             console.log('선택된 날짜:', selectedDates);
             setIsCalendarOpen(false);
           }}
-          checkboxOptions={[
-            { id: 'morning', label: '오전 예약 가능', checked: false, onChange: () => {} },
-            { id: 'afternoon', label: '오후 예약 가능', checked: false, onChange: () => {} }
-          ]}
         />
       </Modal>
 
@@ -464,30 +504,51 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
         title="건강검진 예약하기"
         animation="slideIn"
       >
-        <ReservationOptionsGrid>
-          <ReservationOptionCard
+        <OptionsGrid>
+          <OptionCard
             $type="date"
-            onClick={handleDateFirstReservation}
+            onClick={async () => {
+              console.log('🔍 [이벤트] 날짜 우선으로 예약하기 버튼 클릭');
+              if (!bookingState) {
+                console.error('🔍 [에러] bookingState가 없습니다');
+                return;
+              }
+              try {
+                setIsLoading(true);
+                const availableCounts = await bookingState.handleDateFirstBooking();
+                console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
+                setIsReservationModalOpen(false);
+                setIsBookingFlowOpen(true);
+              } catch (error) {
+                console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
+              } finally {
+                setIsLoading(false);
+              }
+            }}
           >
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <h3>날짜 우선으로<br />예약하기</h3>
-            <p>희망하는 날짜를 먼저<br />선택하여 예약합니다</p>
-          </ReservationOptionCard>
+            <p>희망하는 날짜를{'\n'}우선 선택하여{'\n'}예약합니다</p>
+          </OptionCard>
 
-          <ReservationOptionCard
+          <OptionCard
             $type="hospital"
-            onClick={handleHospitalFirstReservation}
+            onClick={() => {
+              console.log('🔍 [이벤트] 병원 우선 예약 버튼 클릭');
+              setIsReservationModalOpen(false);
+              setIsBookingFlowOpen(true);
+            }}
           >
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M3 9.11V14.88C3 17 3 17 5 18.35L10.5 21.53C11.33 22.01 12.68 22.01 13.5 21.53L19 18.35C21 17 21 17 21 14.89V9.11C21 7 21 7 19 5.65L13.5 2.47C12.68 1.99 11.33 1.99 10.5 2.47L5 5.65C3 7 3 7 3 9.11Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <h3>병원 우선으로<br />예약하기</h3>
-            <p>희망하는 병원을 먼저<br />선택하여 예약합니다</p>
-          </ReservationOptionCard>
-        </ReservationOptionsGrid>
+            <p>희망하는 병원을{'\n'}우선 선택하여{'\n'}예약합니다</p>
+          </OptionCard>
+        </OptionsGrid>
       </Modal>
 
       <BookingFlow
@@ -497,6 +558,7 @@ const Card: React.FC<CardProps & { width?: string; layoutType?: 'grid' | 'slider
           console.log('예약 완료');
           setIsBookingFlowOpen(false);
         }}
+        bookingState={bookingState}
       />
     </>
   );

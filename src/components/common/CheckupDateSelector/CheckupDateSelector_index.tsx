@@ -3,11 +3,6 @@ import Calendar from '../Calendar/Calendar_index';
 import { CheckupDateSelectorProps } from './CheckupDateSelector_types';
 import {
   Container,
-  Header,
-  Title,
-  Subtitle,
-  CheckboxGroup,
-  CheckboxLabel,
   Footer,
   Button
 } from './CheckupDateSelector_styles';
@@ -19,20 +14,15 @@ const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
   maxDate,
   disabledDates,
   maxSelections = 2,
-  checkupType = '검진',
-  subtitle,
   buttonText,
   onButtonClick,
-  checkboxOptions = [],
-  footer
+  footer,
+  availableCounts = {},
+  renderDateContent,
+  showDateContent
 }) => {
   return (
-    <Container hasFooter={!!footer}>
-      <Header>
-        <Title>{checkupType} 희망일 선택</Title>
-        {subtitle && <Subtitle>{subtitle}</Subtitle>}
-      </Header>
-
+    <Container $hasFooter={!!footer}>
       <Calendar
         selectedDates={selectedDates}
         onDateSelect={onDateSelect}
@@ -40,22 +30,8 @@ const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
         maxDate={maxDate}
         disabledDates={disabledDates}
         maxSelections={maxSelections}
+        availableCounts={availableCounts}
       />
-
-      {checkboxOptions.length > 0 && (
-        <CheckboxGroup>
-          {checkboxOptions.map(option => (
-            <CheckboxLabel key={option.id}>
-              <input
-                type="checkbox"
-                checked={option.checked}
-                onChange={(e) => option.onChange(e.target.checked)}
-              />
-              {option.label}
-            </CheckboxLabel>
-          ))}
-        </CheckboxGroup>
-      )}
 
       {(buttonText || footer) && (
         <Footer>
@@ -70,4 +46,4 @@ const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
   );
 };
 
-export default CheckupDateSelector; 
+export default CheckupDateSelector;

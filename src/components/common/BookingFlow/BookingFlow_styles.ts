@@ -64,7 +64,7 @@ export const StepIndicator = styled.div<StyledStepIndicatorProps>`
 export const StepTitle = styled.div`
   flex-shrink: 0;
   text-align: center;
-  padding: 16px 20px;
+  padding: 8px 20px;
   
   h2 {
     margin: 0;

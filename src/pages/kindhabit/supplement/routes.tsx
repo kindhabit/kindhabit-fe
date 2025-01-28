@@ -5,14 +5,16 @@ import ChatPage from './chat/ChatPage';
 import LoadingPage from './chat/LoadingPage';
 import SupplementTest from './test';
 
-const routes = (
-  <RouterRoutes>
-    <Route path="/" element={<RedirectPage to="loading" />} />
-    <Route path="loading" element={<LoadingPage />} />
-    <Route path="chat" element={<ChatPage />} />
-    <Route path="test/*" element={<SupplementTest />} />
-    <Route path="*" element={<Navigate to="loading" replace />} />
-  </RouterRoutes>
-);
+const Routes: React.FC = () => {
+  return (
+    <RouterRoutes>
+      <Route path="/" element={<RedirectPage to="loading" />} />
+      <Route path="loading" element={<LoadingPage />} />
+      <Route path="chat" element={<ChatPage />} />
+      <Route path="test/*" element={<SupplementTest />} />
+      <Route path="*" element={<Navigate to="loading" replace />} />
+    </RouterRoutes>
+  );
+};
 
-export default routes; 
+export default Routes; 

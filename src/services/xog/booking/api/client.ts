@@ -167,7 +167,8 @@ export class BookingAPI {
     // 연도와 사번으로 사용자 정보 조회 시뮬레이션
     const users = Object.values(SIMULATION_DATA.users).map(user => ({
       ...user,
-      gender: user.gender as 'M' | 'F'
+      gender: user.gender as 'M' | 'F',
+      relation: user.relation as 'self' | 'family'
     }));
     
     console.log('Filtered Users:', users);  // 필터링된 사용자 목록 로깅
@@ -199,51 +200,122 @@ export class BookingAPI {
   }
 
   // 병원 목록 조회
-  async getHospitalList(checkupType?: string): Promise<HospitalListResponse> {
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    let filteredHospitals = SIMULATION_HOSPITALS;
-    if (checkupType) {
-      filteredHospitals = SIMULATION_HOSPITALS.filter(hospital => 
-        hospital.availableCheckups.includes(checkupType)
-      );
-    }
-
-    return {
-      status: 'success',
-      code: '200',
-      message: '병원 목록 조회 성공',
-      data: {
-        hospitals: filteredHospitals,
-        total: filteredHospitals.length
-      }
-    };
-  }
-
-  // 예약 가능한 날짜 조회
-  async getAvailableDates(hospitalId: string, checkupType: string): Promise<AvailableDatesResponse> {
+  async getHospitalList(selectedDate: string): Promise<Hospital[]> {
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    
-    const availableDates: AvailableDate[] = [];
-    for (let day = 1; day <= lastDay; day++) {
-      const date = new Date(year, month, day);
-      if (date.getDay() !== 0 && date.getDay() !== 6) {
-        availableDates.push({
-          date: date.toISOString().split('T')[0],
-          availableTimes: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
-          hospitalId,
-          hospitalName: SIMULATION_HOSPITALS.find(h => h.id === hospitalId)?.name || ''
-        });
+    // 선택된 날짜에 예약 가능한 병원 필터링
+    const availableHospitals = SIMULATION_HOSPITALS.filter(hospital => {
+      // 주말이면 제외
+      const date = new Date(selectedDate);
+      if (date.getDay() === 0 || date.getDay() === 6) return false;
+
+      // 랜덤하게 예약 가능 여부 결정 (실제로는 백엔드에서 처리)
+      return Math.random() > 0.3; // 70% 확률로 예약 가능
+    });
+
+    return availableHospitals.map(hospital => ({
+      ...hospital,
+      isAvailable: true,  // 필터링된 병원은 모두 예약 가능
+      availableCount: Math.floor(Math.random() * 4) + 2  // 2~5개의 예약 가능 슬롯
+    }));
+  }
+
+  /**
+   * 예약 가능한 날짜 조회 API
+   * 
+   * [TODO: 실제 서비스 개발 시 구현 사항]
+   * 
+   * 1. API 엔드포인트 구현
+   *    - GET /api/v1/hospitals/available-dates
+   *    - Query Parameters: checkupType, region, startDate, endDate
+   *    - Response: AvailableDatesResponse
+   * 
+   * 2. 검진 종류별 병원 필터링
+   *    - 병원별 가능한 검진 프로그램 마스터 데이터 구축
+   *    - 검진 종류별 필수 장비/인력 정보 관리
+   *    - 검진 프로그램별 소요시간 관리
+   * 
+   * 3. 지역별 병원 관리
+   *    - 지역 마스터 데이터 구축 (포항/광양/서울 등)
+   *    - 권역별 병원 그룹핑
+   *    - 사용자 소속 지역에 따른 기본 필터링
+   *    - 원거리 병원 조회 옵션 제공
+   * 
+   * 4. 예약 가능 일자 관리
+   *    - 병원별 운영 시간 관리
+   *      > 기본 운영 시간
+   *      > 점심시간
+   *      > 공휴일 휴진 여부
+   *    - 병원별 블랙아웃 데이트 관리
+   *      > 정기 휴진일 (매월 n번째 m요일 등)
+   *      > 임시 휴진일
+   *      > 공휴일 처리
+   *    - 검진 프로그램별 예약 가능 시간대 관리
+   * 
+   * 5. 예약 가능 인원 관리
+   *    - 병원별 하루 최대 수용 가능 인원 설정
+   *      > 전체 수용인원
+   *      > 검진 종류별 수용인원
+   *      > 시간대별 수용인원
+   *    - 예약 현황 실시간 반영
+   *      > 기예약 인원 확인
+   *      > 잔여 예약 가능 인원 계산
+   *    - 동시성 제어
+   *      > 동시 예약 요청 처리
+   *      > 선착순 처리 로직
+   * 
+   * 6. 성능 최적화
+   *    - 캐싱 전략 수립
+   *      > Redis 등을 활용한 캐시 구현
+   *      > 캐시 갱신 주기 설정
+   *    - 실시간 데이터 처리
+   *      > WebSocket 적용 검토
+   *      > 폴링 주기 설정
+   *    - 대용량 트래픽 처리
+   *      > DB 인덱싱 최적화
+   *      > 커넥션 풀 관리
+   * 
+   * 7. 에러 처리
+   *    - 에러 케이스 정의
+   *      > 필수 파라미터 누락
+   *      > 유효하지 않은 검진 종류
+   *      > 예약 가능 병원 없음
+   *    - 에러 응답 포맷 정의
+   *    - 에러 로깅 및 모니터링
+   */
+  async getAvailableDates(checkupType: string): Promise<AvailableDatesResponse> {
+    console.log('[BookingAPI] getAvailableDates 호출됨:', { checkupType });
+    await new Promise(resolve => setTimeout(resolve, 600));
+
+    // 가용 날짜 생성 (2주 범위)
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 14);
+
+    const availableDates = [];
+    const currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      // 주말 제외
+      if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
+        // 랜덤하게 2-3개의 병원 선택
+        const selectedHospitals = SIMULATION_HOSPITALS
+          .filter(() => Math.random() > 0.3)
+          .slice(0, Math.floor(Math.random() * 2) + 2);
+
+        if (selectedHospitals.length > 0) {
+          availableDates.push({
+            date: currentDate.toISOString().split('T')[0],
+            availableHospitals: selectedHospitals.length,
+            hospitals: selectedHospitals
+          });
+        }
       }
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    return {
-      status: 'success',
+    const response: AvailableDatesResponse = {
+      status: 'success' as const,
       code: '200',
       message: '예약 가능 날짜 조회 성공',
       data: {
@@ -251,6 +323,8 @@ export class BookingAPI {
         total: availableDates.length
       }
     };
+
+    return response;
   }
   
   // 예약 생성

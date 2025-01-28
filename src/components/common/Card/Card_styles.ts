@@ -185,6 +185,7 @@ export const CardContainer = styled.div<StyledCardProps>`
     background: ${props => props.theme.colors.white};
     border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
 
     .hospital-thumbnail {
       width: 120px;
@@ -226,6 +227,24 @@ export const CardContainer = styled.div<StyledCardProps>`
           svg {
             color: ${props => props.theme.colors.text.secondary};
           }
+        }
+      }
+
+      .availability-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 4px;
+        
+        .available-count {
+          display: inline-flex;
+          align-items: center;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          background: ${props => props.theme.colors.blue}15;
+          color: ${props => props.theme.colors.blue};
         }
       }
 
@@ -600,5 +619,90 @@ export const SendButton = styled.button`
     background: ${props => props.theme.colors.disabled};
     cursor: not-allowed;
     opacity: 0.7;
+  }
+`;
+
+export const ReservationOptionsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+`;
+
+export const ReservationOptionCard = styled.div<{ $type: 'date' | 'hospital' }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: ${props => props.theme.colors.background.secondary};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: ${props => props.theme.colors.text.primary};
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  &:hover {
+    background: ${props => props.theme.colors.hover};
+  }
+`;
+
+export const OptionsGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 20px;
+`;
+
+export const OptionCard = styled.div<{ $type: 'date' | 'hospital' }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: ${props => props.theme.colors.background};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+
+  svg {
+    width: 32px;
+    height: 32px;
+    color: ${props => props.theme.colors.primary};
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: ${props => props.theme.colors.text.primary};
+    text-align: center;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: ${props => props.theme.colors.text.secondary};
+    text-align: center;
+    white-space: pre-line;
+  }
+
+  &:hover {
+    background: ${props => props.theme.colors.primary}08;
+    transform: translateY(-2px);
   }
 `;

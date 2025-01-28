@@ -7,17 +7,12 @@ export interface CheckupDateSelectorProps {
   maxDate?: Date;
   disabledDates?: Date[];
   maxSelections?: number;
-  checkupType?: string;
-  subtitle?: string;
   buttonText?: string;
   onButtonClick?: () => void;
-  checkboxOptions?: Array<{
-    id: string;
-    label: string;
-    checked: boolean;
-    onChange: (checked: boolean) => void;
-  }>;
   footer?: ReactNode;
+  renderDateContent?: (date: Date) => ReactNode;
+  showDateContent?: boolean;
+  availableCounts?: { [key: string]: number };
 }
 
 export interface StyledContainerProps {

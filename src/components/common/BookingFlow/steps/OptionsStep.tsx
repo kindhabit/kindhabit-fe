@@ -2,19 +2,36 @@ import React from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
 import { OptionsGrid, OptionCard } from '../BookingFlow_styles';
 
-const OptionsStep: React.FC<BookingStepProps> = ({ onNext }) => {
+const OptionsStep: React.FC<BookingStepProps> = ({ 
+  onNext,
+  bookingData,
+  onUpdateBookingData,
+  onAvailableDatesUpdate
+}) => {
   return (
     <OptionsGrid>
       <OptionCard
         $type="date"
-        onClick={() => onNext('date')}
+        onClick={async () => {
+          if (!bookingData?.bookingState) return;
+          
+          console.log('🔍 [이벤트] 날짜 우선으로 예약하기 버튼 클릭');
+          try {
+            const availableCounts = await bookingData.bookingState.handleDateFirstBooking();
+            console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
+            onAvailableDatesUpdate?.(availableCounts);
+            onNext('date');
+          } catch (error) {
+            console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
+          }
+        }}
       >
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" 
             stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <h3>날짜 우선으로<br />예약하기</h3>
-        <p>희망하는 날짜를 먼저<br />선택하여 예약합니다</p>
+        <p>희망하는 날짜를{'\n'}우선 선택하여{'\n'}예약합니다</p>
       </OptionCard>
 
       <OptionCard
@@ -28,7 +45,7 @@ const OptionsStep: React.FC<BookingStepProps> = ({ onNext }) => {
             stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
         <h3>병원 우선으로<br />예약하기</h3>
-        <p>희망하는 병원을 먼저<br />선택하여 예약합니다</p>
+        <p>희망하는 병원을{'\n'}우선 선택하여{'\n'}예약합니다</p>
       </OptionCard>
     </OptionsGrid>
   );

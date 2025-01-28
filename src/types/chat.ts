@@ -1,4 +1,5 @@
 import { CardProps } from '@/components/common/Card/Card_types';
+import { ReactNode } from 'react';
 
 namespace Message {
   export namespace Type {
@@ -12,7 +13,14 @@ namespace Message {
     export type LayoutType = 'grid' | 'slider';
 
     // 애니메이션 타입
-    export type Animation = 'fadeIn' | 'slideIn' | 'none';
+    export type Animation = 
+      | 'fadeIn'      // 페이드인
+      | 'slideIn'     // 아래에서 위로
+      | 'slideInLeft' // 왼쪽에서 오른쪽으로
+      | 'slideInRight'// 오른쪽에서 왼쪽으로
+      | 'zoomIn'      // 확대되면서 나타남
+      | 'bounceIn'    // 통통 튀면서 나타남
+      | 'none';       // 애니메이션 없음
   }
 
   // 기본 메시지 구조
@@ -123,4 +131,4 @@ export interface ChatContainerProps<T = string> {
   onSliderSelect?: (target: T) => void;
   sliderProps?: Message.Layout;
   'data-debug'?: boolean;
-} 
+}
