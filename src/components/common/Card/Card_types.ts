@@ -1,7 +1,7 @@
 import { DefaultTheme } from 'styled-components';
 import styled from 'styled-components';
 
-export type CardType = 'default' | 'namecard-A' | 'namecard-B' | 'hospital';
+export type CardType = 'default' | 'namecard-A' | 'namecard-B' | 'checkup-date' | 'hospital';
 export type CardLayoutType = 'grid' | 'slider';
 
 // 공통 속성
@@ -102,6 +102,14 @@ interface NameCardBProps {
   icon?: CardIcon;      // 프로필 이미지
 }
 
+// 검진 희망일 선택 카드 타입 속성
+interface CheckupDateCardProps {
+  type: 'checkup-date';
+  title: string;         // 검진 종류
+  subtitle: string;      // 안내 메시지
+  buttonText: string;    // 버튼 텍스트
+}
+
 // 병원 카드 타입 속성
 interface HospitalCardProps {
   type: 'hospital';
@@ -132,7 +140,13 @@ export interface CardLayoutProps {
 }
 
 // 최종 카드 Props
-export type CardProps = CommonCardProps & (DefaultCardProps | NameCardAProps | NameCardBProps | HospitalCardProps);
+export type CardProps = CommonCardProps & (
+  DefaultCardProps | 
+  NameCardAProps | 
+  NameCardBProps | 
+  CheckupDateCardProps |
+  HospitalCardProps
+);
 
 // 스타일 Props
 export interface StyledCardProps {

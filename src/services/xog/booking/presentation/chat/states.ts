@@ -236,9 +236,9 @@ export class ChatBookingState {
       title: hospital.name,
       subtitle: hospital.address,
       icon: { 
-        type: 'userImage',
+        type: 'userImage' as const,
         image: `/src/assets/hospital/${hospital.id}.png`,
-        gender: 'M',
+        gender: 'M' as const,
         fallbackEmoji: '🏥'
       },
       tags: hospital.availableCheckups,
@@ -263,6 +263,42 @@ export class ChatBookingState {
       },
       animation: 'slideIn'
     };
+  }
+
+  // 검진 희망일 선택 카드 생성
+  private createCheckupDateCard(checkupType: string): CardMessage {
+    const card = {
+      id: `checkup_date_${Date.now()}`,
+      type: 'checkup-date' as const,
+      title: `${checkupType} 검진 희망일 선택`,
+      subtitle: '예약 일자에 모든 검진을 진행 시',
+      buttonText: '희망일을 선택해주세요',
+      onClick: () => this.handleDateSelection()
+    };
+
+    return {
+      id: `date_${Date.now()}`,
+      sender: 'system',
+      display: 'card',
+      timestamp: Date.now(),
+      content: {
+        card: {
+          items: [card],
+          layout: {
+            type: 'grid' as Message.Type.LayoutType,
+            columns: 1,
+            spacing: '16px'
+          }
+        }
+      },
+      animation: 'slideIn'
+    };
+  }
+
+  // 날짜 선택 처리
+  private async handleDateSelection() {
+    // TODO: 날짜 선택 처리 로직 구현
+    console.log('날짜 선택 처리');
   }
 
   // 대상자 선택 처리

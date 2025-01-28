@@ -255,6 +255,49 @@ export const CardContainer = styled.div<StyledCardProps>`
     }
   `}
 
+  ${({ $type }) => $type === 'checkup-date' && css`
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background: ${props => props.theme.colors.white};
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    ${TitleSection} {
+      text-align: center;
+      
+      ${Title} {
+        font-size: 20px;
+        font-weight: 600;
+        color: ${props => props.theme.colors.text.primary};
+        margin-bottom: 8px;
+      }
+
+      .subtitle {
+        color: ${props => props.theme.colors.text.secondary};
+        font-size: 14px;
+        line-height: 1.5;
+      }
+    }
+
+    ${Button} {
+      width: 100%;
+      height: 48px;
+      border-radius: 10px;
+      background: ${props => props.theme.colors.primary};
+      border: none;
+      color: ${props => props.theme.colors.white};
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: auto;
+
+      &:hover {
+        background: ${props => props.theme.colors.primaryDark};
+      }
+    }
+  `}
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -345,7 +388,7 @@ export const TagContainer = styled.div`
 `;
 
 export const Tag = styled.span<{ 
-  $type?: 'default' | 'namecard-A' | 'namecard-B' | 'hospital' | 'badge';
+  $type?: 'default' | 'namecard-A' | 'namecard-B' | 'badge';
   $gender?: 'M' | 'F';
 }>`
   display: inline-flex;
@@ -383,12 +426,6 @@ export const Tag = styled.span<{
           top: 0;
           right: 0;
           border-radius: 10px;
-          background: ${props.theme.colors.primary}15;
-          color: ${props.theme.colors.primary};
-        `;
-      case 'hospital':
-        return css`
-          border-radius: 14px;
           background: ${props.theme.colors.primary}15;
           color: ${props.theme.colors.primary};
         `;
@@ -507,4 +544,61 @@ export const HeaderSection = styled.div`
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+`;
+
+export const PhoneInputContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 20px;
+`;
+
+export const PhoneInput = styled.input`
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid ${props => props.theme.colors.border};
+  border-radius: 8px;
+  font-size: 16px;
+  color: ${props => props.theme.colors.text.primary};
+  
+  &::placeholder {
+    color: ${props => props.theme.colors.text.placeholder};
+  }
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.theme.colors.primary};
+  }
+`;
+
+export const PhoneDescription = styled.p`
+  margin: 0;
+  font-size: 14px;
+  color: ${props => props.theme.colors.text.secondary};
+  text-align: center;
+`;
+
+export const SendButton = styled.button`
+  width: 100%;
+  margin-top: 24px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  background: ${props => props.theme.colors.primary};
+  color: ${props => props.theme.colors.white};
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: ${props => props.theme.colors.primaryDark};
+  }
+
+  &:disabled {
+    background: ${props => props.theme.colors.disabled};
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
 `;
