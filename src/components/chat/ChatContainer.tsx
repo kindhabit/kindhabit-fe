@@ -40,7 +40,7 @@ const ChatContainer = <T extends string = string>({
   }, []);
 
   const renderChatBubble = useCallback((message: Message.ChatMessage, index: number, prevType?: Message.Type.Display, prevHasLink?: boolean) => {
-    // 첫 번째 메시지면 무조건 isWaiting true
+    // 첫 번째 메시지면 isWaiting true
     const isMessageWaiting = index === 0;
     
     console.log('ChatBubble 렌더링 준비:', {
@@ -56,12 +56,14 @@ const ChatContainer = <T extends string = string>({
           prevType={prevType}
           prevHasLink={prevHasLink}
           isWaiting={isMessageWaiting}
+          $animation={index > 0 ? 'fadeIn' : undefined}
+          $animationDelay={index === 1 ? 7 : index * 0.5}
         />
       </div>
     );
   }, [messages.length]);
 
-  const renderSlider = useCallback((message: Message.ChatMessage) => {
+  const renderSlider = useCallback((message: Message.ChatMessage, index: number) => {
     if (!message.content.card?.items) {
       throw new Error('Slider message must have card items property');
     }
@@ -79,13 +81,15 @@ const ChatContainer = <T extends string = string>({
           cardMaxWidth: message.content.card.layout.cardMaxWidth,
           cardPadding: message.content.card.layout.cardPadding,
           cardBorderRadius: message.content.card.layout.cardBorderRadius,
-          ...sliderProps
+          ...sliderProps,
+          animation: 'fadeIn',
+          animationDelay: (index + 1) * 0.5
         }}
       />
     );
   }, [onSliderSelect, sliderProps]);
 
-  const renderCard = useCallback((message: Message.ChatMessage) => {
+  const renderCard = useCallback((message: Message.ChatMessage, index: number) => {
     if (!message.content.card?.items) {
       throw new Error('Card message must have card items property');
     }
@@ -101,7 +105,9 @@ const ChatContainer = <T extends string = string>({
           cardMinWidth: message.content.card.layout.cardMinWidth,
           cardMaxWidth: message.content.card.layout.cardMaxWidth,
           cardPadding: message.content.card.layout.cardPadding,
-          cardBorderRadius: message.content.card.layout.cardBorderRadius
+          cardBorderRadius: message.content.card.layout.cardBorderRadius,
+          animation: 'fadeIn',
+          animationDelay: (index + 1) * 0.5
         }}
       />
     );
@@ -114,9 +120,9 @@ const ChatContainer = <T extends string = string>({
 
     switch (message.display) {
       case 'slider':
-        return renderSlider(message);
+        return renderSlider(message, index);
       case 'card':
-        return renderCard(message);
+        return renderCard(message, index);
       case 'text':
         return renderChatBubble(message, index, prevType, prevHasLink);
       default:

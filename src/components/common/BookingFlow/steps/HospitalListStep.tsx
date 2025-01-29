@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
 import { StepContainer, StyledFlowSplash } from '../BookingFlow_styles';
-import { CardContainer, selectedCardStyle } from '@/components/common/Card/Card_styles';
+import { CardContainer } from '@/components/common/Card/Card_styles';
 import { Hospital } from '@/services/xog/booking/types';
 import styled from 'styled-components';
 
@@ -20,90 +20,14 @@ const HospitalList = styled.div`
   gap: 12px;
   flex: 1;
   padding-bottom: 20px;
-`;
-
-const HospitalCard = styled(CardContainer)<{ $selected?: boolean }>`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  padding: 16px;
-  background: #FFFFFF;
-  border: none;
-  border-radius: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  cursor: pointer;
-  transition: all 0.2s ease-out;
-
-  ${props => props.$selected && selectedCardStyle}
-
-  &:hover {
-    background: ${props => props.theme.colors.primary}10;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar {
+    display: none;
   }
-
-  .thumbnail {
-    width: 120px;
-    height: 120px;
-    flex-shrink: 0;
-    border-radius: 12px;
-    overflow: hidden;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .fallback {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #F5F5F5;
-      color: ${props => props.theme.colors.text.secondary};
-      font-size: 14px;
-
-      &.hidden {
-        display: none;
-      }
-    }
-  }
-
-  .content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    .title {
-      font-size: 18px;
-      font-weight: 600;
-      color: ${props => props.theme.colors.text.primary};
-      margin: 0;
-    }
-
-    .subtitle {
-      color: ${props => props.theme.colors.text.secondary};
-      font-size: 14px;
-      margin: 0;
-    }
-
-    .tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-
-      .tag {
-        padding: 4px 8px;
-        background: #F5F5F5;
-        border-radius: 6px;
-        font-size: 12px;
-        color: ${props => props.theme.colors.text.secondary};
-      }
-    }
-  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const HospitalListStep: React.FC<BookingStepProps> = ({
@@ -142,8 +66,9 @@ const HospitalListStep: React.FC<BookingStepProps> = ({
     <FixedContainer>
       <HospitalList>
         {hospitals.map((hospital) => (
-          <HospitalCard 
+          <CardContainer 
             key={hospital.id}
+            $type="hospital-A"
             $selected={bookingData?.selectedHospital?.id === hospital.id}
             onClick={() => handleHospitalSelect(hospital)}
           >
@@ -169,7 +94,7 @@ const HospitalListStep: React.FC<BookingStepProps> = ({
                 ))}
               </div>
             </div>
-          </HospitalCard>
+          </CardContainer>
         ))}
       </HospitalList>
       <StyledFlowSplash 

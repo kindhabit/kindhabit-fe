@@ -134,17 +134,13 @@ export interface CardLayoutProps {
   gridColumns?: number;
   gap?: string;
   showNavigator?: boolean;
+  onCardSelect?: (card: CardProps) => void;
   cardMinWidth?: string;
   cardMaxWidth?: string;
   cardPadding?: string;
   cardBorderRadius?: string;
-  onComplete?: () => void;
-  onCardSelect?: (card: CardProps) => void;
-  showTags?: boolean;
-  showDescription?: boolean;
-  iconSize?: string;
-  titleSize?: string;
-  descriptionSize?: string;
+  animation?: 'fadeIn' | 'slideIn' | 'zoomIn' | 'bounceIn' | 'pulse';
+  animationDelay?: number;
 }
 
 // 최종 카드 Props
@@ -211,7 +207,6 @@ export interface SliderStyleProps extends StyledCardProps {
 
 export interface SliderProps extends SliderStyleProps {
   cards: CardProps[];
-  onComplete?: () => void;
   onCardSelect?: (card: CardProps) => void;
 }
 

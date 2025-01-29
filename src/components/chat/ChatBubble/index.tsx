@@ -21,6 +21,8 @@ interface ChatBubbleProps {
   buttonPosition?: 'bottom' | 'right';
   isWaiting?: boolean;
   onClick?: () => void;
+  $animation?: 'fadeIn' | 'slideIn' | 'zoomIn' | 'bounceIn' | 'pulse';
+  $animationDelay?: number;
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({
@@ -30,11 +32,13 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   prevHasLink, 
   buttonPosition = 'bottom', 
   isWaiting = false, 
-  onClick 
+  onClick,
+  $animation,
+  $animationDelay
 }) => {
   const debugMode = useRecoilValue(debugModeState);
   const [showSplash, setShowSplash] = React.useState(false);
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isPulsing, setIsPulsing] = React.useState(false);
 
   console.log('ChatBubble 렌더링:', {
     messageId: message.id,
@@ -51,36 +55,19 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
 
   const shouldShowProfile = message.content.text?.profile?.show && 
     message.content.text?.profile?.text && 
-    (prevSender !== 'system' || !prevSender);
+    (prevSender !== 'system' || !prevSender) &&
+    !prevType;
 
   React.useEffect(() => {
-    // message.state?.isWaiting이 false면 무조건 스플래시를 숨김
-    if (message.state?.isWaiting === false) {
-      console.log('대기 상태 해제됨:', {
-        messageId: message.id,
-        messageState: message.state
-      });
-      
-      // 2.5초 후에 완전히 제거
-      setTimeout(() => {
-        setShowSplash(false);
-      }, 2500);
-      
-      return;
-    }
-
-    // 그 외의 경우 isWaiting prop에 따라 결정
     if (isWaiting) {
-      console.log('대기 상태 시작:', {
-        messageId: message.id,
-        isWaiting
-      });
-      // 0.8초 후에 스플래시 표시
+      setIsPulsing(true);
+      setShowSplash(true);
       setTimeout(() => {
-        setShowSplash(true);
-      }, 800);
+        setIsPulsing(false);
+        setShowSplash(false);
+      }, 6000);
     }
-  }, [isWaiting, message.state?.isWaiting, message.id]);
+  }, [isWaiting]);
 
   return (
     <BubbleWrapper 
@@ -106,6 +93,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
           $sender={message.sender}
           data-debug={debugMode} 
           $hasButtons={buttonPosition === 'bottom' && !!message.content.actions?.buttons}
+          $animation={isPulsing ? 'pulse' : undefined}
         >
           {message.content.text && (
             <div className="message-text">
@@ -115,7 +103,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
                   variant="indicator"
                   variantProps={{ 
                     $placement: message.sender === 'system' ? 'right' : 'left',
-                    $offset: 4,
+                    $offset: 2,
                     $verticalAlign: 'center'
                   }}
                   isVisible={true}

@@ -13,7 +13,7 @@ export interface BubbleProps extends StyledProps {
   $prevType?: Message.Type.Display;
   $hasLink?: boolean;
   $margin?: string;
-  $animation?: Message.Type.Animation;
+  $animation?: 'fadeIn' | 'slideIn' | 'zoomIn' | 'bounceIn' | 'pulse';
   $animationDelay?: number;
   $verticalAlign?: 'top' | 'center' | 'bottom';
 }
@@ -22,7 +22,7 @@ export interface MessageProps extends StyledProps {
   $type?: Message.Type.Display;
   $sender?: Message.Type.Sender;
   $hasButtons?: boolean;
-  $animation?: Message.Type.Animation;
+  $animation?: 'fadeIn' | 'slideIn' | 'zoomIn' | 'bounceIn' | 'pulse';
   $animationDelay?: number;
 }
 

@@ -19,20 +19,28 @@ const CheckupDateSelector: React.FC<CheckupDateSelectorProps> = ({
 }) => {
   return (
     <Container $hasFooter={!!footer || !!buttonText}>
-      <Calendar
-        selectedDates={selectedDates}
-        onDateSelect={onDateSelect}
-        minDate={minDate}
-        maxDate={maxDate}
-        disabledDates={disabledDates}
-        maxSelections={maxSelections}
-        availableCounts={availableCounts}
-        buttonText={buttonText}
-        onButtonClick={onButtonClick}
-        renderDateContent={renderDateContent}
-        showDateContent={showDateContent}
-      />
-      {footer}
+      <div className="calendar-wrapper">
+        <div className="calendar-grid">
+          <Calendar
+            selectedDates={selectedDates}
+            onDateSelect={onDateSelect}
+            minDate={minDate}
+            maxDate={maxDate}
+            disabledDates={disabledDates}
+            maxSelections={maxSelections}
+            availableCounts={availableCounts}
+            buttonText={buttonText}
+            onButtonClick={onButtonClick}
+            renderDateContent={renderDateContent}
+            showDateContent={showDateContent}
+          />
+        </div>
+      </div>
+      {(footer || buttonText) && (
+        <div className="footer">
+          {footer}
+        </div>
+      )}
     </Container>
   );
 };

@@ -3,11 +3,37 @@ import { StyledContainerProps } from './CheckupDateSelector_types';
 
 export const Container = styled.div<StyledContainerProps>`
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: ${props => props.theme.colors.white};
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  margin-bottom: ${props => props.hasFooter ? '0' : '16px'};
+
+  // 캘린더를 감싸는 wrapper
+  .calendar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    // 캘린더 내부 간격 조정
+    .calendar-grid {
+      flex: 1;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      row-gap: 1rem;
+    }
+  }
+
+  // Footer 영역은 하단에 고정
+  .footer {
+    margin-top: auto;
+    padding: 16px 24px;
+    background: ${props => props.theme.colors.background};
+    border-top: 1px solid ${props => props.theme.colors.border};
+  }
 `;
 
 export const Header = styled.div`
@@ -33,6 +59,7 @@ export const Footer = styled.div`
   border-top: 1px solid ${props => props.theme.colors.border};
   display: flex;
   justify-content: flex-end;
+  margin-top: auto;
 `;
 
 export const Button = styled.button`

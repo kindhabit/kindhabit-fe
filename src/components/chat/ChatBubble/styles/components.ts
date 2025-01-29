@@ -29,8 +29,8 @@ export const BubbleWrapper = styled.div.withConfig({ shouldForwardProp })<Bubble
   ${({ $animation, $animationDelay }) => {
     if (!$animation) return '';
     
-    const duration = $animation === 'bounceIn' ? '1.5s' : '1.2s';
-    const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+    const duration = $animation === 'pulse' ? '2s' : $animation === 'bounceIn' ? '1.5s' : '1.2s';
+    const easing = $animation === 'pulse' ? 'ease-in-out' : 'cubic-bezier(0.22, 1, 0.36, 1)';
     const delay = $animationDelay || 0;
     
     return css`
@@ -39,7 +39,8 @@ export const BubbleWrapper = styled.div.withConfig({ shouldForwardProp })<Bubble
       animation-timing-function: ${easing};
       animation-fill-mode: forwards;
       animation-delay: ${delay}s;
-      opacity: 0;  // 시작 상태
+      animation-iteration-count: ${$animation === 'pulse' ? '3' : '1'};
+      ${$animation !== 'pulse' && 'opacity: 0;'}
     `;
   }}
 
@@ -149,6 +150,18 @@ export const BubbleWrapper = styled.div.withConfig({ shouldForwardProp })<Bubble
       opacity: 1;
     }
   }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.03);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
 `;
 
 export const BubbleContainer = styled.div.withConfig({ shouldForwardProp })<BubbleProps>`
@@ -202,6 +215,24 @@ export const MessageBubble = styled.div.withConfig({ shouldForwardProp })<Messag
   font-size: 14px;
   line-height: 1.4;
   flex: 1;
+
+  ${({ $animation, $animationDelay }) => {
+    if (!$animation) return '';
+    
+    const duration = $animation === 'pulse' ? '2s' : $animation === 'bounceIn' ? '1.5s' : '1.2s';
+    const easing = $animation === 'pulse' ? 'ease-in-out' : 'cubic-bezier(0.22, 1, 0.36, 1)';
+    const delay = $animationDelay || 0;
+    
+    return css`
+      animation-name: ${$animation};
+      animation-duration: ${duration};
+      animation-timing-function: ${easing};
+      animation-fill-mode: forwards;
+      animation-delay: ${delay}s;
+      animation-iteration-count: ${$animation === 'pulse' ? '3' : '1'};
+      ${$animation !== 'pulse' && 'opacity: 0;'}
+    `;
+  }}
 
   .message-text {
     font-size: 14px;

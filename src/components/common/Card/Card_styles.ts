@@ -266,23 +266,27 @@ export const CardContainer = styled.div<StyledCardProps>`
   ${({ $type }) => $type === 'hospital-A' && css`
     display: flex;
     flex-direction: row;
-    gap: 20px;
-    padding: 20px;
-    height: 124px;
+    gap: 16px;
+    padding: 16px;
+    height: 80px;
     background: ${props => props.theme.colors.white};
-    border-radius: 24px;
+    border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
     cursor: pointer;
     transition: all 0.2s ease-out;
 
     .thumbnail {
-      width: 100px;
-      height: 100px;
+      width: 60px;
+      height: 60px;
       flex-shrink: 0;
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
       position: relative;
       background: #F5F5F5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
       
       img {
         width: 100%;
@@ -299,7 +303,7 @@ export const CardContainer = styled.div<StyledCardProps>`
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 16px;
         font-weight: 600;
         color: #CCCCCC;
       }
@@ -309,7 +313,8 @@ export const CardContainer = styled.div<StyledCardProps>`
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
+      justify-content: center;
     }
 
     .title {
@@ -330,7 +335,7 @@ export const CardContainer = styled.div<StyledCardProps>`
 
     .tags {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin: 0;
       overflow-x: auto;
       white-space: nowrap;
@@ -349,8 +354,8 @@ export const CardContainer = styled.div<StyledCardProps>`
       justify-content: center;
       background-color: #EEF3FF;
       color: #327FEB;
-      padding: 4px 12px;
-      border-radius: 16px;
+      padding: 2px 8px;
+      border-radius: 12px;
       font-size: 10px;
       font-weight: 500;
     }

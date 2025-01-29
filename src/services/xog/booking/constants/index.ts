@@ -51,6 +51,44 @@ export const MOCK_AVAILABLE_TIMES = [
 
 // 가상 병원 데이터
 export const MOCK_HOSPITALS = [
-  { id: 'hosp1', name: '포항병원', address: '경상북도 포항시 남구' },
-  { id: 'hosp2', name: '서울병원', address: '서울특별시 강남구' }
+  {
+    id: 'H001',
+    name: '강남세브란스병원',
+    address: '서울특별시 강남구 언주로 211',
+    availableCheckups: ['일반건강검진', '암검진', '뇌검진', '심장검진'],
+    contact: {
+      manager: '김담당',
+      phone: '02-1234-5678'
+    }
+  },
+  {
+    id: 'H002',
+    name: '서울아산병원',
+    address: '서울특별시 송파구 올림픽로43길 88',
+    availableCheckups: ['일반건강검진', '암검진', '특화검진'],
+    contact: {
+      manager: '이담당',
+      phone: '02-2345-6789'
+    }
+  },
+  {
+    id: 'H003',
+    name: '삼성서울병원',
+    address: '서울특별시 강남구 일원로 81',
+    availableCheckups: ['일반건강검진', '암검진', '심장검진'],
+    contact: {
+      manager: '박담당',
+      phone: '02-3456-7890'
+    }
+  },
+  {
+    id: 'H004',
+    name: '서울대학교병원',
+    address: '서울특별시 종로구 대학로 101',
+    availableCheckups: ['일반건강검진', '암검진', '뇌검진'],
+    contact: {
+      manager: '최담당',
+      phone: '02-4567-8901'
+    }
+  }
 ]; 

@@ -228,7 +228,15 @@ export class ChatBookingState {
     };
   }
 
-  
+  // 모든 병원 목록 가져오기
+  public async getAllHospitals(): Promise<Hospital[]> {
+    try {
+      return await this.api.getHospitalList();
+    } catch (error) {
+      console.error('병원 목록 조회 중 오류:', error);
+      return [];
+    }
+  }
 
   // 병원 선택 처리
   private async handleHospitalSelection(hospital: Hospital) {
@@ -543,7 +551,11 @@ export class ChatBookingState {
       bookingState: this.bookingState,
       bookingInfo: this.bookingInfo,
       waitingMessageId: this.waitingMessageId,
-      error: this.error
+      error: this.error,
+      getHospitalsForDate: this.getHospitalsForDate.bind(this),
+      getAvailableDates: this.getAvailableDates.bind(this),
+      handleDateFirstBooking: this.handleDateFirstBooking.bind(this),
+      getAllHospitals: this.getAllHospitals.bind(this)
     };
   }
 

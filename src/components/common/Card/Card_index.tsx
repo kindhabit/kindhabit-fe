@@ -39,6 +39,7 @@ import { AvailableDatesResponse } from '@/services/xog/booking/types';
 import { ChatBookingState } from '@/services/xog/booking/presentation/chat/booking_main';
 import { Splash } from '../Splash';
 import { useTheme } from 'styled-components';
+
 import { MdCheck } from 'react-icons/md';
 
 interface CardListProps {
@@ -59,7 +60,6 @@ export const CardList: React.FC<CardListProps> = ({
     cardMaxWidth,
     cardPadding,
     cardBorderRadius,
-    onComplete,
     onCardSelect 
   } = layout;
 
@@ -89,11 +89,6 @@ export const CardList: React.FC<CardListProps> = ({
       const gap = parseInt(layout.gap || '16', 10);
       const newIndex = Math.round(scrollLeft / (cardWidth + gap));
       setCurrentIndex(newIndex);
-      
-      // 마지막 카드에 도달했을 때 onComplete 호출
-      if (newIndex === cards.length - 1) {
-        onComplete?.();
-      }
     }
   };
 

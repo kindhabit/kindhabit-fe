@@ -19,8 +19,8 @@ const SIMULATION_DATA = {
       id: '1',
       name: '김엠텍',
       birthDate: '840413',
-      department: '개발팀',
-      section: '프론트엔드',
+      department: '포항창강사업실',
+      section: '정비섹션',
       checkupYear: '2024',
       employeeId: '123456',
       gender: 'M',
@@ -162,7 +162,7 @@ const SIMULATION_HOSPITALS: Hospital[] = [
 export class BookingAPI {
   // 사용자 정보 조회
   async getUserInfo(): Promise<UserInfoResponse> {
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 6000));
     
     // 연도와 사번으로 사용자 정보 조회 시뮬레이션
     const users = Object.values(SIMULATION_DATA.users).map(user => ({
@@ -200,8 +200,13 @@ export class BookingAPI {
   }
 
   // 병원 목록 조회
-  async getHospitalList(selectedDate: string): Promise<Hospital[]> {
+  async getHospitalList(selectedDate?: string): Promise<Hospital[]> {
     await new Promise(resolve => setTimeout(resolve, 600));
+
+    // 날짜가 없으면 모든 병원 반환
+    if (!selectedDate) {
+      return SIMULATION_HOSPITALS;
+    }
 
     // 선택된 날짜에 예약 가능한 병원 필터링
     const availableHospitals = SIMULATION_HOSPITALS.filter(hospital => {

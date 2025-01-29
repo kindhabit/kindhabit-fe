@@ -123,7 +123,7 @@ export const SplashImage = styled.img<{ $animation?: string; $variant?: 'standal
   width: ${({ $variant }) => {
     switch ($variant) {
       case 'indicator':
-        return '75px';
+        return '24px';
       case 'flowItem':
         return '120px';
       case 'standalone':
