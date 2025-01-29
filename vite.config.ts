@@ -8,13 +8,5 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src')
     }
-  },
-  optimizeDeps: {
-    exclude: ['@/components/chat', '@/core/components/common']
-  },
-  server: {
-    watch: {
-      ignored: ['**/src/components/chat/**', '**/src/core/components/common/**']
-    }
   }
 }); 
