@@ -39,23 +39,20 @@ export const Splash: React.FC<SplashProps> = ({
     ? '/assets/mdx.png' 
     : '/assets/splash.png';
 
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
   React.useEffect(() => {
     if (isVisible) {
       const checkSplashImage = () => {
         const img = new Image();
-        img.onload = () => {
-          console.log('Splash image loaded successfully:', {
-            path: theme.assets?.splash?.image || defaultSplashImage,
-            size: `${img.width}x${img.height}`,
-            status: 'success',
-            variant,
-            message
-          });
-        };
-        img.onerror = (error) => {
+        img.onload = handleImageLoad;
+        img.onerror = () => {
           console.error('Failed to load splash image:', {
             path: theme.assets?.splash?.image || defaultSplashImage,
-            error: error,
             status: 'error',
             variant,
             message

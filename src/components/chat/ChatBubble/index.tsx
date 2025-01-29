@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useRecoilValue } from 'recoil';
 import { debugModeState } from '@/core/store/debug';
 import { Message } from '@/types/chat';
@@ -40,13 +40,10 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   const [showSplash, setShowSplash] = React.useState(false);
   const [isPulsing, setIsPulsing] = React.useState(false);
 
-  console.log('ChatBubble 렌더링:', {
-    messageId: message.id,
-    sender: message.sender,
-    isWaiting,
-    messageState: message.state,
-    text: message.content.text?.value
-  });
+  const text = useMemo(() => {
+    if (!message?.content?.text?.value) return '';
+    return message.content.text.value;
+  }, [message]);
 
   const handleButtonClick = (buttonOnClick?: () => void) => {
     if (onClick) onClick();
@@ -97,7 +94,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
         >
           {message.content.text && (
             <div className="message-text">
-              {message.content.text.value}
+              {text}
               {showSplash && (
                 <Splash
                   variant="indicator"

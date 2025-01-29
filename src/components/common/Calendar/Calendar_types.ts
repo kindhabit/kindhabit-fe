@@ -1,5 +1,6 @@
 import { DefaultTheme } from 'styled-components';
 import { ReactNode } from 'react';
+import { AvailableDatesResponse } from '@/services/xog/booking/types';
 
 export type SelectionMode = 'date-first' | 'hospital-first';
 
@@ -17,6 +18,7 @@ export interface CalendarProps {
   onButtonClick?: () => void;
   renderDateContent?: (date: Date) => ReactNode;
   showDateContent?: boolean;
+  availableDates?: AvailableDatesResponse;
 }
 
 export interface StyledCalendarProps {

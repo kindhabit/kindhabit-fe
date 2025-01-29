@@ -598,9 +598,9 @@ export class ChatBookingState {
   }
 
   // 날짜 우선 예약 처리
-  async handleDateFirstBooking(): Promise<Record<string, number>> {
+  async handleDateFirstBooking(checkupType: string): Promise<Record<string, number>> {
     try {
-      const response = await this.api.getAvailableDates(MOCK_HOSPITALS[0].id);
+      const response = await this.api.getAvailableDates(checkupType);
       
       if (response.data.dates) {
         // 캐시 초기화

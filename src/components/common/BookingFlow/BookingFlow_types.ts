@@ -64,4 +64,5 @@ export interface BookingData {
   additionalCheckups?: CheckupItem[];
   consultationType?: 'direct' | 'invite';
   selectedOption?: 'date' | 'hospital';
+  checkupType?: string;
 } 

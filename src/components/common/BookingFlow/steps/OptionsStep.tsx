@@ -79,23 +79,35 @@ const OptionsStep: React.FC<BookingStepProps> = ({
     try {
       if (!bookingState) return;
       
-      onUpdateBookingData?.({ selectedOption: 'date' });
+      console.log('날짜 우선 예약 시작:', { bookingData });
+      
+      onUpdateBookingData?.({ 
+        selectedOption: 'date',
+        checkupType: bookingData?.checkupType || '일반+특수'
+      });
       setShowSplash(true);
-      const counts = await bookingState.handleDateFirstBooking();
+      const counts = await bookingState.handleDateFirstBooking(bookingData?.checkupType || '일반+특수');
+      console.log('날짜별 가용 병원 수:', counts);
+      
+      const availableDates = Object.entries(counts).map(([date, count]) => {
+        const dateData = bookingState.getHospitalsForDate(date);
+        return {
+          date,
+          availableHospitals: count,
+          hospitals: dateData
+        };
+      });
       
       const response: AvailableDatesResponse = {
         status: 'success' as const,
         code: 'SUCCESS',
         message: 'OK',
         data: {
-          dates: Object.entries(counts).map(([date, count]) => ({
-            date,
-            availableHospitals: count,
-            hospitals: []
-          })),
-          total: Object.keys(counts).length
+          dates: availableDates,
+          total: availableDates.length
         }
       };
+      console.log('생성된 응답 데이터:', response);
 
       onAvailableDatesUpdate?.(response);
       setTimeout(() => {

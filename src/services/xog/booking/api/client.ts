@@ -47,7 +47,7 @@ const SIMULATION_HOSPITALS: Hospital[] = [
     id: 'PH01', 
     name: '세명기독병원', 
     address: '포항',
-    availableCheckups: ['일반', '일반+특수', '종합'],
+    availableCheckups: ['H001', '일반', '일반+특수', '종합'],
     contact: {
       manager: '금인규 실장',
       phone: '054-289-1438'
@@ -57,7 +57,7 @@ const SIMULATION_HOSPITALS: Hospital[] = [
     id: 'PH02', 
     name: '성모병원', 
     address: '포항',
-    availableCheckups: ['일반', '일반+특수', '종합'],
+    availableCheckups: ['H001', '일반', '일반+특수', '종합'],
     contact: {
       manager: '이상규 팀장',
       phone: '054-260-8189'
@@ -68,7 +68,7 @@ const SIMULATION_HOSPITALS: Hospital[] = [
     id: 'PH03', 
     name: '대구KMI의학연구소', 
     address: '포항',
-    availableCheckups: ['일반', '종합'],
+    availableCheckups: ['H001', '일반', '종합'],
     contact: {
       manager: '㈜옴니케어 추교석 매니저',
       phone: '053-476-9388'
@@ -300,11 +300,16 @@ export class BookingAPI {
     const availableDates = [];
     const currentDate = new Date(startDate);
 
+    // checkupType에 따른 병원 필터링
+    const availableHospitals = SIMULATION_HOSPITALS.filter(hospital => 
+      hospital.availableCheckups.includes(checkupType)
+    );
+
     while (currentDate <= endDate) {
       // 주말 제외
       if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) {
-        // 랜덤하게 2-3개의 병원 선택
-        const selectedHospitals = SIMULATION_HOSPITALS
+        // 필터링된 병원 중에서 랜덤하게 2-3개 선택
+        const selectedHospitals = availableHospitals
           .filter(() => Math.random() > 0.3)
           .slice(0, Math.floor(Math.random() * 2) + 2);
 
@@ -319,8 +324,10 @@ export class BookingAPI {
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    const response: AvailableDatesResponse = {
-      status: 'success' as const,
+    console.log('[BookingAPI] 응답 데이터:', { availableDates });
+
+    return {
+      status: 'success',
       code: '200',
       message: '예약 가능 날짜 조회 성공',
       data: {
@@ -328,8 +335,6 @@ export class BookingAPI {
         total: availableDates.length
       }
     };
-
-    return response;
   }
   
   // 예약 생성

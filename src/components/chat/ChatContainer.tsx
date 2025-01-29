@@ -43,12 +43,6 @@ const ChatContainer = <T extends string = string>({
     // 첫 번째 메시지면 isWaiting true
     const isMessageWaiting = index === 0;
     
-    console.log('ChatBubble 렌더링 준비:', {
-      messageId: message.id,
-      isWaiting: isMessageWaiting,
-      isFirstMessage: index === 0
-    });
-    
     return (
       <div key={message.id} ref={index === messages.length - 1 ? lastBubbleRef : undefined}>
         <ChatBubble
