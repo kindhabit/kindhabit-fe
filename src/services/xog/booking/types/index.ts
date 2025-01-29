@@ -46,7 +46,7 @@ export interface BookingInfo {
   };
 }
 
-// Hospital 타입
+// 기본 병원 정보 타입
 export interface Hospital {
   id: string;
   name: string;
@@ -57,9 +57,35 @@ export interface Hospital {
     phone: string;
   };
   emr?: string;
-  isAvailable?: boolean;  // 예약 가능 여부
-  availableCount?: number;  // 예약 가능 인원
 }
+
+// 캐시된 병원 데이터 타입 (기본 Hospital 타입 확장)
+export interface CachedHospitalData extends Hospital {
+  availableCount: number;  // 예약 가능 슬롯 수
+  image?: string;         // 병원 이미지 경로
+}
+
+// 날짜별 캐시 데이터 타입
+export interface DateCacheEntry {
+  count: number;
+  hospitals: CachedHospitalData[];
+}
+
+export interface DateCache {
+  [date: string]: DateCacheEntry;
+}
+
+// UI 표시용 카운트 캐시 타입
+export interface CountCache {
+  [date: string]: number;
+}
+
+// 병원 변환 유틸리티 함수
+export const convertToHospitalCache = (hospital: Hospital): CachedHospitalData => ({
+  ...hospital,
+  availableCount: Math.floor(Math.random() * 4) + 2,  // 2~5개의 예약 가능 슬롯
+  image: `/src/assets/hospital/${hospital.id}.jpg`     // 이미지 경로 추가
+});
 
 // API 응답 기본 구조
 interface ApiResponse<T> {

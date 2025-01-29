@@ -1,6 +1,6 @@
 import React from 'react';
-import { Routes } from './routes';
+import Router from '@/Router';
 
 export default function XOGPage() {
-  return <Routes />;
+  return <Router />;
 } 

@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
-import { StepContainer } from '../BookingFlow_styles';
-import { Splash } from '@/components/common/Splash';
+import { StepContainer, StyledFlowSplash } from '../BookingFlow_styles';
 import CheckupDateSelector from '@/components/common/CheckupDateSelector/CheckupDateSelector_index';
 import styled from 'styled-components';
 
@@ -25,41 +24,47 @@ const DateStep: React.FC<BookingStepProps> = ({
   bookingData,
   availableDates: propAvailableDates 
 }) => {
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
+  const [selectedDates, setSelectedDates] = useState<Date[]>(
+    bookingData?.selectedDate ? [bookingData.selectedDate] : []
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(false);
 
   // 가용 병원 수는 이미 변환된 형태로 전달됨
   const availableCounts = useMemo(() => {
-    return propAvailableDates || {};
+    if (!propAvailableDates?.data?.dates) return {};
+    
+    return propAvailableDates.data.dates.reduce((acc, date) => {
+      acc[date.date] = date.availableHospitals;
+      return acc;
+    }, {} as Record<string, number>);
   }, [propAvailableDates]);
 
-  const handleDateSelect = (date: Date | Date[]) => {
-    if (Array.isArray(date)) {
-      setSelectedDates(date);
-      onUpdateBookingData?.({ selectedDate: date[0] });
-    } else {
-      setSelectedDates([date]);
-      onUpdateBookingData?.({ selectedDate: date });
+  // bookingData.selectedDate가 변경될 때 selectedDates 업데이트
+  useEffect(() => {
+    if (bookingData?.selectedDate) {
+      setSelectedDates([bookingData.selectedDate]);
     }
+  }, [bookingData?.selectedDate]);
+
+  const handleDateSelect = (dates: Date[]) => {
+    if (dates.length === 0) return;
+    
+    setSelectedDates(dates);
+    onUpdateBookingData?.({ 
+      selectedDate: dates[0] 
+    });
   };
 
   const handleButtonClick = () => {
     if (selectedDates.length > 0) {
-      onNext('hospital-list');
+      setShowSplash(true);
+      setTimeout(() => {
+        setShowSplash(false);
+        onNext('hospital-list');
+      }, 3000);
     }
   };
-
-  if (showSplash) {
-    return (
-      <Splash
-        variant="standalone"
-        message="가용 병원을 조회하는 중입니다..."
-        isVisible={true}
-        animation="pulse"
-      />
-    );
-  }
 
   return (
     <StepContainer>
@@ -91,6 +96,15 @@ const DateStep: React.FC<BookingStepProps> = ({
           return null;
         }}
         showDateContent={true}
+      />
+      <StyledFlowSplash 
+        variant="flowItem"
+        isVisible={showSplash}
+        animation="pulse"
+        variantProps={{
+          $verticalAlign: 'bottom',
+          $offset: 80
+        }}
       />
     </StepContainer>
   );

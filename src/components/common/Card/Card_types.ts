@@ -1,7 +1,7 @@
 import { DefaultTheme } from 'styled-components';
 import styled from 'styled-components';
 
-export type CardType = 'default' | 'namecard-A' | 'namecard-B' | 'checkup-date' | 'hospital';
+export type CardType = 'default' | 'namecard-A' | 'namecard-B' | 'checkup-date' | 'hospital' | 'hospital-A';
 export type CardLayoutType = 'grid' | 'slider';
 
 // 공통 속성
@@ -120,6 +120,14 @@ interface HospitalCardProps {
   buttonText: string;    // 버튼 텍스트
 }
 
+// 병원 A타입 카드 속성
+interface HospitalACardProps {
+  type: 'hospital-A';
+  title: string;         // 병원명
+  subtitle: string;      // 주소
+  tags: string[];        // 검진 종류
+}
+
 // 레이아웃 속성
 export interface CardLayoutProps {
   layoutType: CardLayoutType;
@@ -145,7 +153,8 @@ export type CardProps = CommonCardProps & (
   NameCardAProps | 
   NameCardBProps | 
   CheckupDateCardProps |
-  HospitalCardProps
+  HospitalCardProps |
+  HospitalACardProps
 );
 
 // 스타일 Props

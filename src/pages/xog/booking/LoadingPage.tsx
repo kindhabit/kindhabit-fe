@@ -11,8 +11,8 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ type = 'chat' }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate(`/booking/${type}`, { replace: true });
-    }, 2000); // 2초 후 해당 타입의 페이지로 이동
+      navigate(`booking/${type}`, { replace: true });
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [navigate, type]);
@@ -21,7 +21,7 @@ const LoadingPage: React.FC<LoadingPageProps> = ({ type = 'chat' }) => {
     <Splash 
       variant="standalone"
       variantProps={{ $type: 'fixed' }}
-      message={type === 'chat' ? "예약 상담을 준비하고 있어요..." : "예약 페이지를 준비하고 있어요..."}
+      message="예약 상담을 준비하고 있어요..."
       isVisible={true}
       animation="fade"
     />

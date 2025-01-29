@@ -1,77 +1,154 @@
 import React, { useState } from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
-import { OptionsGrid, OptionCard } from '../BookingFlow_styles';
-import { Splash } from '@/components/common/Splash';
+import { StepContainer, StyledFlowSplash } from '../BookingFlow_styles';
 import styled from 'styled-components';
+import { AvailableDatesResponse } from '@/services/xog/booking/types';
 
-const OptionsContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
+const CardGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px;
 `;
 
-const OptionsStep: React.FC<BookingStepProps> = ({ 
+const CardTitle = styled.h3`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333333;
+  text-align: center;
+  white-space: pre-line;
+`;
+
+const CardDescription = styled.p`
+  font-size: 14px;
+  text-align: center;
+  white-space: pre-line;
+  color: ${props => props.theme.colors.text.secondary};
+`;
+
+const Icon = styled.div`
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const StyledOptionCard = styled.div<{ $type: 'date' | 'hospital'; $selected?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background: ${props => props.$selected ? props.theme.colors.primary + '10' : '#FFFFFF'};
+  border: ${props => props.$selected ? `1px solid ${props.theme.colors.primary}40` : 'none'};
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.2s ease,
+              background 0.2s ease;
+  box-shadow: ${props => props.$selected 
+    ? '0 4px 12px rgba(0, 0, 0, 0.1)'
+    : '0 2px 4px rgba(0, 0, 0, 0.05)'};
+  will-change: transform;
+
+  &:hover {
+    background: #D9EBFFB0;
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  &:active {
+    transform: translateY(-4px);
+  }
+`;
+
+const OptionsStep: React.FC<BookingStepProps> = ({
   onNext,
+  onBack,
   bookingData,
   onUpdateBookingData,
+  bookingState,
+  availableDates,
   onAvailableDatesUpdate
 }) => {
   const [showSplash, setShowSplash] = useState(false);
 
-  return (
-    <OptionsContainer>
-      {showSplash && (
-        <Splash
-          variant="flowItem"
-          isVisible={showSplash}
-          animation="pulse"
-        />
-      )}
-      <OptionsGrid>
-        <OptionCard
-          $type="date"
-          onClick={async () => {
-            if (!bookingData?.bookingState) return;
-            
-            console.log('🔍 [이벤트] 날짜 우선으로 예약하기 버튼 클릭');
-            try {
-              setShowSplash(true);
-              const availableCounts = await bookingData.bookingState.handleDateFirstBooking();
-              console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
-              onAvailableDatesUpdate?.(availableCounts);
-              setTimeout(() => {
-                setShowSplash(false);
-                onNext('date');
-              }, 3000);
-            } catch (error) {
-              console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
-              setShowSplash(false);
-            }
-          }}
-        >
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" 
-              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <h3>날짜 우선으로<br />예약하기</h3>
-          <p>희망하는 날짜를{'\n'}우선 선택하여{'\n'}예약합니다</p>
-        </OptionCard>
+  const handleDateFirstClick = async () => {
+    try {
+      if (!bookingState) return;
+      
+      onUpdateBookingData?.({ selectedOption: 'date' });
+      setShowSplash(true);
+      const counts = await bookingState.handleDateFirstBooking();
+      
+      const response: AvailableDatesResponse = {
+        status: 'success' as const,
+        code: 'SUCCESS',
+        message: 'OK',
+        data: {
+          dates: Object.entries(counts).map(([date, count]) => ({
+            date,
+            availableHospitals: count,
+            hospitals: []
+          })),
+          total: Object.keys(counts).length
+        }
+      };
 
-        <OptionCard
-          $type="hospital"
-          onClick={() => onNext('hospital')}
+      onAvailableDatesUpdate?.(response);
+      setTimeout(() => {
+        setShowSplash(false);
+        onNext('date');
+      }, 3000);
+    } catch (error) {
+      console.error('날짜 우선 예약 처리 중 오류:', error);
+      setShowSplash(false);
+    }
+  };
+
+  const handleHospitalFirstClick = () => {
+    onUpdateBookingData?.({ selectedOption: 'hospital' });
+    setShowSplash(true);
+    setTimeout(() => {
+      setShowSplash(false);
+      onNext('hospital');
+    }, 3000);
+  };
+
+  return (
+    <StepContainer>
+      <CardGrid>
+        <StyledOptionCard 
+          $type="date" 
+          $selected={bookingData?.selectedOption === 'date'}
+          onClick={handleDateFirstClick}
         >
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M3 9.11V14.88C3 17 3 17 5 18.35L10.5 21.53C11.33 22.01 12.68 22.01 13.5 21.53L19 18.35C21 17 21 17 21 14.89V9.11C21 7 21 7 19 5.65L13.5 2.47C12.68 1.99 11.33 1.99 10.5 2.47L5 5.65C3 7 3 7 3 9.11Z" 
-              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" 
-              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          <h3>병원 우선으로<br />예약하기</h3>
-          <p>희망하는 병원을{'\n'}우선 선택하여{'\n'}예약합니다</p>
-        </OptionCard>
-      </OptionsGrid>
-    </OptionsContainer>
+          <Icon>📅</Icon>
+          <CardTitle>날짜 우선으로{'\n'}예약하기</CardTitle>
+          <CardDescription>희망하는 날짜를{'\n'}우선 선택하여{'\n'}예약합니다</CardDescription>
+        </StyledOptionCard>
+        <StyledOptionCard 
+          $type="hospital" 
+          $selected={bookingData?.selectedOption === 'hospital'}
+          onClick={handleHospitalFirstClick}
+        >
+          <Icon>🏥</Icon>
+          <CardTitle>병원 우선으로{'\n'}예약하기</CardTitle>
+          <CardDescription>희망하는 병원을{'\n'}우선 선택하여{'\n'}예약합니다</CardDescription>
+        </StyledOptionCard>
+      </CardGrid>
+      <StyledFlowSplash 
+        variant="flowItem"
+        isVisible={showSplash}
+        animation="pulse"
+        variantProps={{
+          $verticalAlign: 'bottom',
+          $offset: 80
+        }}
+      />
+    </StepContainer>
   );
 };
 

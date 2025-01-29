@@ -4,11 +4,13 @@ import Card from '../../Card/Card_index';
 import { CardGrid } from '../../Card/Card_styles';
 import styled from 'styled-components';
 import { bookingAPI } from '@/core/api/booking';
+import { StepContainer, StyledFlowSplash } from '../BookingFlow_styles';
 
 const CheckupSection = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
 `;
 
 const SectionTitle = styled.div`
@@ -22,6 +24,7 @@ const BasicCheckupStep: React.FC<BookingStepProps> = ({ onNext, onBack, bookingD
   const [basicCheckups, setBasicCheckups] = useState<CheckupItem[]>([]);
   const [optionalCheckups, setOptionalCheckups] = useState<CheckupItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
 
   useEffect(() => {
     const fetchCheckups = async () => {
@@ -60,7 +63,11 @@ const BasicCheckupStep: React.FC<BookingStepProps> = ({ onNext, onBack, bookingD
   const handleNext = () => {
     const selectedCheckups = [...basicCheckups, ...optionalCheckups.filter(item => item.isSelected)];
     onUpdateBookingData?.({ basicCheckups: selectedCheckups });
-    onNext('additional-checkup');
+    setShowSplash(true);
+    setTimeout(() => {
+      setShowSplash(false);
+      onNext('additional-checkup');
+    }, 3000);
   };
 
   if (isLoading) {
@@ -105,6 +112,16 @@ const BasicCheckupStep: React.FC<BookingStepProps> = ({ onNext, onBack, bookingD
       <button onClick={handleNext}>
         다음 단계
       </button>
+
+      <StyledFlowSplash 
+        variant="flowItem"
+        isVisible={showSplash}
+        animation="pulse"
+        variantProps={{
+          $verticalAlign: 'bottom',
+          $offset: 80
+        }}
+      />
     </CheckupSection>
   );
 };

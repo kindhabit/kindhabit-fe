@@ -34,11 +34,12 @@ import { theme } from '@/core/theme';
 import Modal from '../Modal/Modal_index';
 import { formatPhoneNumber } from '@/utils/string';
 import BookingFlow from '../BookingFlow/BookingFlow_index';
-import CheckupDateSelector from '../CheckupDateSelector/CheckupDateSelector_index';
 import { BookingAPI } from '@/services/xog/booking/api/client';
 import { AvailableDatesResponse } from '@/services/xog/booking/types';
 import { ChatBookingState } from '@/services/xog/booking/presentation/chat/booking_main';
-import { Splash } from '@/components/common/Splash';
+import { Splash } from '../Splash';
+import { useTheme } from 'styled-components';
+import { MdCheck } from 'react-icons/md';
 
 interface CardListProps {
   cards: CardProps[];
@@ -173,17 +174,10 @@ const Card: React.FC<CardProps & {
   tag,
   bookingState
 }) => {
+  const theme = useTheme();
   const debugMode = useRecoilValue(debugModeState);
-
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
-  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
-  const [selectedDates, setSelectedDates] = useState<Date[]>([]);
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [isBookingFlowOpen, setIsBookingFlowOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [availableCounts, setAvailableCounts] = useState<{ [key: string]: number }>({});
-  const [showSplash, setShowSplash] = useState(false);
 
   const handleButtonClick = () => {
     if (type === 'namecard-A' && bookingState) {
@@ -192,9 +186,6 @@ const Card: React.FC<CardProps & {
         bookingState.handleCheckupSelection(tags[0]);
       }
       setIsBookingFlowOpen(true);
-    } else if (type === 'checkup-date') {
-      console.log('🔍 [이벤트] 예약 모달 열림');
-      setIsBookingFlowOpen(true);
     }
   };
 
@@ -202,51 +193,6 @@ const Card: React.FC<CardProps & {
     if (type === 'namecard-B') {
       setIsPhoneModalOpen(true);
     }
-  };
-
-  const handleDateSelect = (dates: Date[]) => {
-    setSelectedDates(dates);
-  };
-
-  const handlePhoneSubmit = () => {
-    if (phoneNumber) {
-      console.log('예약 초대 발송:', { phoneNumber, title });
-      setIsPhoneModalOpen(false);
-      setPhoneNumber('');
-    }
-  };
-
-  const handleDateFirstBooking = async () => {
-    console.log('🔍 [이벤트] 날짜 우선으로 예약하기 버튼 클릭');
-    console.log('🔍 [디버그] bookingState:', bookingState);
-    if (!bookingState) {
-      console.error('🔍 [에러] bookingState가 없습니다');
-      return;
-    }
-    try {
-      console.log('🔍 [디버그] 스플래시 표시 시작');
-      setIsLoading(true);
-      setShowSplash(true);
-      console.log('🔍 [디버그] showSplash 상태:', true);
-      const availableCounts = await bookingState.handleDateFirstBooking();
-      console.log('🔍 [이벤트] 날짜 조회 완료:', availableCounts);
-      setIsReservationModalOpen(false);
-      setTimeout(() => {
-        console.log('🔍 [디버그] 스플래시 종료');
-        setShowSplash(false);
-        setIsBookingFlowOpen(true);
-      }, 1000);
-    } catch (error) {
-      console.error('🔍 [에러] 날짜 정보 처리 중 오류:', error);
-      setShowSplash(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleHospitalFirstReservation = () => {
-    console.log('🔍 [이벤트] 병원 우선 예약 버튼 클릭');
-    setIsReservationModalOpen(false);
   };
 
   const renderProfileSection = () => (
@@ -284,9 +230,7 @@ const Card: React.FC<CardProps & {
         </div>
       </TitleSection>
       {(type === 'namecard-A') && (
-        <Tag $type="badge">
-          본인
-        </Tag>
+        <Tag $type="namecard-A">본인</Tag>
       )}
       {(type === 'namecard-B' && tag) && (
         <Tag $type="namecard-B" $gender={icon?.gender}>{tag}</Tag>
@@ -296,15 +240,6 @@ const Card: React.FC<CardProps & {
 
   return (
     <>
-      {showSplash && (
-        <Splash
-          variant="standalone"
-          isVisible={showSplash}
-          message="날짜 정보를 불러오는 중입니다..."
-          animation="fade"
-        />
-      )}
-      
       <CardContainer
         onClick={handleCardClick}
         $type={type}
@@ -315,12 +250,17 @@ const Card: React.FC<CardProps & {
       >
         {renderProfileSection()}
         {showDescription && description && (
-          <Description>{description}</Description>
+          <div className="description-section">
+            <div style={{ color: theme.colors.primary, fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <MdCheck size={16} />
+              {description}
+            </div>
+          </div>
         )}
         {showTags && tags && tags.length > 0 && (
           <TagContainer>
             {tags.map((tag, index) => (
-              <Tag key={index}>{tag}</Tag>
+              <Tag key={index} $type="default">{tag}</Tag>
             ))}
           </TagContainer>
         )}
@@ -332,34 +272,10 @@ const Card: React.FC<CardProps & {
       </CardContainer>
 
       <Modal
-        isOpen={isCalendarOpen}
-        onClose={() => setIsCalendarOpen(false)}
-        type="slideup"
-        title="검진일"
-        animation="slideIn"
-      >
-        <CheckupDateSelector
-          selectedDates={selectedDates}
-          onDateSelect={handleDateSelect}
-          minDate={new Date()}
-          maxDate={new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)}
-          buttonText="선택 완료"
-          availableCounts={availableCounts}
-          onButtonClick={() => {
-            console.log('선택된 날짜:', selectedDates);
-            setIsCalendarOpen(false);
-          }}
-        />
-      </Modal>
-
-      <Modal
         isOpen={isPhoneModalOpen}
-        onClose={() => {
-          setIsPhoneModalOpen(false);
-          setPhoneNumber('');
-        }}
+        onClose={() => setIsPhoneModalOpen(false)}
         type="slideup"
-        title="예약 초대 발송"
+        title="예약 초대"
         animation="slideIn"
       >
         <PhoneInputContainer>
@@ -371,65 +287,24 @@ const Card: React.FC<CardProps & {
           <PhoneInput
             type="tel"
             placeholder="전화번호 입력 (예: 010-1234-5678)"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
             maxLength={13}
           />
           <SendButton
-            onClick={handlePhoneSubmit}
-            disabled={phoneNumber.length < 12}
+            onClick={() => setIsPhoneModalOpen(false)}
+            disabled={false}
           >
             예약 초대 발송하기
           </SendButton>
         </PhoneInputContainer>
       </Modal>
 
-      <Modal
-        isOpen={isReservationModalOpen}
-        onClose={() => setIsReservationModalOpen(false)}
-        type="slideup"
-        title="건강검진 예약하기"
-        animation="slideIn"
-      >
-        <OptionsGrid>
-          <OptionCard
-            $type="date"
-            onClick={handleDateFirstBooking}
-          >
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M8 2V5M16 2V5M3.5 9.09H20.5M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <h3>날짜 우선으로<br />예약하기</h3>
-            <p>희망하는 날짜를{'\n'}우선 선택하여{'\n'}예약합니다</p>
-          </OptionCard>
-
-          <OptionCard
-            $type="hospital"
-            onClick={() => {
-              console.log('🔍 [이벤트] 병원 우선 예약 버튼 클릭');
-              setIsReservationModalOpen(false);
-              setIsBookingFlowOpen(true);
-            }}
-          >
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M3 9.11V14.88C3 17 3 17 5 18.35L10.5 21.53C11.33 22.01 12.68 22.01 13.5 21.53L19 18.35C21 17 21 17 21 14.89V9.11C21 7 21 7 19 5.65L13.5 2.47C12.68 1.99 11.33 1.99 10.5 2.47L5 5.65C3 7 3 7 3 9.11Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <h3>병원 우선으로<br />예약하기</h3>
-            <p>희망하는 병원을{'\n'}우선 선택하여{'\n'}예약합니다</p>
-          </OptionCard>
-        </OptionsGrid>
-      </Modal>
-
-      <BookingFlow
-        isOpen={isBookingFlowOpen}
-        onClose={() => setIsBookingFlowOpen(false)}
-        onComplete={() => {
-          console.log('예약 완료');
-          setIsBookingFlowOpen(false);
-        }}
-        bookingState={bookingState}
-      />
+      {isBookingFlowOpen && (
+        <BookingFlow
+          isOpen={isBookingFlowOpen}
+          onClose={() => setIsBookingFlowOpen(false)}
+          bookingState={bookingState}
+        />
+      )}
     </>
   );
 };

@@ -63,14 +63,14 @@ export const StandaloneSplash = styled.div<BaseSplashProps & { type?: 'fixed' | 
 export const FlowItemSplash = styled.div<BaseSplashProps>`
   ${BaseSplash}
   position: absolute;
-  top: -40%;
+  top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.3);
   z-index: 100;
 `;
 

@@ -1,124 +1,187 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookingStepProps } from '../BookingFlow_types';
+import { StepContainer, StyledFlowSplash } from '../BookingFlow_styles';
+import { CardContainer, selectedCardStyle } from '@/components/common/Card/Card_styles';
 import { Hospital } from '@/services/xog/booking/types';
-import { CardContainer, TitleSection, Title, TagContainer, Tag, Button } from '../../Card/Card_styles';
 import styled from 'styled-components';
-import { BookingAPI } from '@/services/xog/booking/api/client';
-import { Splash } from '@/components/common/Splash';
-import { EmptyState } from '@/components/base';
-import { StepContainer } from '../BookingFlow_styles';
 
-const HospitalGrid = styled.div`
+const hospitalImages = import.meta.glob('@/assets/hospital/*.(jpg|png|jpeg)', { eager: true }) as Record<string, { default: string }>;
+
+const FixedContainer = styled(StepContainer)`
   display: flex;
   flex-direction: column;
+  height: 100%;
+  padding: 20px;
+`;
+
+const HospitalList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  padding-bottom: 20px;
+`;
+
+const HospitalCard = styled(CardContainer)<{ $selected?: boolean }>`
+  display: flex;
+  flex-direction: row;
   gap: 16px;
   padding: 16px;
+  background: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+
+  ${props => props.$selected && selectedCardStyle}
+
+  &:hover {
+    background: ${props => props.theme.colors.primary}10;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  .thumbnail {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F5F5F5;
+      color: ${props => props.theme.colors.text.secondary};
+      font-size: 14px;
+
+      &.hidden {
+        display: none;
+      }
+    }
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: ${props => props.theme.colors.text.primary};
+      margin: 0;
+    }
+
+    .subtitle {
+      color: ${props => props.theme.colors.text.secondary};
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+
+      .tag {
+        padding: 4px 8px;
+        background: #F5F5F5;
+        border-radius: 6px;
+        font-size: 12px;
+        color: ${props => props.theme.colors.text.secondary};
+      }
+    }
+  }
 `;
 
-const EmptyThumbnail = styled.div`
-  width: 120px;
-  height: 120px;
-  background-color: ${props => props.theme.colors.background.secondary};
-  border-radius: 12px;
-`;
-
-const HospitalListStep: React.FC<BookingStepProps> = ({ 
-  onNext, 
-  onBack, 
-  onUpdateBookingData,
+const HospitalListStep: React.FC<BookingStepProps> = ({
+  onNext,
+  onBack,
   bookingData,
-  availableDates 
+  onUpdateBookingData,
+  bookingState
 }) => {
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
 
   useEffect(() => {
-    if (!bookingData?.selectedDate || !availableDates?.data?.dates) return;
-    
-    // 선택된 날짜의 병원 목록 찾기
-    const selectedDateStr = bookingData.selectedDate.toISOString().split('T')[0];
-    const selectedDateData = availableDates.data.dates.find(d => d.date === selectedDateStr);
-    
-    if (selectedDateData?.hospitals) {
-      setHospitals(selectedDateData.hospitals);
+    if (!bookingData?.selectedDate || !bookingState) return;
+
+    const dateStr = bookingData.selectedDate.toISOString().split('T')[0];
+    const availableDates = bookingState.getAvailableDates();
+    const dateData = availableDates.find(date => date === dateStr);
+    if (dateData) {
+      setHospitals(bookingState.getHospitalsForDate(dateStr) || []);
     }
-  }, [bookingData?.selectedDate, availableDates]);
+  }, [bookingData?.selectedDate, bookingState]);
 
-  if (isLoading) {
-    return (
-      <StepContainer>
-        <Splash
-          variant="standalone"
-          message="병원 목록을 불러오는 중입니다..."
-          isVisible={true}
-          animation="pulse"
-        />
-      </StepContainer>
-    );
-  }
-
-  if (hospitals.length === 0) {
-    return (
-      <StepContainer>
-        <EmptyState>
-          선택하신 날짜에 예약 가능한 병원이 없습니다.
-          <br />
-          다른 날짜를 선택해주세요.
-        </EmptyState>
-      </StepContainer>
-    );
-  }
+  const handleHospitalSelect = (hospital: Hospital) => {
+    setShowSplash(true);
+    onUpdateBookingData?.({
+      selectedHospital: hospital
+    });
+    setTimeout(() => {
+      setShowSplash(false);
+      onNext('basic-checkup');
+    }, 3000);
+  };
 
   return (
-    <StepContainer>
-      <HospitalGrid>
-        {hospitals.map(hospital => (
-          <CardContainer
+    <FixedContainer>
+      <HospitalList>
+        {hospitals.map((hospital) => (
+          <HospitalCard 
             key={hospital.id}
-            $type="hospital"
-            onClick={() => {
-              onNext('time-select');
-            }}
+            $selected={bookingData?.selectedHospital?.id === hospital.id}
+            onClick={() => handleHospitalSelect(hospital)}
           >
-            <div className="hospital-thumbnail">
+            <div className="thumbnail">
               <img 
-                src={`/images/hospitals/${hospital.id}.jpg`} 
-                onError={(e) => {
-                  e.currentTarget.src = '/images/hospital-default.jpg';  // 기본 이미지 경로
-                  e.currentTarget.onerror = null;  // 무한 루프 방지
-                }}
+                src={hospitalImages[`/src/assets/hospital/${hospital.id}.jpg`]?.default || 
+                     hospitalImages[`/src/assets/hospital/${hospital.id}.png`]?.default || 
+                     hospitalImages[`/src/assets/hospital/${hospital.id}.jpeg`]?.default}
                 alt={hospital.name}
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
               />
+              <div className="fallback hidden">{hospital.id}</div>
             </div>
-            <div className="hospital-content">
-              <TitleSection>
-                <Title>{hospital.name}</Title>
-                <span className="subtitle">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M8 8.5C9.10457 8.5 10 7.60457 10 6.5C10 5.39543 9.10457 4.5 8 4.5C6.89543 4.5 6 5.39543 6 6.5C6 7.60457 6.89543 8.5 8 8.5Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M13 6.5C13 11 8 14.5 8 14.5C8 14.5 3 11 3 6.5C3 3.18629 5.23858 1 8 1C10.7614 1 13 3.18629 13 6.5Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  {hospital.address}
-                </span>
-              </TitleSection>
-              
-              <TagContainer>
-                {hospital.availableCheckups.map((checkup, idx) => (
-                  <Tag 
-                    key={`${hospital.id}-tag-${idx}`}
-                    $type="default"
-                  >
-                    {checkup}
-                  </Tag>
+            <div className="content">
+              <h3 className="title">{hospital.name}</h3>
+              <p className="subtitle">{hospital.address}</p>
+              <div className="tags">
+                {hospital.availableCheckups.map((tag: string, index: number) => (
+                  <span key={index} className="tag">{tag}</span>
                 ))}
-              </TagContainer>
-              
-              <Button>선택하기</Button>
+              </div>
             </div>
-          </CardContainer>
+          </HospitalCard>
         ))}
-      </HospitalGrid>
-    </StepContainer>
+      </HospitalList>
+      <StyledFlowSplash 
+        variant="flowItem"
+        isVisible={showSplash}
+        animation="pulse"
+        variantProps={{
+          $verticalAlign: 'bottom',
+          $offset: 80
+        }}
+      />
+    </FixedContainer>
   );
 };
 

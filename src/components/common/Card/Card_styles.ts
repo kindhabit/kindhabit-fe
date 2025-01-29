@@ -21,6 +21,13 @@ const fadeIn = keyframes`
   }
 `;
 
+export const selectedCardStyle = css`
+  background: ${props => props.theme.colors.primary}10;
+  border: 1px solid ${props => props.theme.colors.primary}40;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+`;
+
 export const CardContainer = styled.div<StyledCardProps>`
   display: grid;
   grid-template-areas: 
@@ -35,6 +42,8 @@ export const CardContainer = styled.div<StyledCardProps>`
   border-radius: ${props => props.$borderRadius || '12px'};
   cursor: pointer;
   transition: all 0.2s ease-out;
+
+  ${props => props.$selected && selectedCardStyle}
 
   ${({ $type }) => ($type === 'namecard-A' || $type === 'namecard-B') && css`
     display: flex;
@@ -101,27 +110,26 @@ export const CardContainer = styled.div<StyledCardProps>`
     .description-section {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      background: ${props => props.theme.colors.primary}08;
+      justify-content: center;
+      padding: 5px;
+      background: ${props => props.theme.colors.primary}10;
       border-radius: 10px;
       margin: 2px 0;
-
-      svg {
-        color: ${props => props.theme.colors.primary};
-      }
-
-      span {
-        color: ${props => props.theme.colors.primary};
-        font-weight: 500;
-        font-size: 14px;
+      height: 36px;
+      
+      ${Description} {
+        margin: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
 
     ${TagContainer} {
       display: flex;
-      gap: 8px;
-      margin: 8px 0;
+      gap: 6px;
+      margin: 4px 0;
       justify-content: flex-start;
       flex-wrap: wrap;
       width: 100%;
@@ -185,7 +193,6 @@ export const CardContainer = styled.div<StyledCardProps>`
     background: ${props => props.theme.colors.white};
     border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    position: relative;
 
     .hospital-thumbnail {
       width: 120px;
@@ -230,24 +237,6 @@ export const CardContainer = styled.div<StyledCardProps>`
         }
       }
 
-      .availability-info {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 4px;
-        
-        .available-count {
-          display: inline-flex;
-          align-items: center;
-          padding: 2px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 500;
-          background: ${props => props.theme.colors.blue}15;
-          color: ${props => props.theme.colors.blue};
-        }
-      }
-
       ${TagContainer} {
         display: flex;
         gap: 6px;
@@ -274,68 +263,109 @@ export const CardContainer = styled.div<StyledCardProps>`
     }
   `}
 
-  ${({ $type }) => $type === 'checkup-date' && css`
+  ${({ $type }) => $type === 'hospital-A' && css`
     display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 24px;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+    height: 124px;
     background: ${props => props.theme.colors.white};
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    cursor: pointer;
+    transition: all 0.2s ease-out;
 
-    ${TitleSection} {
-      text-align: center;
+    .thumbnail {
+      width: 100px;
+      height: 100px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background: #F5F5F5;
       
-      ${Title} {
-        font-size: 20px;
-        font-weight: 600;
-        color: ${props => props.theme.colors.text.primary};
-        margin-bottom: 8px;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
 
-      .subtitle {
-        color: ${props => props.theme.colors.text.secondary};
-        font-size: 14px;
-        line-height: 1.5;
+      .fallback {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        font-weight: 600;
+        color: #CCCCCC;
       }
     }
 
-    ${Button} {
-      width: 100%;
-      height: 48px;
-      border-radius: 10px;
-      background: ${props => props.theme.colors.primary};
-      border: none;
-      color: ${props => props.theme.colors.white};
-      font-size: 16px;
-      font-weight: 500;
-      margin-top: auto;
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-      &:hover {
-        background: ${props => props.theme.colors.primaryDark};
+    .title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #000000;
+      margin: 0;
+    }
+
+    .subtitle {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #838383;
+      font-size: 12px;
+      margin: 0;
+    }
+
+    .tags {
+      display: flex;
+      gap: 8px;
+      margin: 0;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+      
+      &::-webkit-scrollbar {
+        display: none;
       }
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #EEF3FF;
+      color: #327FEB;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
   `}
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: ${props => props.theme.colors.primary}10;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   }
-
-  ${({ $selected, theme }) => $selected && css`
-    border-color: ${theme.colors.chat.slider.card.selectedBorder};
-    background-color: ${theme.colors.primary};
-    color: ${theme.colors.white};
-
-    ${Description} {
-      color: ${theme.colors.white};
-    }
-
-    ${Button} {
-      border-color: ${theme.colors.white};
-      color: ${theme.colors.white};
-    }
-  `}
 `;
 
 export const IconWrapper = styled.div<{ $size?: string }>`
@@ -384,11 +414,15 @@ export const CheckIcon = styled.div`
 `;
 
 export const Description = styled.div<{ $size?: string }>`
-  font-size: ${props => props.$size || '12px'};
-  color: ${({ theme }) => theme.colors.text.secondary};
+  font-size: ${props => props.$size || '13px'};
+  color: ${props => props.theme.colors.blue};
   text-align: center;
-  margin-bottom: 16px;
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-weight: 500;
 `;
 
 export const TagContainer = styled.div`
@@ -450,9 +484,10 @@ export const Tag = styled.span<{
         `;
       default:
         return css`
-          border-radius: 14px;
-          background: ${props.theme.colors.blue}15;
-          color: ${props.theme.colors.blue};
+          border-radius: 20px;
+          background: ${props.theme.colors.primary}10;
+          color: ${props.theme.colors.primary};
+          border: 1px solid ${props.theme.colors.primary}70;
         `;
     }
   }}
@@ -470,7 +505,8 @@ export const NameCardABadge = styled.span`
   color: ${props => props.theme.colors.primary};
 `;
 
-export const Button = styled.div`  width: 100%;
+export const Button = styled.div`
+  width: 100%;
   height: 48px;
   display: flex;
   align-items: center;
@@ -674,7 +710,7 @@ export const OptionCard = styled.div<{ $type: 'date' | 'hospital' }>`
   justify-content: center;
   gap: 12px;
   padding: 24px;
-  background: ${props => props.theme.colors.background};
+  background: #E8F3FF80;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease-out;
@@ -689,7 +725,7 @@ export const OptionCard = styled.div<{ $type: 'date' | 'hospital' }>`
     margin: 0;
     font-size: 16px;
     font-weight: 600;
-    color: ${props => props.theme.colors.text.primary};
+    color: #333333;
     text-align: center;
   }
 
@@ -702,7 +738,7 @@ export const OptionCard = styled.div<{ $type: 'date' | 'hospital' }>`
   }
 
   &:hover {
-    background: ${props => props.theme.colors.primary}08;
+    background: #D9EBFFB0;
     transform: translateY(-2px);
   }
 `;

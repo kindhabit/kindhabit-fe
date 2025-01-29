@@ -27,8 +27,6 @@ const Calendar: React.FC<CalendarProps> = ({
   disabledDates = [],
   maxSelections = 2,
   availableCounts = {},
-  mode = 'date-first',
-  selectedHospitalId,
   buttonText,
   onButtonClick,
   renderDateContent,
@@ -81,23 +79,14 @@ const Calendar: React.FC<CalendarProps> = ({
   }, [selectedDates]);
 
   const getAvailableCount = useCallback((dateString: string) => {
-    if (mode === 'date-first') {
-      return availableCounts[dateString] || 0;
-    } else {
-      return selectedHospitalId && availableCounts[dateString] ? 1 : 0;
-    }
-  }, [mode, availableCounts, selectedHospitalId]);
+    return availableCounts[dateString] || 0;
+  }, [availableCounts]);
     
   const handleDateClick = (date: Date) => {
     if (isDisabled(date)) return;
-    
-    // 새로운 날짜를 선택하면 이전 선택을 초기화하고 새 날짜만 선택
     onDateSelect([date]);
-    
-    if (mode === 'date-first') {
-      setCurrentMonth(date.getMonth());
-      setCurrentYear(date.getFullYear());
-    }
+    setCurrentMonth(date.getMonth());
+    setCurrentYear(date.getFullYear());
   };
 
   const handlePrevMonth = () => {
@@ -108,12 +97,12 @@ const Calendar: React.FC<CalendarProps> = ({
 
     if (targetDate.getMonth() >= firstAvailableDate.getMonth() &&
         targetDate.getFullYear() >= firstAvailableDate.getFullYear()) {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(prev => prev - 1);
-    } else {
-      setCurrentMonth(prev => prev - 1);
-    }
+      if (currentMonth === 0) {
+        setCurrentMonth(11);
+        setCurrentYear(prev => prev - 1);
+      } else {
+        setCurrentMonth(prev => prev - 1);
+      }
     }
   };
 
@@ -125,12 +114,12 @@ const Calendar: React.FC<CalendarProps> = ({
 
     if (targetDate.getMonth() <= lastAvailableDate.getMonth() &&
         targetDate.getFullYear() <= lastAvailableDate.getFullYear()) {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(prev => prev + 1);
-    } else {
-      setCurrentMonth(prev => prev + 1);
-    }
+      if (currentMonth === 11) {
+        setCurrentMonth(0);
+        setCurrentYear(prev => prev + 1);
+      } else {
+        setCurrentMonth(prev => prev + 1);
+      }
     }
   };
 
@@ -182,7 +171,6 @@ const Calendar: React.FC<CalendarProps> = ({
           $isInRange={isInRange(date)}
           $isSaturday={dayOfWeek === 6}
           $isSunday={dayOfWeek === 0}
-          $mode={mode}
           onClick={() => handleDateClick(date)}
         >
           <span className="date-number">{i}</span>
@@ -191,7 +179,7 @@ const Calendar: React.FC<CalendarProps> = ({
           ) : (
             isAvailable(date) && (
               <span className="available-count">
-                {mode === 'date-first' ? availableCount : '1'}
+                {availableCount}
               </span>
             )
           )}
@@ -261,12 +249,12 @@ const Calendar: React.FC<CalendarProps> = ({
           <LegendItem data-type="today">오늘</LegendItem>
           <LegendItem data-type="selected">희망일</LegendItem>
         </Legend>
-          {buttonText && onButtonClick && (
-            <Button 
-              onClick={onButtonClick} 
-              disabled={selectedDates.length === 0}
-            >
-              {buttonText}
+        {buttonText && onButtonClick && (
+          <Button 
+            onClick={onButtonClick} 
+            disabled={selectedDates.length === 0}
+          >
+            {buttonText}
           </Button>
         )}
       </BottomSection>

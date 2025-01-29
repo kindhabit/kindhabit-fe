@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
@@ -18,7 +18,7 @@ const SERVICE_TITLES = {
 // 타이틀 설정 함수
 const setDocumentTitle = () => {
   const mode = import.meta.env.VITE_SERVICE_MODE;
-  console.log('Current mode:', mode); // 디버깅용
+  console.log('Current mode:', mode);
   document.title = SERVICE_TITLES[mode as keyof typeof SERVICE_TITLES] || SERVICE_TITLES.default;
 };
 
@@ -29,9 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RecoilRoot>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
+        <App />
       </BrowserRouter>
     </RecoilRoot>
   </React.StrictMode>

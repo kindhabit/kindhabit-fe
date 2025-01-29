@@ -7,7 +7,12 @@ import {
   BookingState,
   ChatState,
   UserInfo,
-  Hospital
+  Hospital,
+  CachedHospitalData,
+  DateCache,
+  DateCacheEntry,
+  CountCache,
+  convertToHospitalCache
 } from '../../types';
 import { ChatMessage, TextMessage, CardMessage } from '@/types/chat';
 import { 
@@ -46,7 +51,8 @@ export class ChatBookingState {
   private waitingMessageId?: string;
   private error: Error | null = null;
   private listeners: ((state: ReturnType<ChatBookingState['getState']>) => void)[] = [];
-  private _availableDatesCache: { [date: string]: number } = {}; // 날짜별 가용 병원 수 캐시
+  private _availableDatesCache: DateCache = {};
+  private _availableCountsCache: CountCache = {};  // UI 표시용 별도 캐시
 
   constructor() {
     this.api = new BookingAPI();
@@ -84,7 +90,7 @@ export class ChatBookingState {
       timestamp: Date.now(),
       content: {
         text: {
-          value: type === 'loading' ? message : `${message} 👋`,
+          value: type === 'loading' ? message : `${message} `,
           profile: {
             show: type !== 'loading',
             text: '엠텍이',
@@ -265,10 +271,15 @@ export class ChatBookingState {
       }
 
       console.log('Caching available dates...');
-      // 날짜별 가용 병원 수만 캐시에 저장
+      // 날짜별 가용 병원 정보 캐시 저장
       response.data.dates.forEach(d => {
         console.log('Caching date:', d);
-        this._availableDatesCache[d.date] = d.availableHospitals;
+        const hospitals = d.hospitals.map(convertToHospitalCache);
+        this._availableDatesCache[d.date] = {
+          count: hospitals.length,
+          hospitals
+        };
+        this._availableCountsCache[d.date] = hospitals.length;
       });
       
       console.log('Cache after update:', this._availableDatesCache);
@@ -280,25 +291,72 @@ export class ChatBookingState {
     }
   }
 
-  // 날짜 가용성 체크 - 캐시된 정보로만 판단
-  isDateAvailable(date: string): boolean {
-    return (this._availableDatesCache[date] || 0) > 0;
+  // 병원 카드 생성 함수
+  private createHospitalCard(hospital: CachedHospitalData): CardProps {
+    console.log('🔍 [createHospitalCard] 병원 데이터:', hospital);
+    const card: CardProps = {
+      id: hospital.id,
+      type: 'hospital' as const,
+      title: hospital.name,
+      subtitle: hospital.address,
+      tags: hospital.availableCheckups,
+      buttonText: '선택하기',
+    };
+    console.log('🔍 [createHospitalCard] 생성된 카드:', card);
+    return card;
+  }
+
+  // 특정 날짜의 병원 목록 조회
+  getHospitalsForDate(date: string): CachedHospitalData[] {
+    console.log('🔍 [getHospitalsForDate] 날짜:', date);
+    console.log('🔍 [getHospitalsForDate] 캐시 데이터:', this._availableDatesCache[date]);
+    const hospitals = this._availableDatesCache[date]?.hospitals || [];
+    console.log('🔍 [getHospitalsForDate] 조회된 병원 목록:', hospitals);
+    return hospitals;
+  }
+
+  // 특정 날짜의 병원 카드 목록 생성
+  getHospitalCardsForDate(date: string): CardProps[] {
+    console.log('🔍 [getHospitalCardsForDate] 시작 - 날짜:', date);
+    const hospitals = this.getHospitalsForDate(date);
+    console.log('🔍 [getHospitalCardsForDate] 병원 목록:', hospitals);
+    const cards = hospitals.map(hospital => this.createHospitalCard(hospital));
+    console.log('🔍 [getHospitalCardsForDate] 생성된 카드 목록:', cards);
+    return cards;
+  }
+
+  // 날짜 가용성 체크
+  private isDateAvailable(date: string): boolean {
+    console.log('🔍 [isDateAvailable] 날짜:', date);
+    const dateData = this._availableDatesCache[date];
+    console.log('🔍 [isDateAvailable] 날짜 데이터:', dateData);
+    const isAvailable = dateData ? dateData.hospitals.length > 0 : false;
+    console.log('🔍 [isDateAvailable] 가용 여부:', isAvailable);
+    return isAvailable;
   }
 
   // 가용 날짜 목록 조회 - 캐시된 정보에서 가용한 날짜만 반환
   getAvailableDates(): string[] {
-    return Object.entries(this._availableDatesCache)
-      .filter(([_, count]) => count > 0)
+    console.log('🔍 [getAvailableDates] 캐시 데이터:', this._availableDatesCache);
+    const dates = Object.entries(this._availableDatesCache)
+      .filter(([_, data]) => data.count > 0)
       .map(([date]) => date);
+    console.log('🔍 [getAvailableDates] 가용 날짜 목록:', dates);
+    return dates;
   }
 
   // 날짜 선택 완료 처리
   async handleDateComplete(selectedDate: string) {
-    console.log('Completing date selection:', selectedDate);
+    console.log('🔍 [handleDateComplete] 시작');
+    console.log('🔍 [handleDateComplete] 선택된 날짜:', selectedDate);
+    console.log('🔍 [handleDateComplete] 현재 캐시 상태:', {
+      availableDatesCache: this._availableDatesCache,
+      availableCountsCache: this._availableCountsCache
+    });
     
     if (!this.isDateAvailable(selectedDate)) {
       const error = new Error('선택할 수 없는 날짜입니다.');
-      console.error(error);
+      console.error('🔍 [handleDateComplete] 날짜 선택 불가:', error);
       this.error = error;
       this.notifyStateChange();
       return;
@@ -309,24 +367,15 @@ export class ChatBookingState {
         ...this.bookingInfo,
         date: selectedDate
       };
+      console.log('🔍 [handleDateComplete] 업데이트된 예약 정보:', this.bookingInfo);
       
-      // const date = new Date(selectedDate);
-      // const dateStr = date.toLocaleDateString('ko-KR', {
-      //   year: 'numeric',
-      //   month: 'long',
-      //   day: 'numeric'
-      // });
-      
-      // this.messages = [
-      //   ...this.messages, 
-      //   this.createMessage(`${dateStr}을 선택하셨습니다. (예약 가능 병원: ${this._availableDatesCache[selectedDate]}개)`)
-      // ];
       this.bookingState = BookingState.CONFIRM;
+      console.log('🔍 [handleDateComplete] 상태 변경:', this.bookingState);
       this.notifyStateChange();
       
-      console.log('Date selection completed');
+      console.log('🔍 [handleDateComplete] 완료');
     } catch (error) {
-      console.error('Failed to complete date selection:', error);
+      console.error('🔍 [handleDateComplete] 에러:', error);
       this.error = error instanceof Error ? error : new Error('날짜 선택 처리 중 오류가 발생했습니다.');
       this.messages = [...this.messages, this.createMessage(this.error.message, 'system')];
       this.notifyStateChange();
@@ -357,13 +406,22 @@ export class ChatBookingState {
 
   // 건강검진 바로 예약하기 -> 모달 팝업 (날짜 우선 병원 우선 선택창으로 이동)
   async handleCheckupSelection(checkupType: string) {
-    console.log('🔍 [ChatBookingState] handleCheckupSelection 호출됨:', checkupType);
+    console.log('🔍 [handleCheckupSelection] 시작');
+    console.log('🔍 [handleCheckupSelection] 선택된 검진 타입:', checkupType);
+    console.log('🔍 [handleCheckupSelection] 현재 캐시 상태:', {
+      availableDatesCache: this._availableDatesCache,
+      availableCountsCache: this._availableCountsCache
+    });
+
     this.bookingInfo = { 
       ...this.bookingInfo,
       checkupType
     };
+    console.log('🔍 [handleCheckupSelection] 업데이트된 예약 정보:', this.bookingInfo);
+
     // 모달 표시를 위한 상태 업데이트만 수행
     this.bookingState = BookingState.SELECT_DATE;
+    console.log('🔍 [handleCheckupSelection] 상태 변경:', this.bookingState);
     this.notifyStateChange();
   }
 
@@ -465,7 +523,11 @@ export class ChatBookingState {
 
   // 상태 조회
   getState() {
-    console.log('상태 조회:', {
+    console.log('🔍 [getState] 현재 상태:', {
+      bookingState: this.bookingState,
+      bookingInfo: this.bookingInfo,
+      availableDatesCache: this._availableDatesCache,
+      availableCountsCache: this._availableCountsCache,
       waitingMessageId: this.waitingMessageId,
       messages: this.messages.map(m => ({
         id: m.id,
@@ -486,9 +548,8 @@ export class ChatBookingState {
   }
 
   // 검진 종류별 가용 날짜 및 병원 정보 조회
-  async fetchAvailableDatesAndHospitals(checkupType: string): Promise<{ [key: string]: number }> {
+  async fetchAvailableDatesAndHospitals(checkupType: string): Promise<DateCache> {
     try {
-      // 병원 목록과 가용 날짜 동시 조회
       const [hospitalResponse, datesResponse] = await Promise.all([
         this.api.getHospitalList(checkupType),
         this.api.getAvailableDates(MOCK_HOSPITALS[0].id)
@@ -498,12 +559,15 @@ export class ChatBookingState {
         throw new Error('병원 목록을 불러올 수 없습니다.');
       }
 
-      // 날짜별 가용 병원 수 캐시 저장
       if (datesResponse.data.dates) {
         this._availableDatesCache = datesResponse.data.dates.reduce((acc, d) => {
-          acc[d.date] = d.availableHospitals;
+          const hospitals = d.hospitals.map(convertToHospitalCache);
+          acc[d.date] = {
+            count: hospitals.length,
+            hospitals
+          };
           return acc;
-        }, {} as Record<string, number>);
+        }, {} as DateCache);
       }
 
       return this._availableDatesCache;
@@ -513,50 +577,36 @@ export class ChatBookingState {
     }
   }
 
-  // 가용 날짜별 병원 수 조회
-  getAvailableCountsByDate(): { [key: string]: number } {
-    return { ...this._availableDatesCache };
+  // 날짜별 가용 병원 수 조회 (UI 표시용)
+  getAvailableCountsByDate(): Record<string, number> {
+    return Object.entries(this._availableDatesCache).reduce((acc, [date, data]) => {
+      acc[date] = data.count;
+      return acc;
+    }, {} as Record<string, number>);
   }
 
   // 날짜 우선 예약 처리
-  async handleDateFirstBooking(): Promise<{ [key: string]: number }> {
-    console.log('🔍 [ChatBookingState] handleDateFirstBooking 호출됨');
+  async handleDateFirstBooking(): Promise<Record<string, number>> {
     try {
-      // 로딩 메시지 추가
-      const loadingMessage = this.createMessage('예약 가능한 병원과 날짜를 확인하고 있습니다.', 'loading');
-      this.messages = [...this.messages, loadingMessage];
-      this.notifyStateChange();
+      const response = await this.api.getAvailableDates(MOCK_HOSPITALS[0].id);
+      
+      if (response.data.dates) {
+        // 캐시 초기화
+        this._availableDatesCache = {};
 
-      console.log('🔍 [ChatBookingState] API 호출 시작');
-      // 병원 목록과 가용 날짜 동시 조회
-      const [hospitalResponse, datesResponse] = await Promise.all([
-        this.api.getHospitalList(this.bookingInfo.checkupType!),
-        this.api.getAvailableDates(MOCK_HOSPITALS[0].id)
-      ]);
-      console.log('🔍 [ChatBookingState] API 응답:', { hospitalResponse, datesResponse });
-
-      // 로딩 메시지 제거
-      this.messages = this.messages.filter(m => m.id !== loadingMessage.id);
-      this.notifyStateChange();
-
-      if (!hospitalResponse || hospitalResponse.length === 0) {
-        throw new Error('병원 목록을 불러올 수 없습니다.');
+        // 캐시 업데이트
+        response.data.dates.forEach(d => {
+          const hospitals = d.hospitals.map(convertToHospitalCache);
+          this._availableDatesCache[d.date] = {
+            count: hospitals.length,
+            hospitals
+          };
+        });
       }
 
-      // 날짜별 가용 병원 수 캐시 저장
-      if (datesResponse.data.dates) {
-        this._availableDatesCache = datesResponse.data.dates.reduce((acc, d) => {
-          acc[d.date] = d.availableHospitals;
-          return acc;
-        }, {} as Record<string, number>);
-      }
-      console.log('🔍 [ChatBookingState] 캐시된 날짜 정보:', this._availableDatesCache);
-
-      return this._availableDatesCache;
+      return this.getAvailableCountsByDate();
     } catch (error) {
-      console.error('🔍 [ChatBookingState] API 호출 실패:', error);
-      this.messages = [...this.messages, this.createMessage('죄송합니다. 정보를 불러오는데 실패했습니다.', 'system')];
-      this.notifyStateChange();
+      console.error('날짜 우선 예약 처리 중 오류:', error);
       throw error;
     }
   }

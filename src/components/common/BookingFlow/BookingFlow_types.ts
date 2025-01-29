@@ -1,11 +1,13 @@
 import { ReactNode } from 'react';
 import { AvailableDatesResponse } from '@/services/xog/booking/types';
+import { ChatBookingState } from '@/services/xog/booking/presentation/chat/booking_main';
+import { Hospital } from '@/services/xog/booking/types';
 
 export type BookingStep = 
   | 'options'
   | 'date'
-  | 'hospital'
   | 'hospital-list'
+  | 'hospital'
   | 'basic-checkup'
   | 'additional-checkup'
   | 'date-selection'
@@ -27,19 +29,19 @@ export interface BookingNavigationProps {
 }
 
 export interface BookingStepProps {
-  onNext: (nextStep: BookingStep) => void;
-  onBack: (prevStep: BookingStep) => void;
+  onNext: (step: BookingStep) => void;
+  onBack: () => void;
   onUpdateBookingData?: (data: Partial<BookingData>) => void;
   onAvailableDatesUpdate?: (data: AvailableDatesResponse) => void;
-  bookingData?: BookingData;
+  bookingData?: Partial<BookingData>;
+  bookingState?: ChatBookingState;
   availableDates?: AvailableDatesResponse | null;
 }
 
 export interface BookingFlowProps {
   isOpen: boolean;
   onClose: () => void;
-  initialStep?: BookingStep;
-  onComplete?: () => void;
+  bookingState?: ChatBookingState;
 }
 
 export interface StyledStepIndicatorProps {
@@ -47,25 +49,19 @@ export interface StyledStepIndicatorProps {
   $currentStep: number;
 }
 
-export interface Hospital {
-  id: string;
-  name: string;
-  address: string;
-  tags: string[];
-  image?: string;
-}
-
 export interface CheckupItem {
   id: string;
   name: string;
-  price?: number;
+  description?: string;
   isRequired?: boolean;
   isSelected?: boolean;
 }
 
 export interface BookingData {
   selectedDate?: Date;
-  selectedHospital?: string;
-  selectedTime?: string;
-  [key: string]: any;
+  selectedHospital?: Hospital;
+  basicCheckups?: CheckupItem[];
+  additionalCheckups?: CheckupItem[];
+  consultationType?: 'direct' | 'invite';
+  selectedOption?: 'date' | 'hospital';
 } 
