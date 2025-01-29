@@ -211,54 +211,54 @@ const Calendar: React.FC<CalendarProps> = ({
   };
 
   return (
-    <CalendarContainer>
-      <CalendarHeader>
-        <NavigationButton onClick={handlePrevMonth}>
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </NavigationButton>
-        <MonthYearDisplay>
+      <CalendarContainer>
+        <CalendarHeader>
+          <NavigationButton onClick={handlePrevMonth}>
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </NavigationButton>
+          <MonthYearDisplay>
           {MONTHS[currentMonth]}, <span className="year">{currentYear}</span>
-        </MonthYearDisplay>
-        <NavigationButton onClick={handleNextMonth}>
-          <svg viewBox="0 0 24 24" fill="none">
+          </MonthYearDisplay>
+          <NavigationButton onClick={handleNextMonth}>
+            <svg viewBox="0 0 24 24" fill="none">
             <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </NavigationButton>
-      </CalendarHeader>
+            </svg>
+          </NavigationButton>
+        </CalendarHeader>
 
-      <WeekdayHeader>
+        <WeekdayHeader>
         {WEEKDAYS.map((day, index) => (
-          <WeekdayCell 
-            key={day} 
-            $isSaturday={index === 6}
-            $isSunday={index === 0}
-          >
-            {day}
-          </WeekdayCell>
-        ))}
-      </WeekdayHeader>
+            <WeekdayCell 
+              key={day} 
+              $isSaturday={index === 6}
+              $isSunday={index === 0}
+            >
+              {day}
+            </WeekdayCell>
+          ))}
+        </WeekdayHeader>
 
-      <DatesGrid>
-        {renderDays()}
-      </DatesGrid>
+        <DatesGrid>
+          {renderDays()}
+        </DatesGrid>
 
-      <BottomSection>
-        <Legend>
-          <LegendItem data-type="today">오늘</LegendItem>
-          <LegendItem data-type="selected">희망일</LegendItem>
-        </Legend>
+        <BottomSection>
+          <Legend>
+            <LegendItem data-type="today">오늘</LegendItem>
+            <LegendItem data-type="selected">희망일</LegendItem>
+          </Legend>
         {buttonText && onButtonClick && (
           <Button 
             onClick={onButtonClick} 
             disabled={selectedDates.length === 0}
           >
-            {buttonText}
-          </Button>
-        )}
-      </BottomSection>
-    </CalendarContainer>
+                {buttonText}
+              </Button>
+          )}
+        </BottomSection>
+      </CalendarContainer>
   );
 };
 

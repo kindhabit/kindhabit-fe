@@ -36,13 +36,13 @@ export const Button = styled.button`
 
 export const CalendarContainer = styled.div`
   width: 100%;
+  height: 100%;
   background: ${props => props.theme.colors.white};
   padding: 0;
   color: #333333;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
+  flex: 1;
 `;
 
 export const CalendarHeader = styled.div`
@@ -52,6 +52,7 @@ export const CalendarHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 2px 0;
+  margin-top: 16px;
 `;
 
 export const MonthYearDisplay = styled.div`
@@ -112,8 +113,10 @@ export const WeekdayCell = styled.div<{ $isSaturday?: boolean; $isSunday?: boole
 export const DatesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  padding: 0;
+  gap: 1vh;
+  padding: 2vh 0;
+  flex: 1;
+  align-items: start;
 `;
 
 export const DateCell = styled.button<DateCellProps>`
@@ -205,8 +208,7 @@ export const DateCell = styled.button<DateCellProps>`
   }
 `;
 
-export const Legend = styled.div`
-  display: flex;
+export const Legend = styled.div`  display: flex;
   gap: 12px;
   padding: 12px 20px;
   flex: 1;
@@ -240,5 +242,6 @@ export const BottomSection = styled.div`
   display: flex;
   align-items: center;
   border-top: 1px solid ${props => props.theme.colors.border};
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: 12px;
 `;
